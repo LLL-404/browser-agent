@@ -40,7 +40,7 @@ python -m mcp_server.server
 | sites/ | 站点插件层（当前仅 BOSS 直聘） |
 | scripts/ | 辅助脚本 |
 | tests/ | 测试套件 |
-| freelance_tools/ | 兼职接单工具包（独立子项目） |
+
 
 ## 配置
 
