@@ -13,6 +13,7 @@ __pycache__/
 
 # 浏览器配置文件
 browser_profile/
+.browser-data/
 
 # 项目运行时数据
 data/jobs.db
@@ -35,8 +36,8 @@ tests/debug/output/
 # pytest 缓存
 .pytest_cache/
 
-# 项目文档（规划类，非代码）
-docs/
+# 交付临时文件
+a123_delivery.md
 
 # 截图文件
 *.png
