@@ -3,9 +3,12 @@
 import sys
 import unittest
 import os
+import tempfile
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import core.storage
 from core.storage import init_db, insert_job, get_jobs, get_job_by_id
 from core.storage import update_job_status, batch_update_jobs, get_stats, JobQuery
 
@@ -14,7 +17,17 @@ class TestIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls._tmp_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False)
+        cls._tmp_db.close()
+        core.storage.DB_PATH = Path(cls._tmp_db.name)
         init_db()
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            os.unlink(cls._tmp_db.name)
+        except OSError:
+            pass
 
     def test_full_flow_job_insert_query(self):
         job = {
