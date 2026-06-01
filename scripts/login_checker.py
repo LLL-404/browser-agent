@@ -1,5 +1,5 @@
 """
-登录状态验证工具 — 检查并确认BOSS直聘登录信息是否有效
+登录状态验证工具 — 检查 DeepSeek 和 BOSS直聘 登录信息是否有效
 """
 
 import os
@@ -8,9 +8,73 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime
 
+# 项目根目录
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def check_login_status():
+
+def _get_storage_state():
+    """读取共享 storage_state 文件。"""
+    state_path = PROJECT_ROOT / "sessions" / "storage_state.json"
+    if not state_path.exists():
+        return None
+    try:
+        return json.loads(state_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def check_login_status(target: str = "boss"):
     profile_dir = Path("./browser_profile/persistent/Default")
+    if target == "deepseek":
+        return _check_deepseek_login()
+    return _check_boss_login(profile_dir)
+
+
+def _check_deepseek_login():
+    results = {
+        "target": "deepseek",
+        "storage_state_found": False,
+        "deepseek_cookies": [],
+        "has_valid_session": False,
+        "login_status": "unknown",
+        "last_saved": None,
+    }
+    state = _get_storage_state()
+    if not state:
+        results["login_status"] = "not_logged_in"
+        results["message"] = "未找到共享登录态文件"
+        return results
+
+    results["storage_state_found"] = True
+    results["last_saved"] = state.get("saved_at") or state.get("_saved_at")
+
+    cookies = state.get("cookies", [])
+    deepseek_cookies = [
+        c for c in cookies
+        if "deepseek.com" in c.get("domain", "")
+        or "chat.deepseek.com" in c.get("domain", "")
+    ]
+    results["deepseek_cookies"] = [
+        {"name": c.get("name"), "domain": c.get("domain"),
+         "expires": c.get("expires"), "has_value": bool(c.get("value"))}
+        for c in deepseek_cookies
+    ]
+
+    from core.cookie_manager import filter_expired_cookies
+    valid = filter_expired_cookies(deepseek_cookies)
+    results["has_valid_session"] = len(valid) > 0
+
+    if len(valid) > 3:
+        results["login_status"] = "confirmed_logged_in"
+    elif len(valid) > 0:
+        results["login_status"] = "likely_logged_in"
+    else:
+        results["login_status"] = "not_logged_in"
+
+    return results
+
+
+def _check_boss_login(profile_dir):
     
     if not profile_dir.exists():
         return {"status": "no_profile", "message": "未找到浏览器配置文件"}
@@ -104,11 +168,12 @@ def check_login_status():
     return results
 
 
-def print_login_report():
-    print("🔍 检查BOSS直聘登录状态...")
+def print_login_report(target: str = "boss"):
+    target_name = "DeepSeek" if target == "deepseek" else "BOSS直聘"
+    print(f"🔍 检查{target_name}登录状态...")
     print("=" * 60)
     
-    status = check_login_status()
+    status = check_login_status(target)
     
     print(f"\n📁 配置文件状态:")
     print(f"   ✅ 存在: {status['profile_exists']}")
@@ -151,8 +216,21 @@ def print_login_report():
 if __name__ == "__main__":
     import sys
     
-    if len(sys.argv) > 1 and sys.argv[1] == "--json":
-        status = check_login_status()
+    target = "boss"
+    json_output = False
+    
+    for arg in sys.argv[1:]:
+        if arg == "--json":
+            json_output = True
+        elif arg in ("--target", "-t"):
+            idx = sys.argv.index(arg)
+            if idx + 1 < len(sys.argv):
+                target = sys.argv[idx + 1]
+        elif arg in ("deepseek", "boss"):
+            target = arg
+    
+    status = check_login_status(target)
+    if json_output:
         print(json.dumps(status, indent=2, ensure_ascii=False))
     else:
-        print_login_report()
+        print_login_report(target)

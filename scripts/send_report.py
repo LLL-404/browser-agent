@@ -24,6 +24,9 @@ try:
 except ImportError:
     DEEPSEEK_SESSION_URL = "https://chat.deepseek.com/a/chat/s/6ba0590c-3d11-4a43-8d02-4ecb95bcd10b"
 
+# 项目根目录（基于本脚本位置推导）
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 
 def _load_chat_url() -> str:
     """从 llm_config.py 或环境变量加载监管会话 URL。"""
@@ -40,7 +43,7 @@ def _signal_handler(sig, frame):
     """Ctrl+C 时尝试保存状态并退出。"""
     if _context_ref:
         try:
-            _context_ref.storage_state(path=str(BROWSER_DATA_DIR / "storage_state.json"))
+            _context_ref.storage_state(path=str(_storage_state_path()))
         except Exception:
             pass
         try:
@@ -49,10 +52,19 @@ def _signal_handler(sig, frame):
             pass
     sys.exit(1)
 
+
 # ── 常量 ──────────────────────────────────────────────────
 
 DEFAULT_URL = _load_chat_url()
-BROWSER_DATA_DIR = Path(__file__).parent / ".browser-data"
+
+# 与主项目共享的浏览器数据目录（browser_profile/ 已在 .gitignore 中）
+SHARED_BROWSER_DIR = PROJECT_ROOT / "browser_profile" / "playwright_send"
+
+
+def _storage_state_path() -> Path:
+    """返回跨工具共享的 storage_state 文件路径。"""
+    return PROJECT_ROOT / "sessions" / "storage_state.json"
+
 
 # 输入框选择器（按优先级尝试）
 INPUT_SELECTORS = [
@@ -69,11 +81,8 @@ SEND_SELECTORS = [
     "button[aria-label='Send']",
 ]
 
-# 登录页特征（严格匹配，避免误判已登录页面）
-STRICT_LOGIN_INDICATORS = [
-    "input[type='password']",
-    "form[action*='login']",
-]
+# 登录页特征
+LOGIN_URL_INDICATORS = ["login", "signin", "auth", "signup"]
 
 # 已登录页面的正面特征
 LOGGED_IN_INDICATORS = [
@@ -85,7 +94,6 @@ LOGGED_IN_INDICATORS = [
 
 def _is_login_page(page) -> bool:
     """检测当前页面是否为登录页（正面特征优先）。"""
-    # 先检查正面特征：存在聊天输入框说明已登录
     for indicator in LOGGED_IN_INDICATORS:
         try:
             loc = page.locator(indicator)
@@ -94,20 +102,25 @@ def _is_login_page(page) -> bool:
         except Exception:
             continue
 
-    # 再检查严格的登录页特征
-    for indicator in STRICT_LOGIN_INDICATORS:
+    current_url = page.url.lower()
+    for keyword in LOGIN_URL_INDICATORS:
+        if keyword in current_url:
+            return True
+
+    return False
+
+
+def _check_session_valid(page) -> bool:
+    """检测当前会话是否有效（已登录且可操作）。"""
+    if _is_login_page(page):
+        return False
+    for indicator in LOGGED_IN_INDICATORS:
         try:
             loc = page.locator(indicator)
             if loc.count() > 0:
                 return True
         except Exception:
             continue
-
-    # 最后检查URL
-    current_url = page.url.lower()
-    if "login" in current_url or "signin" in current_url or "auth" in current_url:
-        return True
-
     return False
 
 
@@ -173,17 +186,24 @@ def _try_selectors(page, selectors: list[str], timeout: int = 2000):
     return None
 
 
+def _save_state(context):
+    """保存浏览器状态到 shared storage_state 文件。"""
+    path = _storage_state_path()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        context.storage_state(path=str(path))
+        print(f"登录状态已保存 → {path}")
+    except Exception as e:
+        print(f"保存登录状态失败: {e}")
+
+
 def _wait_for_login(page, context):
     """提示用户手动登录，等待回车后继续。登录完成后立即保存 cookie。"""
-    print("\n请在浏览器中手动登录 DeepSeek，登录完成后按回车继续...")
+    print("\n⚠️ DeepSeek 登录态已失效，请在浏览器中手动登录。")
+    print("登录完成后按回车继续...")
     input()
     page.wait_for_load_state("networkidle", timeout=30000)
-    # 登录后立即保存状态，防止脚本异常退出时丢失 cookie
-    try:
-        context.storage_state(path=str(BROWSER_DATA_DIR / "storage_state.json"))
-        print("登录状态已保存。")
-    except Exception:
-        pass
+    _save_state(context)
 
 
 def _confirm_send() -> bool:
@@ -202,14 +222,31 @@ def send_report(report_path: str, url: str = DEFAULT_URL, auto: bool = True) -> 
     report_text = report_file.read_text(encoding="utf-8")
     info = parse_report(report_path)
 
-    BROWSER_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    SHARED_BROWSER_DIR.mkdir(parents=True, exist_ok=True)
+
+    # 尝试从共享 storage_state 恢复登录态
+    storage_state = None
+    state_path = _storage_state_path()
+    if state_path.exists():
+        try:
+            import json
+            storage_state = json.loads(state_path.read_text(encoding="utf-8"))
+            cookie_count = len(storage_state.get("cookies", []))
+            if cookie_count:
+                print(f"已加载共享登录态 ({cookie_count} 条 Cookie)")
+        except Exception:
+            storage_state = None
 
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=str(BROWSER_DATA_DIR),
+        launch_kwargs = dict(
+            user_data_dir=str(SHARED_BROWSER_DIR),
             headless=False,
             viewport={"width": 1280, "height": 800},
         )
+        if storage_state:
+            launch_kwargs["storage_state"] = storage_state
+
+        context = p.chromium.launch_persistent_context(**launch_kwargs)
         global _context_ref
         _context_ref = context
         signal.signal(signal.SIGINT, _signal_handler)
@@ -220,9 +257,15 @@ def send_report(report_path: str, url: str = DEFAULT_URL, auto: bool = True) -> 
             page.goto(url, wait_until="domcontentloaded", timeout=30000)
             page.wait_for_load_state("networkidle", timeout=30000)
 
-            # 检测登录状态
-            if _is_login_page(page):
+            # 检测登录态
+            if not _check_session_valid(page):
+                print("\n⚠️ DeepSeek 登录态已失效，请手动登录后重试")
                 _wait_for_login(page, context)
+                # 登录后再次确认
+                if not _check_session_valid(page):
+                    print("错误：登录失败，无法继续。")
+                    print("交付报告已保存至本地，请手动发送。")
+                    return 1
 
             # 定位输入框
             input_loc = _try_selectors(page, INPUT_SELECTORS, timeout=5000)
@@ -230,6 +273,7 @@ def send_report(report_path: str, url: str = DEFAULT_URL, auto: bool = True) -> 
                 print(f"\n错误：无法定位DeepSeek输入框。可能网页结构已变更。")
                 print(f"交付报告已保存至：{report_path}")
                 print("请手动复制内容发送至监管会话。")
+                _save_state(context)
                 return 2
 
             # 填入报告内容（加上发送标识前缀）
@@ -254,11 +298,11 @@ def send_report(report_path: str, url: str = DEFAULT_URL, auto: bool = True) -> 
             if send_loc:
                 send_loc.click()
             else:
-                # 回退：用 Enter 键发送
                 input_loc.press("Enter")
 
             # 等待消息出现在聊天记录中
             time.sleep(3)
+            _save_state(context)
             print("报告已发送。")
             return 0
 
@@ -268,6 +312,7 @@ def send_report(report_path: str, url: str = DEFAULT_URL, auto: bool = True) -> 
             print("请手动复制内容发送至监管会话。")
             return 1
         finally:
+            _save_state(context)
             context.close()
 
 
