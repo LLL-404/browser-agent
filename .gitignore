@@ -1,0 +1,43 @@
+# Python 虚拟环境
+.venv/
+
+# 字节码缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE 配置
+.vscode/
+.idea/
+.trae/
+
+# 浏览器配置文件
+browser_profile/
+
+# 项目运行时数据
+data/jobs.db
+data/screenshots/
+data/logs/
+data/snapshots/
+data/export/
+
+# 会话持久化
+sessions/
+
+# 调试输出
+tests/output/
+tests/debug/output/
+
+# 临时文件
+*.log
+*.tmp
+
+# pytest 缓存
+.pytest_cache/
+
+# 项目文档（规划类，非代码）
+docs/
+
+# 截图文件
+*.png
+*.html

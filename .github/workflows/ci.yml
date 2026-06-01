@@ -1,0 +1,113 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ====== 代码质量检查 ======
+  lint:
+    name: 🔍 Code Quality
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy pytest
+
+      - name: Ruff Linting (代码风格)
+        run: ruff check . --output-format=github
+
+      - name: Ruff Formatting (格式化)
+        run: ruff format --check .
+
+      - name: MyPy Type Checking (类型检查)
+        run: mypy core/ mcp_server.py --ignore-missing-imports --no-strict-optional
+        continue-on-error: true
+
+  # ====== 单元测试 ======
+  test:
+    name: 🧪 Unit Tests
+    runs-on: windows-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --cov=core --cov=mcp_server.py --cov-report=xml --cov-report=html
+
+      - name: Upload coverage report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+
+  # ====== 安全扫描 ======
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install safety
+        run: pip install safety bandit
+
+      - name: Check dependencies for vulnerabilities
+        run: safety check -r requirements.txt || true
+
+      - name: Bandit security linter
+        run: bandit -r core/ -ll || true
+
+  # ====== 构建验证 ======
+  build:
+    name: 📦 Build Verification
+    runs-on: windows-latest
+    needs: [test, security]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify imports
+        run: python -c "from core.scraper import search_jobs; from mcp_server import server; print('✅ All imports successful')"
+
+      - name: Health check
+        run: python -c "import asyncio; from core.scraper import health_check; result = asyncio.run(health_check()); print(result)"
+        continue-on-error: true

@@ -1,0 +1,4 @@
+playwright>=1.45.0
+pyyaml>=6.0
+mcp>=1.0.0
+camoufox>=135.0.1    # 可选：C++引擎级反检测增强，缺失时自动回退到 Playwright
