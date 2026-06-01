@@ -277,7 +277,7 @@ def send_report(report_path: str, url: str = DEFAULT_URL, auto: bool = True) -> 
 def main():
     args = sys.argv[1:]
     if not args:
-        print("用法: python send_report.py <报告文件路径> [--url <会话URL>] [--confirm]")
+        print("用法: python scripts/send_report.py <报告文件路径> [--url <会话URL>] [--confirm]")
         sys.exit(1)
 
     report_path = args[0]
