@@ -12,6 +12,23 @@ proxy:
   password: ""
   bypass: "localhost,127.0.0.1"
 
+# 运行时延迟配置（替代代码中的硬编码 asyncio.sleep）
+runtime:
+  delays:
+    page_ready: 1           # 页面加载后等待
+    navigation: 0.5         # 导航后等待
+    page_stable: 3          # 等待页面稳定
+    session_restore: 1      # 会话恢复后等待
+    pagination: 2           # 翻页等待
+    login_timeout: 10       # 登录超时检测间隔
+    login_poll: 2           # 登录轮询间隔
+    login_wait: 2           # 登录后等待
+    scroll: 0.5             # 滚动后等待
+    hover: 0.5              # 悬停后等待
+    detail: 1               # 详情页加载等待
+    element_interaction: 0.3 # 元素交互后等待
+    default: 1              # 默认回退值
+
 # 页面分析
 page_analysis:
   enabled: true

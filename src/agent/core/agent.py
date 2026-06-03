@@ -14,6 +14,7 @@ import aiofiles
 from agent.core.browser import BrowserController
 from shared.error_handler import format_error_for_mcp
 from shared.exceptions import BrowserAutomationError
+from shared.delay import delay
 from shared.logging_config import get_logger
 
 logger = get_logger("agent")
@@ -43,7 +44,7 @@ class BrowserAgent:
             if not started:
                 return {"ok": False, "error": "浏览器启动失败"}
         nav = await self._ctrl.navigate_to(url)
-        await asyncio.sleep(1)
+        await delay("page_ready")
         page = {
             "ok": nav,
             "url": await self._ctrl.get_current_url(),
@@ -61,7 +62,7 @@ class BrowserAgent:
         try:
             ok = await self._ctrl.navigate_to(url)
             self._refs = []
-            await asyncio.sleep(0.5)
+            await delay("navigation")
             return {
                 "ok": ok,
                 "url": await self._ctrl.get_current_url(),
@@ -317,7 +318,7 @@ class BrowserAgent:
             url = data.get("url", "")
             if url:
                 await self._ctrl.navigate_to(url)
-                await asyncio.sleep(1)
+                await delay("session_restore")
             return {"ok": True, "url": url,
                     "cookies_restored": len(data.get("cookies", [])),
                     "step": self._step_count}
@@ -444,7 +445,7 @@ class BrowserAgent:
                 clicked = await self._ctrl.click_selector(next_btn)
                 if not clicked:
                     break
-                await asyncio.sleep(2)
+                await delay("pagination")
             else:
                 break
         return {"pages": actual_pages, "total_rows": len(all_rows),

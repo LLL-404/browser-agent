@@ -6,6 +6,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 from agent.core.agent import BrowserAgent
+from shared.delay import delay
 from modes.zhipin.city_codes import get_city_code
 from modes.zhipin.storage import init_db, insert_job, get_stats
 from shared.logging_config import setup_logging, get_logger
@@ -24,7 +25,7 @@ async def main():
         logger.info("浏览器已打开: %s", result.get("url"))
 
         await agent.navigate("https://www.zhipin.com/")
-        await asyncio.sleep(3)
+        await delay("page_stable")
 
         page_data = await agent.text(2000)
         page_text = page_data.get("text", "")
@@ -36,7 +37,7 @@ async def main():
         if need_login:
             logger.warning("需要登录！请在浏览器中手动扫码登录...")
             for i in range(120):
-                await asyncio.sleep(1)
+                await delay("login_poll")
                 curr = await agent.text(500)
                 ct = curr.get("text", "")
                 if "登录" not in ct and "请登录" not in ct:
@@ -58,7 +59,7 @@ async def main():
                 search_url = f"https://www.zhipin.com/web/geek/job?city={code}&query={kw}"
                 logger.info("搜索: %s %s", city, kw)
                 await agent.navigate(search_url)
-                await asyncio.sleep(3)
+                await delay("page_stable")
 
                 snap = await agent.text(1500)
                 text = snap.get("text", "")

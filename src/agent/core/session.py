@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import aiofiles
+from shared.delay import delay
 from shared.logging_config import get_logger
 
 logger = get_logger("session")
@@ -229,7 +230,7 @@ async def auto_detect_login(
     custom_dom_disappear = custom_rules.get("dom_disappear", "")
 
     # ── Phase 1: Wait for page to settle, capture initial state ──
-    await asyncio.sleep(3)
+    await delay("page_stable")
     initial_url = await proxy.get_url()
     initial_cookies = await proxy.get_cookies()
     initial_cookie_names = {c["name"] for c in initial_cookies}

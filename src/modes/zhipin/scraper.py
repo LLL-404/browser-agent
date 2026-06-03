@@ -9,6 +9,7 @@ from typing import Any, Dict
 
 from playwright.async_api import async_playwright, Page
 
+from shared.delay import delay
 from modes.zhipin.city_codes import get_city_code, get_rent_reference
 from shared.config import get_config
 from shared.logging_config import get_logger
@@ -70,7 +71,7 @@ async def _wait_captcha(page: Page):
     pause_minutes = cfg.get("runtime", {}).get("captcha_pause_minutes", 5)
     logger.warning("检测到验证码，请在浏览器中手动完成验证。等待 %d 分钟...", pause_minutes)
     for _ in range(pause_minutes * 60, 0, -10):
-        await asyncio.sleep(10)
+        await delay("login_timeout")
         if not await _detect_captcha(page):
             logger.info("验证码已解除")
             return
@@ -100,7 +101,7 @@ async def wait_for_login(page: Page, timeout: int = 300) -> bool:
     try:
         async with asyncio.timeout(timeout):
             while True:
-                await asyncio.sleep(2)
+                await delay("login_poll")
                 current = page.url.lower()
                 if "/user/" not in current and "passport" not in current:
                     logger.info("登录成功")
@@ -132,7 +133,7 @@ async def _goto_search(page: Page, city: str, keyword: str, max_retries: int = 2
         except _PLAYWRIGHT_ERRORS:
             pass
         if attempt < max_retries:
-            await asyncio.sleep(1)
+            await delay("navigation")
 
 
 async def _extract_salary(card, page: Page | None) -> str:
@@ -165,7 +166,7 @@ async def _extract_salary(card, page: Page | None) -> str:
 async def _parse_list_card(card, city: str, page: Page | None = None) -> dict | None:
     try:
         await card.hover()
-        await asyncio.sleep(0.5)
+        await delay("hover")
 
         title_el = await card.query_selector(JOB_TITLE)
         company_el = await card.query_selector(COMPANY_NAME)
@@ -237,7 +238,7 @@ async def _scrape_detail(page: Page, job_url: str) -> dict[str, str]:
         await retry_async(
             page.goto, job_url,
             wait_until="domcontentloaded", timeout=15000)
-        await asyncio.sleep(1)
+        await delay("detail")
 
         for sel in DETAIL_DESC:
             try:
@@ -281,7 +282,7 @@ async def _create_browser_context(p, cfg: dict, headless: bool):
 
 async def _ensure_login(page: Page) -> bool:
     await page.goto("https://www.zhipin.com/", wait_until="domcontentloaded")
-    await asyncio.sleep(2)
+    await delay("login_wait")
 
     url_lower = page.url.lower()
     body_text = ""
@@ -436,7 +437,7 @@ async def search_jobs(cities: list[str] | None = None,
                         logger.info("[并发] %s 搜索中...", city)
                         await _goto_search(page, city,
                                           get_initial_keyword() if keywords is None else keywords[0])
-                        await asyncio.sleep(0.5)
+                        await delay("navigation")
                         stats = await _search_one_city(page, city, keywords, max_detail, detail_sem)
                         logger.info(
                             "[并发] %s | 搜到 %d 条 | 入库 %d 条 | 耗时 %.0f秒",
