@@ -1,0 +1,1 @@
+{"mcpServers": {"boss-job-hunter": {"command": "python", "args": ["-u", "agent/mcp/server.py"], "env": {"PYTHONIOENCODING": "utf-8"}, "cwd": "d:\\G\\github\\游览器agent"}}}

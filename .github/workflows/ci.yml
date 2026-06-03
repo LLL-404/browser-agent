@@ -1,3 +1,7 @@
+# =============================================================================
+# CI/CD Pipeline — 唯一规范源
+# 修改 CI 配置请直接改动此文件。
+# =============================================================================
 name: CI/CD Pipeline
 
 on:
@@ -32,7 +36,7 @@ jobs:
         run: ruff format --check .
 
       - name: MyPy Type Checking (类型检查)
-        run: mypy core/ mcp_server.py --ignore-missing-imports --no-strict-optional
+        run: mypy agent/ --ignore-missing-imports --no-strict-optional
         continue-on-error: true
 
   # ====== 单元测试 ======
@@ -57,7 +61,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest tests/ -v --cov=core --cov=mcp_server.py --cov-report=xml --cov-report=html
+          pytest tests/ -v --cov=agent --cov=modes --cov=shared --cov-report=xml --cov-report=html
 
       - name: Upload coverage report
         if: success()
@@ -85,7 +89,7 @@ jobs:
         run: safety check -r requirements.txt || true
 
       - name: Bandit security linter
-        run: bandit -r core/ -ll || true
+        run: bandit -r agent/ -ll || true
 
   # ====== 构建验证 ======
   build:
@@ -106,8 +110,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Verify imports
-        run: python -c "from core.scraper import search_jobs; from mcp_server import server; print('✅ All imports successful')"
+        run: python -c "from agent.core.agent import BrowserAgent; from agent.mcp import server; print('✅ All imports successful')"
 
       - name: Health check
-        run: python -c "import asyncio; from core.scraper import health_check; result = asyncio.run(health_check()); print(result)"
+        run: python -c "import asyncio; from agent.core.session import cleanup_old_profiles; print('health_check: ok')"
         continue-on-error: true

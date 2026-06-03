@@ -1,0 +1,18 @@
+{
+  "task_id": "wow-cg-search-20260601",
+  "task_type": "websearch_collection",
+  "timestamp_start": "2026-06-01T10:20:45+00:00",
+  "capabilities": [
+    "web_search",
+    "web_fetch"
+  ],
+  "operations": {
+    "web_search": 2
+  },
+  "anti_scrape_triggered": false,
+  "captcha_triggered": false,
+  "duration_seconds": 0.0,
+  "success": true,
+  "notes": "搜索无水印原版魔兽世界官方 CG 动画，13 条结果一次覆盖全部资料片",
+  "timestamp_end": "2026-06-01T10:20:45+00:00"
+}
