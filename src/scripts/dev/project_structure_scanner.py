@@ -133,7 +133,7 @@ def extract_docstring(filepath: Path) -> str | None:
 def scan_tree(root: Path) -> str:
     dir_pat, file_pat, prefix_pat = parse_gitignore(root)
     lines = ["```"]
-    lines.append("boss-job-hunter/")
+    lines.append("browser-agent/")
 
     def walk(path: Path, prefix: str = "", depth: int = 0):
         if depth > 4:

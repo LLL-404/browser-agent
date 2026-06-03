@@ -1,62 +1,10 @@
-# ====== 搜索参数 ======
-search:
-  education: "大专"               # 筛选学历要求
-  expected_benefits:              # 期望福利（用于分析匹配度）
-    - "五险一金"
-    - "包食宿"
-    - "朝九晚五"
-    - "双休"
-  keywords:                       # 搜索关键词，按优先级分三级
-    L1: ["普工", "操作工", "包装工", "学徒", "保安", "保洁"]
-    L2: ["仓管", "质检", "叉车工", "厨师", "服务员", "电工"]
-    L3: ["文员", "客服", "司机", "焊工", "后勤", "搬运工"]
-
-# ====== 目标城市 ======
-cities:
-  priority_1: ["深圳", "广州", "东莞", "佛山", "苏州", "杭州", "成都", "重庆"]   # 高频搜索城市
-  priority_2: ["武汉", "南京", "长沙", "郑州", "西安", "合肥", "宁波", "无锡"]
-  priority_3: ["常州", "嘉兴", "绍兴", "温州", "福州", "厦门", "珠海", "中山"]
-  priority_4: ["泉州", "漳州", "湖州", "金华", "台州", "惠州", "江门", "南宁", "贵阳", "昆明", "南昌", "太原", "哈尔滨", "长春", "沈阳", "大连", "济南", "青岛", "烟台", "潍坊"]
-
-# ====== 预过滤规则 ======
-pre_filters:
-  min_salary: 3000                 # 最低薪资过滤（月薪）
-  title_blacklist:                 # 岗位标题黑名单（含以下关键词的岗位将被过滤）
-    - "高级"
-    - "资深"
-    - "经理"
-    - "总监"
-    - "硕士"
-    - "本科及以上"
-  company_blacklist:               # 公司行业黑名单
-    - "金融"
-    - "保险"
-    - "房产中介"
-    - "投资"
-  tag_whitelist:                   # 福利标签白名单（岗位需包含至少一个标签才算合格）
-    - "包住"
-    - "包吃"
-    - "五险"
-    - "双休"
-    - "社保"
-    - "住宿"
+# ====== 浏览器 Agent 框架配置 ======
 
 # 日志
 logging:
   level: INFO  # DEBUG | INFO | WARNING | ERROR
 
-# 运行时
-runtime:
-  base_url: "https://www.zhipin.com"
-  cities_per_session: 3
-  max_detail_pages_per_city: 30
-  page_scroll_delay: [2, 5]
-  detail_delay: [3, 7]
-  captcha_pause_minutes: 5
-  max_inactive_days: 7
-  batch_size: 50
-  max_list_pages: 3
-
+# 代理
 proxy:
   enabled: false
   server: ""
@@ -64,9 +12,61 @@ proxy:
   password: ""
   bypass: "localhost,127.0.0.1"
 
-# 页面分析（截图+HTML快照）
+# 页面分析
 page_analysis:
-  enabled: true              # 启用自动页面分析
-  screenshot_on_error: true  # 仅在检测到异常时截图（节省磁盘）
-  snapshot_max_length: 10000 # HTML快照最大长度
-  quick_check_interval: 5    # 快速检查间隔秒数（0=每次操作后检查）
+  enabled: true
+  screenshot_on_error: true
+  snapshot_max_length: 10000
+  quick_check_interval: 5
+
+# ====== 业务模式配置 ======
+# 每个模式在此 namespace 下定义自己的配置项
+modes:
+  zhipin:  # BOSS 直聘适配器
+    search:
+      education: "大专"
+      expected_benefits:
+        - "五险一金"
+        - "包食宿"
+        - "朝九晚五"
+        - "双休"
+      keywords:
+        L1: ["普工", "操作工", "包装工", "学徒", "保安", "保洁"]
+        L2: ["仓管", "质检", "叉车工", "厨师", "服务员", "电工"]
+        L3: ["文员", "客服", "司机", "焊工", "后勤", "搬运工"]
+    cities:
+      priority_1: ["深圳", "广州", "东莞", "佛山", "苏州", "杭州", "成都", "重庆"]
+      priority_2: ["武汉", "南京", "长沙", "郑州", "西安", "合肥", "宁波", "无锡"]
+      priority_3: ["常州", "嘉兴", "绍兴", "温州", "福州", "厦门", "珠海", "中山"]
+      priority_4: ["泉州", "漳州", "湖州", "金华", "台州", "惠州", "江门", "南宁", "贵阳", "昆明", "南昌", "太原", "哈尔滨", "长春", "沈阳", "大连", "济南", "青岛", "烟台", "潍坊"]
+    pre_filters:
+      min_salary: 3000
+      title_blacklist:
+        - "高级"
+        - "资深"
+        - "经理"
+        - "总监"
+        - "硕士"
+        - "本科及以上"
+      company_blacklist:
+        - "金融"
+        - "保险"
+        - "房产中介"
+        - "投资"
+      tag_whitelist:
+        - "包住"
+        - "包吃"
+        - "五险"
+        - "双休"
+        - "社保"
+        - "住宿"
+    runtime:
+      base_url: "https://www.zhipin.com"
+      cities_per_session: 3
+      max_detail_pages_per_city: 30
+      page_scroll_delay: [2, 5]
+      detail_delay: [3, 7]
+      captcha_pause_minutes: 5
+      max_inactive_days: 7
+      batch_size: 50
+      max_list_pages: 3

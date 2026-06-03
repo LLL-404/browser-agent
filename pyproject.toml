@@ -1,7 +1,7 @@
 [project]
-name = "boss-job-hunter"
-version = "2.0.0"
-description = "BOSS 直聘求职助手 — MCP Server + 爬虫引擎"
+name = "browser-agent"
+version = "3.0.0"
+description = "浏览器自动化 AI Agent 框架 — MCP Server + CLI + 多模式扩展"
 requires-python = ">=3.11"
 authors = [{name = "Your Name"}]
 license = {text = "MIT"}
@@ -113,4 +113,4 @@ project = ["src"]
 
 [tool.coverage.html]
 directory = "htmlcov"
-title = "BOSS Job Hunter - Test Coverage"
+title = "Browser Agent - Test Coverage"

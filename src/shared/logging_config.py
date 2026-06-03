@@ -35,7 +35,7 @@ def setup_logging(config: dict | None = None,
     if _logger is not None:
         return _logger
 
-    logger = logging.getLogger("boss_job_hunter")
+    logger = logging.getLogger("browser_agent")
     logger.setLevel(_get_log_level(config))
 
     fmt = logging.Formatter(
@@ -76,5 +76,5 @@ def get_logger(name: str = "") -> logging.Logger:
     """
     if _logger is None:
         setup_logging()
-    full_name = f"boss_job_hunter.{name}" if name else "boss_job_hunter"
+    full_name = f"browser_agent.{name}" if name else "browser_agent"
     return logging.getLogger(full_name)

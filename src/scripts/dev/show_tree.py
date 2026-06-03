@@ -1,4 +1,4 @@
-"""Generate project tree for boss-job-hunter."""
+"""Generate project tree for browser-agent."""
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent.parent
@@ -23,6 +23,6 @@ def build_tree(path, prefix=""):
             lines.append(f"{prefix}{node}{item.name}")
     return lines
 
-print("boss-job-hunter/")
+print("browser-agent/")
 for line in build_tree(root):
     print(line)
