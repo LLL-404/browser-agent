@@ -42,3 +42,6 @@ a123_delivery.md
 # 截图文件
 *.png
 *.html
+
+# CodeGraph 索引
+.codegraph/
