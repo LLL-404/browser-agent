@@ -24,7 +24,7 @@ async def main():
             print(f"📍 初始URL: {page.url}")
 
             await page.goto(
-                "https://www.zhipin.com", wait_until="domcontentloaded"
+                "https://www.zhipin.com/?ka=header-home", wait_until="domcontentloaded"
             )
             print(f"📍 当前URL: {page.url}")
             print(f"📄 标题: {await page.title()}")

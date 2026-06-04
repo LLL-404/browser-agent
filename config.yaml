@@ -29,6 +29,51 @@ runtime:
     element_interaction: 0.3 # 元素交互后等待
     default: 1              # 默认回退值
 
+# 会话管理配置
+session:
+  navigation_timeout: 20000  # 导航超时时间（毫秒）
+  cleanup:
+    max_age_days: 7          # 过期 Session 清理天数
+  login_detection:           # 登录检测配置
+    user_indicators:         # 用户已登录的元素选择器
+      - "button:has-text('退出')"
+      - "a:has-text('退出')"
+      - "span:has-text('退出')"
+      - "button:has-text('登出')"
+      - "a:has-text('登出')"
+      - "span:has-text('登出')"
+      - "a[href*='user/center']"
+      - "a[href*='user_center']"
+      - ".top-user-name"
+      - ".login-user-name"
+      - ".header-user-name"
+    login_button_texts:      # 登录按钮文本
+      - "登录"
+      - "登入"
+      - "Sign in"
+      - "Log in"
+
+# 政府网站访问限制配置（合规访问）
+government_site:
+  enabled: true                    # 是否启用政府网站访问限制
+  domains:                         # 政府网站域名列表
+    - "gov.cn"
+    - "government.cn"
+    - "chinagov.cn"
+    - "caac.gov.cn"
+    - "moe.gov.cn"
+    - "mof.gov.cn"
+    - "www.stats.gov.cn"
+    - "www.cma.gov.cn"
+  rate_limit:
+    max_requests_per_minute: 5     # 每分钟最大请求数
+    max_requests_per_hour: 30      # 每小时最大请求数
+    min_interval_ms: 3000          # 最小请求间隔（毫秒）
+  delays:
+    page_ready: 5                  # 页面加载后等待（秒）
+    navigation: 3                  # 导航后等待（秒）
+    pagination: 10                 # 翻页等待（秒）
+
 # 页面分析
 page_analysis:
   enabled: true
@@ -39,7 +84,7 @@ page_analysis:
 # ====== 业务模式配置 ======
 # 每个模式在此 namespace 下定义自己的配置项
 modes:
-  zhipin:  # BOSS 直聘适配器
+  zhipin:  # BOSS 直聘适配器（适配新版页面）
     search:
       education: "大专"
       expected_benefits:
@@ -48,14 +93,16 @@ modes:
         - "朝九晚五"
         - "双休"
       keywords:
-        L1: ["普工", "操作工", "包装工", "学徒", "保安", "保洁"]
-        L2: ["仓管", "质检", "叉车工", "厨师", "服务员", "电工"]
-        L3: ["文员", "客服", "司机", "焊工", "后勤", "搬运工"]
+        L1: ["普工", "操作工", "包装工", "学徒", "保安", "保洁", "小时工", "临时工"]
+        L2: ["仓管", "质检", "叉车工", "厨师", "服务员", "电工", "焊工"]
+        L3: ["文员", "客服", "司机", "后勤", "搬运工", "快递员", "送餐员"]
+        L4: ["销售", "导购", "理货员", "收银员", "营业员"]
     cities:
       priority_1: ["深圳", "广州", "东莞", "佛山", "苏州", "杭州", "成都", "重庆"]
       priority_2: ["武汉", "南京", "长沙", "郑州", "西安", "合肥", "宁波", "无锡"]
       priority_3: ["常州", "嘉兴", "绍兴", "温州", "福州", "厦门", "珠海", "中山"]
       priority_4: ["泉州", "漳州", "湖州", "金华", "台州", "惠州", "江门", "南宁", "贵阳", "昆明", "南昌", "太原", "哈尔滨", "长春", "沈阳", "大连", "济南", "青岛", "烟台", "潍坊"]
+      priority_5: ["石家庄", "呼和浩特", "兰州", "西宁", "银川", "乌鲁木齐", "海口"]
     pre_filters:
       min_salary: 3000
       title_blacklist:
@@ -65,11 +112,17 @@ modes:
         - "总监"
         - "硕士"
         - "本科及以上"
+        - "博士"
+        - "主管"
+        - "架构师"
+        - "专家"
       company_blacklist:
         - "金融"
         - "保险"
         - "房产中介"
         - "投资"
+        - "理财"
+        - "贷款"
       tag_whitelist:
         - "包住"
         - "包吃"
@@ -77,13 +130,35 @@ modes:
         - "双休"
         - "社保"
         - "住宿"
+        - "餐补"
+        - "加班补助"
+        - "全勤奖"
+        - "年终奖"
     runtime:
-      base_url: "https://www.zhipin.com"
+      base_url: "https://www.zhipin.com/?ka=header-home"
+      search_url_v1: "https://www.zhipin.com/web/geek/job?city={city}&query={keyword}"
+      search_url_v2: "https://www.zhipin.com/job_detail/?query={keyword}&city={city}"
       cities_per_session: 3
       max_detail_pages_per_city: 30
-      page_scroll_delay: [2, 5]
-      detail_delay: [3, 7]
+      page_scroll_delay: [3, 6]
+      detail_delay: [4, 8]
       captcha_pause_minutes: 5
       max_inactive_days: 7
       batch_size: 50
       max_list_pages: 3
+      request_interval_ms: 3000
+      max_requests_per_minute: 15
+
+# ====== 对话 Agent 配置 ======
+chat:
+  api:
+    provider: "agnes"
+    base_url: "https://apihub.agnes-ai.com/v1"
+    api_key: "${AGNES_API_KEY}"
+    model: "agnes-2.0-flash"
+    max_tokens: 2048
+    temperature: 0.7
+  context:
+    max_history: 20
+  tone:
+    default: "专业务实"

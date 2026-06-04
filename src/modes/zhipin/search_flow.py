@@ -24,7 +24,7 @@ async def main():
         result = await agent.open(headless=False)
         logger.info("浏览器已打开: %s", result.get("url"))
 
-        await agent.navigate("https://www.zhipin.com/")
+        await agent.navigate("https://www.zhipin.com/?ka=header-home")
         await delay("page_stable")
 
         page_data = await agent.text(2000)

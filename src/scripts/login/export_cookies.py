@@ -37,7 +37,7 @@ async def main():
             print("浏览器启动失败！")
             return
 
-        await ctrl.navigate_to("https://www.zhipin.com/")
+        await ctrl.navigate_to("https://www.zhipin.com/?ka=header-home")
         await asyncio.sleep(3)
 
         title = await ctrl.get_page_title()

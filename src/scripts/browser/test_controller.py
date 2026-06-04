@@ -22,7 +22,7 @@ async def test():
     print(f"引擎: {ctrl.engine}")
     
     print("\n导航到 BOSS直聘...")
-    result = await ctrl.navigate_to("https://www.zhipin.com")
+    result = await ctrl.navigate_to("https://www.zhipin.com/?ka=header-home")
     print(f"导航结果: {result}")
     
     print("\n获取页面内容...")

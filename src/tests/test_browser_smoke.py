@@ -4,7 +4,7 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 
-BOSS_URL = "https://www.zhipin.com"
+BOSS_URL = "https://www.zhipin.com/?ka=header-home"
 EXPECTED_TITLE = "BOSS直聘"
 
 

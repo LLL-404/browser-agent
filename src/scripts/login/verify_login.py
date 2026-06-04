@@ -23,7 +23,7 @@ async def main():
         
         # 访问 BOSS 首页
         print("[*] 访问 BOSS 直聘首页...")
-        await page.goto("https://www.zhipin.com/", wait_until="domcontentloaded")
+        await page.goto("https://www.zhipin.com/?ka=header-home", wait_until="domcontentloaded")
         await asyncio.sleep(2)
         
         url = page.url

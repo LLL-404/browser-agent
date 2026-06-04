@@ -115,11 +115,17 @@ async def _goto_search(page: Page, city: str, keyword: str, max_retries: int = 2
     city_code = get_city_code(city)
     if not city_code:
         raise ValueError(f"未知城市: {city}")
+    
     url = f"https://www.zhipin.com/web/geek/job?city={city_code}&query={keyword}"
+    url_v2 = f"https://www.zhipin.com/job_detail/?query={keyword}&city={city_code}"
 
     for attempt in range(max_retries + 1):
         try:
-            await page.goto(url, wait_until="networkidle", timeout=20000)
+            current_url = url if attempt == 0 else url_v2
+            await page.goto(current_url, wait_until="domcontentloaded", timeout=30000)
+            
+            await delay("page_stable")
+            
             if "about:blank" not in page.url:
                 cfg: Dict[str, Any] = get_config()
                 analysis_cfg = cfg.get("page_analysis", {})
@@ -130,8 +136,8 @@ async def _goto_search(page: Page, city: str, keyword: str, max_retries: int = 2
                         analysis = await analyze_page(page, name="anomaly")
                         logger.info("%s", analysis.summary())
                 return
-        except _PLAYWRIGHT_ERRORS:
-            pass
+        except _PLAYWRIGHT_ERRORS as e:
+            logger.debug("导航失败 (%d/%d): %s", attempt + 1, max_retries + 1, e)
         if attempt < max_retries:
             await delay("navigation")
 
@@ -177,6 +183,12 @@ async def _parse_list_card(card, city: str, page: Page | None = None) -> dict | 
         company = (await company_el.inner_text()).strip() if company_el else ""
         tags = [(await t.inner_text()).strip() for t in tag_els]
         href = (await link_el.get_attribute("href")) if link_el else ""
+        
+        if not href:
+            link_el_alt = await card.query_selector("a[href*='job_detail'], a[href*='job']")
+            if link_el_alt:
+                href = await link_el_alt.get_attribute("href")
+        
         if href and not href.startswith("http"):
             href = "https://www.zhipin.com" + href
 
@@ -185,6 +197,8 @@ async def _parse_list_card(card, city: str, page: Page | None = None) -> dict | 
         boss_job_id = None
         if href:
             m = re.search(r'job_detail/([a-zA-Z0-9]+)', href)
+            if not m:
+                m = re.search(r'/job/([a-zA-Z0-9]+)', href)
             boss_job_id = m.group(1) if m else None
 
         return {
@@ -281,7 +295,7 @@ async def _create_browser_context(p, cfg: dict, headless: bool):
 
 
 async def _ensure_login(page: Page) -> bool:
-    await page.goto("https://www.zhipin.com/", wait_until="domcontentloaded")
+    await page.goto("https://www.zhipin.com/?ka=header-home", wait_until="domcontentloaded")
     await delay("login_wait")
 
     url_lower = page.url.lower()
