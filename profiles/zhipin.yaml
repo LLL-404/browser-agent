@@ -1,0 +1,144 @@
+# profiles/zhipin.yaml
+# BOSS 直聘站点画像 — 所有选择器、过滤规则、URL、报告维度集中声明。
+meta:
+  name: zhipin
+  display_name: "BOSS 直聘"
+  version: 2
+
+navigation:
+  home: "https://www.zhipin.com/?ka=header-home"
+  login: "https://www.zhipin.com/web/user/?ka=header-login"
+
+urls:
+  search:
+    - template: "/web/geek/job?city={city_code}&query={keyword}"
+      priority: 1
+    - template: "/job_detail/?query={keyword}&city={city_code}"
+      priority: 2
+
+dom:
+  list:
+    card: "li.job-card-box, li.search-job-item, .job-list li"
+    title: ".job-name, .job-title, [class*='job-name'], [class*='job-title']"
+    title_link: "a.job-name, a.job-title, .job-name a, .job-title a"
+    company: ".boss-name, .company-name, [class*='boss-name'], [class*='company-name']"
+    salary: ".job-salary, .salary, [class*='salary']"
+    tags: ".tag-list li, .job-tags li, .tags li, [class*='tag']"
+
+  pagination:
+    next_button: ".options-pages .next, .page-next, .page .next, .pagination-next, button.next"
+    disabled_class_contains: "disabled"
+
+  detail:
+    description:
+      - ".job-sec-text"
+      - ".job-detail-section-text"
+      - ".job-detail .text"
+      - ".detail-section .job-detail-box"
+      - ".job-detail-content"
+      - "[class*='job-detail']"
+      - "[class*='job-sec']"
+      - "[class*='description']"
+      - "[class*='detail-text']"
+      - ".position-detail"
+      - ".job-content"
+      - ".description-content"
+    company:
+      - ".company-info"
+      - ".detail-business-info"
+      - ".company-info-box"
+      - "[class*='company-info']"
+      - "[class*='business']"
+      - ".company-detail"
+      - ".company-content"
+    recruiter_active:
+      - ".boss-active-time"
+      - ".boss-name-time"
+      - ".boss-online-tag"
+      - ".boss-description"
+      - "[class*='boss-active']"
+      - "[class*='active-time']"
+      - "[class*='boss-name']"
+      - ".recruiter-info"
+      - ".recruiter-active"
+    panel_salary: >
+      .job-detail-box .job-detail-salary,
+      .detail-salary,
+      [class*='salary'],
+      .popup-salary
+
+  captcha:
+    indicators:
+      - ".geetest_panel"
+      - ".captcha-box"
+      - ".verify-box"
+      - ".nc_wrapper"
+      - "iframe[src*='captcha']"
+      - "iframe[src*='geetest']"
+      - "[class*='captcha']"
+      - ".sec-captcha"
+      - ".security-verify"
+      - ".verify-code"
+    keywords:
+      - "验证码"
+      - "安全验证"
+      - "滑块验证"
+      - "请完成验证"
+      - "请点击验证"
+      - "安全校验"
+
+  login:
+    user_menu: ".nav-user-menu, .user-avatar, .header-user, .nav-user"
+    page_auth_patterns:
+      - "/user/"
+      - "passport"
+      - "login"
+      - "/account/"
+    text_positive:
+      - "欢迎回来"
+      - "我的"
+      - "退出登录"
+      - "个人中心"
+    text_negative:
+      - "登录"
+      - "注册"
+      - "扫码"
+      - "验证码登录"
+      - "密码登录"
+
+filters:
+  - id: min_salary
+    type: salary_threshold
+    field: salary
+    config_key: pre_filters.min_salary
+    reason_template: "薪资 {value} 低于 {threshold}"
+
+  - id: title_blacklist
+    type: contains_any
+    field: title
+    case_insensitive: true
+    source: pre_filters.title_blacklist
+    reason_template: "标题含 '{matched}'（门槛高于大专）"
+
+  - id: company_blacklist
+    type: contains_any
+    field: company
+    case_insensitive: true
+    source: pre_filters.company_blacklist
+    reason_template: "公司类型含 '{matched}'（大概率无固定作息）"
+
+  - id: recruiter_inactive
+    type: inactive_days
+    field: recruiter_active
+    max_days_key: runtime.max_inactive_days
+    reason_template: "招聘者已 {value} 天未活跃"
+
+report:
+  score_threshold: 6
+  dimensions:
+    - key: five_insurance
+      label: 五险一金
+    - key: room_board
+      label: 包食宿
+    - key: regular_hours
+      label: 朝九晚五/双休
