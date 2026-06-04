@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "batch-files": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/batch-files/SKILL.md",
+      "computedHash": "9a374062b036abf397548f8b080435332c3be2ecd17a1d90311167ece84c377a"
+    },
+    "cli-mastery": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/cli-mastery/SKILL.md",
+      "computedHash": "adc13add373b57d92d9e74dc7b864636ad48b4be3c3b600269440ab71c70b30d"
+    },
+    "powershell-windows": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/powershell-windows/SKILL.md",
+      "computedHash": "f2c5e604bb18ca5709be47e040051ec0691744fb064dbb41502cdd5a11b796b4"
+    }
+  }
+}
