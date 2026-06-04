@@ -9,7 +9,8 @@ def get_keywords_for_city(_city: str, l1_result_count: int) -> list[str]:
     返回该城市最终要搜索的关键词列表。
     """
     cfg = get_config()
-    keywords = cfg.get("search", {}).get("keywords", {})
+    mode_cfg = cfg.get("modes", {}).get("zhipin", {})
+    keywords = mode_cfg.get("search", {}).get("keywords", {})
     l1 = keywords.get("L1", [])
     l2 = keywords.get("L2", [])
     l3 = keywords.get("L3", [])
@@ -36,5 +37,6 @@ def get_keywords_for_city(_city: str, l1_result_count: int) -> list[str]:
 def get_initial_keyword() -> str:
     """返回用于试探城市的第一轮关键词"""
     cfg = get_config()
-    l1 = cfg.get("search", {}).get("keywords", {}).get("L1", [])
+    mode_cfg = cfg.get("modes", {}).get("zhipin", {})
+    l1 = mode_cfg.get("search", {}).get("keywords", {}).get("L1", [])
     return l1[0] if l1 else "普工"

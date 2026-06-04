@@ -30,7 +30,13 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["scripts*", "tests*"]
+exclude = ["tests*"]
+
+# ====== Entry Points (CLI Commands) ======
+[project.scripts]
+agent-cli = "agent.cli.main:main"
+chat-agent = "chat.cli:main"
+send-report = "scripts.report.send_report:main"
 
 # ====== Ruff 配置 ======
 [tool.ruff]
@@ -58,7 +64,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["agent", "modes", "shared"]
+known-first-party = ["agent", "chat", "modes", "scripts", "shared"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -88,7 +94,7 @@ addopts = "-v --tb=short"
 
 # ====== Coverage 配置 ======
 [tool.coverage.run]
-source = ["src/agent", "src/modes", "src/shared"]
+source = ["src/agent", "src/chat", "src/modes", "src/scripts", "src/shared"]
 relative_files = true
 branch = true
 omit = [
@@ -108,7 +114,7 @@ exclude_lines = [
 fail_under = 20
 
 [tool.coverage.paths]
-source = ["src/agent", "src/modes", "src/shared"]
+source = ["src/agent", "src/chat", "src/modes", "src/scripts", "src/shared"]
 project = ["src"]
 
 [tool.coverage.html]

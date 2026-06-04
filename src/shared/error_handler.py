@@ -7,7 +7,9 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+import functools
+import inspect
+from typing import Any, Callable, Optional
 
 from shared.exceptions import (
     BrowserAutomationError,
@@ -87,3 +89,64 @@ def classify_playwright_error(error: Exception) -> type[BrowserAutomationError]:
     if "net::" in msg or "connection" in msg or "dns" in msg:
         return NavigationFailedError
     return BrowserAutomationError
+
+
+def handle_session_error(default_return: Any = None, log_level: str = "warning"):
+    """装饰器：统一处理 Session 相关操作的异常。
+
+    Args:
+        default_return: 异常发生时返回的默认值
+        log_level: 日志级别（"debug", "info", "warning", "error"）
+    """
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                log_func = getattr(logger, log_level, logger.warning)
+                log_func("Session 操作失败 [%s]: %s", func.__name__, e)
+                return default_return
+
+        @functools.wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                log_func = getattr(logger, log_level, logger.warning)
+                log_func("Session 操作失败 [%s]: %s", func.__name__, e)
+                return default_return
+
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper
+        return sync_wrapper
+    return decorator
+
+
+def safe_call(default_return: Any = None):
+    """包装函数：安全执行函数，异常时返回默认值。
+
+    适用于 _PageProxy 等需要静默处理异常的场景。
+
+    Args:
+        default_return: 异常发生时返回的默认值
+    """
+    def wrapper(fn: Callable) -> Callable:
+        @functools.wraps(fn)
+        async def async_inner():
+            try:
+                return await fn()
+            except Exception:
+                return default_return
+
+        @functools.wraps(fn)
+        def sync_inner():
+            try:
+                return fn()
+            except Exception:
+                return default_return
+
+        if inspect.iscoroutinefunction(fn):
+            return async_inner
+        return sync_inner
+    return wrapper

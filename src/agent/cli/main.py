@@ -7,7 +7,10 @@ import json
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
+from agent.core.agent import BrowserAgent
+from agent.core.browser import BrowserController
 from agent.core.session import auto_detect_login
 from shared.logging_config import get_logger
 
@@ -15,9 +18,6 @@ logger = get_logger("cli")
 
 
 async def _login(url: str, save_path: str, cookie_names: list[str] | None = None, headless: bool = False):
-    from agent.core.browser import BrowserController
-    from agent.core.agent import BrowserAgent
-
     ctrl = BrowserController()
     agent = BrowserAgent(ctrl)
 
@@ -48,7 +48,7 @@ async def _login(url: str, save_path: str, cookie_names: list[str] | None = None
     detect_cookies = list(cookie_names) if cookie_names else []
 
     # Get the page object from the controller
-    page = ctrl._page
+    page = ctrl.page
     if not page:
         logger.error("无法获取浏览器页面对象")
         await agent.close()
@@ -115,11 +115,11 @@ async def _login(url: str, save_path: str, cookie_names: list[str] | None = None
             try:
                 _ = await page.title()
             except Exception:
-                pages = ctrl._browser.pages if hasattr(ctrl, '_browser') and ctrl._browser else []
+                pages = ctrl.get_pages()
                 if pages:
                     page = pages[0]
                 else:
-                    page = await ctrl._browser.new_page() if ctrl._browser else page
+                    page = await ctrl.new_page() or page
             state = await page.context.storage_state()
             async with aiofiles.open(save_file, "w", encoding="utf-8") as f:
                 await f.write(json.dumps(state, ensure_ascii=False, indent=2))
@@ -145,9 +145,6 @@ async def _login(url: str, save_path: str, cookie_names: list[str] | None = None
 
 async def _browse(url: str):
     """启动浏览器打开 URL，等待后保存登录态。"""
-    from agent.core.browser import BrowserController
-    from agent.core.agent import BrowserAgent
-
     ctrl = BrowserController()
     agent = BrowserAgent(ctrl)
 
@@ -173,7 +170,6 @@ async def _browse(url: str):
         if i > 0 and i % 30 == 0:
             print(f"  ⏳ 剩余 {180 - i} 秒后自动保存...")
 
-    from urllib.parse import urlparse
     domain = urlparse(url).netloc.replace("www.", "").split(".")[0]
     result = await agent.save_session(name=domain)
     if result.get("ok"):
@@ -204,19 +200,10 @@ def _setup_login_parser(subparsers):
 def main():
     parser = argparse.ArgumentParser(description="通用浏览器自动化助手")
     parser.add_argument("--mode", "-m", default="", help="业务模式 (如 zhipin)")
-
     subparsers = parser.add_subparsers(dest="command")
 
-    filter_mode = [a for a in sys.argv[1:] if a.startswith("--mode") or a.startswith("-m") and not a.startswith("--")]
-    mode_val = ""
-    if filter_mode:
-        parts = filter_mode[0].split("=") if "=" in filter_mode[0] else [filter_mode[0], ""]
-        if not parts[1]:
-            idx = sys.argv.index(filter_mode[0])
-            if idx + 1 < len(sys.argv):
-                mode_val = sys.argv[idx + 1]
-        else:
-            mode_val = parts[1]
+    args, _ = parser.parse_known_args()
+    mode_val = args.mode
 
     if mode_val:
         try:
