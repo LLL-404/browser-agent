@@ -9,7 +9,8 @@ from pathlib import Path
 from typing import Any
 
 import aiofiles
-from shared.delay import delay
+from shared.delay import delay, get_delay
+from shared.error_handler import handle_session_error, safe_call
 from shared.logging_config import get_logger
 
 logger = get_logger("session")
@@ -57,6 +58,7 @@ def filter_expired_cookies(cookies: list[dict]) -> list[dict]:
     return valid
 
 
+@handle_session_error(default_return={"ok": False, "error": "保存 Cookie 失败"})
 async def save_cookies_to_file(cookies: list[dict], name: str = "boss") -> dict:
     _ensure_dir()
     path = cookie_path(name)
@@ -68,32 +70,31 @@ async def save_cookies_to_file(cookies: list[dict], name: str = "boss") -> dict:
     return {"ok": True, "path": str(path), "count": len(filtered)}
 
 
+@handle_session_error(default_return=[])
 async def load_cookies_from_file(name: str = "boss") -> list[dict]:
     path = cookie_path(name)
     if not path.exists():
         logger.info("Cookie 文件不存在: %s", path)
         return []
-    try:
-        async with aiofiles.open(path, "r", encoding="utf-8") as f:
-            content = await f.read()
-        data = json.loads(content)
-        cookies = data.get("cookies", [])
-        valid = filter_expired_cookies(cookies)
-        expired_count = len(cookies) - len(valid)
-        if expired_count:
-            logger.warning("从 %s 加载了 %d 条 Cookie，其中 %d 条已过期已过滤", path, len(cookies), expired_count)
-        else:
-            logger.info("从 %s 加载了 %d 条 Cookie", path, len(cookies))
-        return valid
-    except (json.JSONDecodeError, OSError) as e:
-        logger.warning("加载 Cookie 文件失败: %s", e)
-        return []
+    
+    async with aiofiles.open(path, "r", encoding="utf-8") as f:
+        content = await f.read()
+    data = json.loads(content)
+    cookies = data.get("cookies", [])
+    valid = filter_expired_cookies(cookies)
+    expired_count = len(cookies) - len(valid)
+    if expired_count:
+        logger.warning("从 %s 加载了 %d 条 Cookie，其中 %d 条已过期已过滤", path, len(cookies), expired_count)
+    else:
+        logger.info("从 %s 加载了 %d 条 Cookie", path, len(cookies))
+    return valid
 
 
 def has_saved_cookies(name: str = "boss") -> bool:
     return cookie_path(name).exists()
 
 
+@handle_session_error(default_return={"ok": False, "error": "保存 storage_state 失败"})
 async def save_storage_state(cookies: list[dict], origins: list[dict] | None = None) -> dict:
     """保存为 Playwright storage_state 兼容格式。"""
     _ensure_dir()
@@ -106,23 +107,175 @@ async def save_storage_state(cookies: list[dict], origins: list[dict] | None = N
     return {"ok": True, "path": str(path), "count": len(filtered)}
 
 
+@handle_session_error(default_return=None)
 async def load_storage_state() -> dict | None:
     """加载 Playwright storage_state 文件。"""
     path = storage_state_path()
     if not path.exists():
         return None
+    
+    async with aiofiles.open(path, "r", encoding="utf-8") as f:
+        content = await f.read()
+    data = json.loads(content)
+    cookies = data.get("cookies", [])
+    valid = filter_expired_cookies(cookies)
+    if len(valid) != len(cookies):
+        data["cookies"] = valid
+    return data
+
+
+# ── Short-Lived Cookie Refresh ────────────────────────────────
+
+# 短效 Cookie 配置：名称 → {典型有效期(秒), 刷新URL, 说明}
+# 当 Cookie 剩余有效期不足 threshold_ratio 时，自动访问 refresh_url 获取新值
+SHORT_LIVED_COOKIE_RULES: dict[str, dict] = {
+    "acw_tc": {
+        "typical_ttl": 86400,       # 24 小时（阿里云 WAF 令牌）
+        "refresh_url": None,       # None 表示访问任意同域页面即可刷新
+        "description": "阿里云 WAF 反爬令牌",
+    },
+}
+
+
+def check_short_lived_cookies(
+    cookies: list[dict],
+    rules: dict[str, dict] | None = None,
+    threshold_ratio: float = 0.2,
+) -> list[dict]:
+    """检查短效 Cookie 是否即将过期。
+
+    Args:
+        cookies: 当前 Cookie 列表。
+        rules: 自定义规则，默认使用 SHORT_LIVED_COOKIE_RULES。
+        threshold_ratio: 剩余有效期低于此比例时视为需刷新（0.2 = 剩余 < 20% 时触发）。
+
+    Returns:
+        需要刷新的 Cookie 信息列表，每项含 name、expires、remaining_sec、need_refresh。
+    """
+    _rules = rules or SHORT_LIVED_COOKIE_RULES
+    now = time.time()
+    stale = []
+    for c in cookies:
+        name = c.get("name", "")
+        if name not in _rules:
+            continue
+        rule = _rules[name]
+        expires = c.get("expires")
+        if expires is None:
+            continue
+        try:
+            exp = float(expires)
+            if exp <= 0:
+                continue
+            ttl = rule["typical_ttl"]
+            remaining = exp - now
+            ratio = remaining / ttl if ttl > 0 else 1.0
+            need_refresh = ratio < threshold_ratio or remaining <= 0
+            stale.append({
+                "name": name,
+                "value_preview": (c.get("value", "")[:16] + "..."),
+                "domain": c.get("domain", ""),
+                "expires": expires,
+                "remaining_sec": max(0, int(remaining)),
+                "ratio": round(ratio, 2),
+                "need_refresh": need_refresh,
+                "description": rule["description"],
+            })
+        except (ValueError, TypeError):
+            continue
+    return stale
+
+
+async def refresh_short_lived_cookies(
+    page,
+    target_url: str,
+    rules: dict[str, dict] | None = None,
+    timeout_ms: int | None = None,
+) -> dict[str, Any]:
+    """通过访问目标页面刷新短效 Cookie。
+
+    访问页面后，WAF/CDN 会自动下发新的 acw_tc 等令牌。
+    然后从浏览器上下文中提取最新 Cookie 并保存到 storage_state。
+
+    Args:
+        page: 已打开的 Playwright 页面对象。
+        target_url: 要访问的目标 URL（如 https://www.qcc.com）。
+        rules: 自定义规则。
+        timeout_ms: 导航超时时间（毫秒），默认从配置获取。
+
+    Returns:
+        {"ok": bool, "refreshed": [...], "unchanged": [...], "error": str|None}
+    """
+    from shared.config import get_config
+    
+    _rules = rules or SHORT_LIVED_COOKIE_RULES
+    rule_names = set(_rules.keys())
+    
+    # 获取配置的导航超时时间
+    cfg = get_config()
+    timeout = timeout_ms if timeout_ms is not None else cfg.get("session", {}).get("navigation_timeout", 20000)
+
+    # 记录刷新前的 Cookie 快照
     try:
-        async with aiofiles.open(path, "r", encoding="utf-8") as f:
-            content = await f.read()
-        data = json.loads(content)
-        cookies = data.get("cookies", [])
-        valid = filter_expired_cookies(cookies)
-        if len(valid) != len(cookies):
-            data["cookies"] = valid
-        return data
-    except (json.JSONDecodeError, OSError) as e:
-        logger.warning("加载 storage_state 失败: %s", e)
-        return None
+        old_cookies = await page.context.cookies()
+        old_values = {c["name"]: c.get("value") for c in old_cookies}
+    except Exception as e:
+        logger.warning("获取旧 Cookie 失败，跳过对比: %s", e)
+        return {"ok": False, "error": str(e), "refreshed": [], "unchanged": []}
+
+    # 访问目标页面触发 WAF 下发新令牌
+    try:
+        await page.goto(target_url, wait_until="domcontentloaded", timeout=timeout)
+        await delay("page_ready")
+    except Exception as e:
+        logger.warning("访问 %s 失败: %s", target_url, e)
+        return {"ok": False, "error": f"导航失败: {e}", "refreshed": [], "unchanged": []}
+
+    # 提取刷新后的 Cookie
+    try:
+        new_cookies = await page.context.cookies()
+    except Exception as e:
+        return {"ok": False, "error": f"提取新 Cookie 失败: {e}", "refreshed": [], "unchanged": []}
+
+    # 对比差异
+    refreshed = []
+    unchanged = []
+    for c in new_cookies:
+        name = c["name"]
+        if name not in rule_names:
+            continue
+        new_val = c.get("value")
+        old_val = old_values.get(name)
+        if new_val != old_val:
+            refreshed.append({
+                "name": name,
+                "domain": c.get("domain", ""),
+                "new_value_preview": (new_val[:20] + "..."),
+                "expires": c.get("expires"),
+                "description": _rules[name]["description"],
+            })
+            logger.info("短效 Cookie [%s] 已刷新 → %s...", name, new_val[:12])
+        else:
+            unchanged.append({"name": name})
+
+    # 自动保存更新后的 storage_state
+    try:
+        state = await page.context.storage_state()
+        await save_storage_state(
+            state.get("cookies", []),
+            state.get("origins", []),
+        )
+        logger.info("已保存刷新后的 storage_state（含 %d 条 Cookie）", len(state.get("cookies", [])))
+    except Exception as e:
+        logger.warning("保存刷新后的 storage_state 失败: %s", e)
+
+    return {
+        "ok": True,
+        "refreshed": refreshed,
+        "unchanged": unchanged,
+        "total_cookies": len(new_cookies),
+        "error": None,
+    }
 
 
 # ── Smart Login Detection ─────────────────────────────────
@@ -134,47 +287,34 @@ class _PageProxy:
     def __init__(self, page):
         self._page = page
 
-    async def _safe_call(self, fn, default=None):
-        try:
-            return await fn()
-        except Exception:
-            return default
-
+    @safe_call(default_return="")
     async def get_url(self) -> str:
-        return await self._safe_call(self._page.evaluate, "() => window.location.href") or ""
+        return await self._page.evaluate("() => window.location.href") or ""
 
+    @safe_call(default_return=[])
     async def get_cookies(self) -> list[dict]:
-        try:
-            return await self._page.context.cookies()
-        except Exception:
-            return []
+        return await self._page.context.cookies()
 
+    @safe_call(default_return=False)
     async def text_exists(self, text: str) -> bool:
-        try:
-            el = self._page.get_by_text(text, exact=False).first
-            return await el.count() > 0 and await el.is_visible()
-        except Exception:
-            return False
+        el = self._page.get_by_text(text, exact=False).first
+        return await el.count() > 0 and await el.is_visible()
 
+    @safe_call(default_return=False)
     async def selector_exists(self, selector: str) -> bool:
-        try:
-            el = self._page.locator(selector).first
-            return await el.count() > 0 and await el.is_visible()
-        except Exception:
-            return False
+        el = self._page.locator(selector).first
+        return await el.count() > 0 and await el.is_visible()
 
+    @safe_call(default_return=True)
     async def selector_disappeared(self, selector: str) -> bool:
-        try:
-            el = self._page.locator(selector).first
-            return await el.count() == 0
-        except Exception:
-            return True
+        el = self._page.locator(selector).first
+        return await el.count() == 0
 
 
 async def auto_detect_login(
     page,
     timeout: int = 120,
-    interval: int = 2,
+    interval: int | None = None,
     cookie_names: list[str] | None = None,
     custom_rules: dict | None = None,
     url_has_login: bool = True,
@@ -204,7 +344,15 @@ async def auto_detect_login(
     """
     proxy = _PageProxy(page)
 
-    USER_INDICATORS = [
+    # 获取配置的轮询间隔，支持自定义覆盖
+    poll_interval = interval if interval is not None else get_delay("login_poll")
+
+    # 从配置中读取登录检测选择器
+    from shared.config import get_config
+    cfg = get_config()
+    login_detection_cfg = cfg.get("session", {}).get("login_detection", {})
+    
+    USER_INDICATORS = login_detection_cfg.get("user_indicators", [
         "button:has-text('退出')",
         "a:has-text('退出')",
         "span:has-text('退出')",
@@ -216,8 +364,8 @@ async def auto_detect_login(
         ".top-user-name",
         ".login-user-name",
         ".header-user-name",
-    ]
-    LOGIN_BTN_TEXTS = ["登录", "登入", "Sign in", "Log in"]
+    ])
+    LOGIN_BTN_TEXTS = login_detection_cfg.get("login_button_texts", ["登录", "登入", "Sign in", "Log in"])
     LOGIN_BTN_SELECTOR = "button:has-text('{t}'), a:has-text('{t}'), span:has-text('{t}'), div:has-text('{t}')"
 
     if cookie_names is None:
@@ -342,10 +490,15 @@ async def auto_detect_login(
             except Exception:
                 pass
 
-        await asyncio.sleep(interval)
+        await asyncio.sleep(poll_interval)
 
 
-def cleanup_old_profiles(max_age_days: int = 7):
+def cleanup_old_profiles(max_age_days: int | None = None):
+    from shared.config import get_config
+    
+    cfg = get_config()
+    days = max_age_days if max_age_days is not None else cfg.get("session", {}).get("cleanup", {}).get("max_age_days", 7)
+    
     profiles_dir = COOKIE_DIR / "profiles"
     if not profiles_dir.exists():
         return
@@ -354,7 +507,7 @@ def cleanup_old_profiles(max_age_days: int = 7):
     for d in profiles_dir.iterdir():
         if d.is_dir():
             age = now - datetime.fromtimestamp(d.stat().st_mtime)
-            if age.days >= max_age_days:
+            if age.days >= days:
                 shutil.rmtree(d, ignore_errors=True)
                 removed += 1
     if removed:
