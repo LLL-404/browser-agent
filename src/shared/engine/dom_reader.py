@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.parse import urljoin
 
 from shared.engine.profile import SiteProfile
@@ -25,14 +25,14 @@ class DomReader:
 
     # ── 公开方法：列表采集 ─────────────────────────────────────
 
-    async def collect_cards(self, page: Any) -> List[Any]:
+    async def collect_cards(self, page: Any) -> list[Any]:
         """用 dom.list.card 选择器采集卡片元素列表。"""
         selector = self._dom.list.card
         if not selector:
             return []
         return await page.query_selector_all(selector)
 
-    async def parse_card(self, card: Any, page: Any) -> Dict[str, Any]:
+    async def parse_card(self, card: Any, page: Any) -> dict[str, Any]:
         """用 dom.list.* 选择器解析单张卡片字段。
 
         返回字典包含：title, company, salary, tags, href, job_id
@@ -70,7 +70,7 @@ class DomReader:
 
     # ── 公开方法：详情采集 ─────────────────────────────────────
 
-    async def scrape_detail(self, page: Any, url: str) -> Dict[str, Any]:
+    async def scrape_detail(self, page: Any, url: str) -> dict[str, Any]:
         """用 dom.detail.* 选择器提取详情页字段。
 
         每个字段都有 fallback 链（detail.description 是选择器列表），
@@ -185,7 +185,7 @@ class DomReader:
         return ""
 
     @staticmethod
-    async def _safe_texts(element: Any, selector: str) -> List[str]:
+    async def _safe_texts(element: Any, selector: str) -> list[str]:
         """安全查询多个子元素文本列表，查询失败返回空列表。"""
         if not selector or not element:
             return []
@@ -215,7 +215,7 @@ class DomReader:
         return ""
 
     async def _try_selectors(
-        self, page: Any, selectors: List[str], min_length: int = 1
+        self, page: Any, selectors: list[str], min_length: int = 1
     ) -> str:
         """按配置的选择器列表顺序尝试，返回第一个有效结果。
 

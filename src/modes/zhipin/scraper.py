@@ -5,33 +5,55 @@ from __future__ import annotations
 import asyncio
 import re
 import time
-from typing import Any, Dict
+from typing import Any
 
-from playwright.async_api import async_playwright, Page
+from playwright.async_api import Page, async_playwright
 
-from shared.delay import delay
+from browser_agent.core.anti_detect import (
+    ANTI_REDIRECT_SCRIPT,
+    STEALTH_SCRIPT,
+    build_browser_kwargs,
+    human_scroll,
+    random_delay,
+)
 from modes.zhipin.city_codes import get_city_code, get_rent_reference
-from shared.config import get_config
-from shared.logging_config import get_logger
+from modes.zhipin.keyword_strategy import get_initial_keyword, get_keywords_for_city
+from modes.zhipin.page_analyzer import analyze_page, quick_check
+from modes.zhipin.pre_filter import should_skip_job
 from modes.zhipin.selectors import (
-    JOB_CARD, JOB_TITLE, JOB_TITLE_LINK, COMPANY_NAME, JOB_SALARY, JOB_TAGS,
+    CAPTCHA_INDICATORS,
+    CAPTCHA_KEYWORDS,
+    COMPANY_NAME,
+    DETAIL_ACTIVE,
+    DETAIL_COMPANY,
+    DETAIL_DESC,
+    DETAIL_PANEL_SALARY,
+    JOB_CARD,
+    JOB_SALARY,
+    JOB_TAGS,
+    JOB_TITLE,
+    JOB_TITLE_LINK,
+    LOGIN_PAGE_AUTH,
+    LOGIN_TEXT_NEGATIVE,
+    LOGIN_TEXT_POSITIVE,
+    LOGIN_USER_MENU,
     NEXT_PAGE_BUTTONS,
-    DETAIL_DESC, DETAIL_COMPANY, DETAIL_ACTIVE, DETAIL_PANEL_SALARY,
-    CAPTCHA_INDICATORS, CAPTCHA_KEYWORDS,
-    LOGIN_USER_MENU, LOGIN_PAGE_AUTH, LOGIN_TEXT_POSITIVE, LOGIN_TEXT_NEGATIVE,
 )
 from modes.zhipin.storage import (
-    init_db, insert_job, update_search_log, get_searched_cities,
-    get_unanalyzed_jobs, get_jobs, get_job_by_id,
-    batch_update_jobs, JobQuery, get_stats,
+    JobQuery,
+    batch_update_jobs,
+    get_job_by_id,
+    get_jobs,
+    get_searched_cities,
+    get_stats,
+    get_unanalyzed_jobs,
+    init_db,
+    insert_job,
+    update_search_log,
 )
-from modes.zhipin.pre_filter import should_skip_job
-from modes.zhipin.keyword_strategy import get_keywords_for_city, get_initial_keyword
-from agent.core.anti_detect import (
-    random_delay, human_scroll, ANTI_REDIRECT_SCRIPT,
-    STEALTH_SCRIPT, build_browser_kwargs,
-)
-from modes.zhipin.page_analyzer import analyze_page, quick_check
+from shared.config import get_config
+from shared.delay import delay
+from shared.logging_config import get_logger
 from shared.retry import retry_async
 
 _PLAYWRIGHT_ERRORS = (Exception,)
@@ -67,7 +89,7 @@ async def _detect_captcha(page: Page) -> bool:
 
 
 async def _wait_captcha(page: Page):
-    cfg: Dict[str, Any] = get_config()
+    cfg: dict[str, Any] = get_config()
     pause_minutes = cfg.get("runtime", {}).get("captcha_pause_minutes", 5)
     logger.warning("检测到验证码，请在浏览器中手动完成验证。等待 %d 分钟...", pause_minutes)
     for _ in range(pause_minutes * 60, 0, -10):
@@ -106,7 +128,7 @@ async def wait_for_login(page: Page, timeout: int = 300) -> bool:
                 if "/user/" not in current and "passport" not in current:
                     logger.info("登录成功")
                     return True
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.error("登录超时（5分钟）")
         return False
 
@@ -115,7 +137,7 @@ async def _goto_search(page: Page, city: str, keyword: str, max_retries: int = 2
     city_code = get_city_code(city)
     if not city_code:
         raise ValueError(f"未知城市: {city}")
-    
+
     url = f"https://www.zhipin.com/web/geek/job?city={city_code}&query={keyword}"
     url_v2 = f"https://www.zhipin.com/job_detail/?query={keyword}&city={city_code}"
 
@@ -123,11 +145,11 @@ async def _goto_search(page: Page, city: str, keyword: str, max_retries: int = 2
         try:
             current_url = url if attempt == 0 else url_v2
             await page.goto(current_url, wait_until="domcontentloaded", timeout=30000)
-            
+
             await delay("page_stable")
-            
+
             if "about:blank" not in page.url:
-                cfg: Dict[str, Any] = get_config()
+                cfg: dict[str, Any] = get_config()
                 analysis_cfg = cfg.get("page_analysis", {})
                 if analysis_cfg.get("enabled", True):
                     check = await quick_check(page)
@@ -183,12 +205,12 @@ async def _parse_list_card(card, city: str, page: Page | None = None) -> dict | 
         company = (await company_el.inner_text()).strip() if company_el else ""
         tags = [(await t.inner_text()).strip() for t in tag_els]
         href = (await link_el.get_attribute("href")) if link_el else ""
-        
+
         if not href:
             link_el_alt = await card.query_selector("a[href*='job_detail'], a[href*='job']")
             if link_el_alt:
                 href = await link_el_alt.get_attribute("href")
-        
+
         if href and not href.startswith("http"):
             href = "https://www.zhipin.com" + href
 
@@ -217,7 +239,7 @@ async def _parse_list_card(card, city: str, page: Page | None = None) -> dict | 
 
 
 async def _collect_list_page(page: Page, city: str) -> list[dict]:
-    cfg: Dict[str, Any] = get_config()
+    cfg: dict[str, Any] = get_config()
     max_pages = cfg.get("runtime", {}).get("max_list_pages", 5)
     all_jobs: list[dict] = []
 
@@ -407,7 +429,7 @@ async def search_jobs(cities: list[str] | None = None,
                       headless: bool = False,
                       concurrent: bool = True) -> dict:
     """搜索职位（核心入口函数，带性能监控）。"""
-    cfg: Dict[str, Any] = get_config()
+    cfg: dict[str, Any] = get_config()
     init_db()
 
     if max_detail is None:
@@ -512,7 +534,7 @@ async def search_jobs(cities: list[str] | None = None,
 # === AI 分析 / 报告 / 招呼语（保持不变） ===
 
 async def analyze_jobs() -> list[dict]:
-    cfg: Dict[str, Any] = get_config()
+    cfg: dict[str, Any] = get_config()
     batch_size: int = cfg.get("runtime", {}).get("batch_size", 50)
     jobs: list[dict] = get_unanalyzed_jobs(limit=batch_size)
     for j in jobs:

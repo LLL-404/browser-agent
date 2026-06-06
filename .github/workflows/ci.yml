@@ -110,8 +110,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Verify imports
-        run: python -c "from agent.core.agent import BrowserAgent; from agent.mcp import server; print('✅ All imports successful')"
+        run: python -c "from browser_agent.core.agent import BrowserAgent; from browser_agent.mcp import server; print('✅ All imports successful')"
 
       - name: Health check
-        run: python -c "import asyncio; from agent.core.session import cleanup_old_profiles; print('health_check: ok')"
+        run: python -c "import asyncio; from browser_agent.core.session import cleanup_old_profiles; print('health_check: ok')"
         continue-on-error: true

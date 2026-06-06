@@ -9,16 +9,16 @@ from __future__ import annotations
 import asyncio
 import functools
 import inspect
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 from shared.exceptions import (
     BrowserAutomationError,
-    PageNotReadyError,
-    NavigationTimeoutError,
-    NavigationFailedError,
+    BrowserCrashError,
     ElementNotFoundError,
     ElementNotInteractableError,
-    BrowserCrashError,
+    NavigationFailedError,
+    NavigationTimeoutError,
 )
 from shared.logging_config import get_logger
 

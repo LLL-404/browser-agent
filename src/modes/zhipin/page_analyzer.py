@@ -1,14 +1,18 @@
 """BOSS 直聘页面分析 — 页面类型/验证码/岗位卡片检测。"""
 import json
-import time
 from pathlib import Path
+
 from playwright.async_api import Page
 
+from browser_agent.core.page import PageAnalysis, capture_html_snapshot, capture_screenshot
 from modes.zhipin.selectors import (
-    JOB_CARD, JOB_TITLE, COMPANY_NAME, JOB_SALARY, DETAIL_DESC,
     CAPTCHA_INDICATORS,
+    COMPANY_NAME,
+    DETAIL_DESC,
+    JOB_CARD,
+    JOB_SALARY,
+    JOB_TITLE,
 )
-from agent.core.page import capture_screenshot, capture_html_snapshot, PageAnalysis
 from shared.logging_config import get_logger
 
 logger = get_logger("page_analyzer")

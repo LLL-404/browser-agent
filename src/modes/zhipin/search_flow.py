@@ -1,16 +1,17 @@
 """直接用 BrowserAgent（Camoufox）搜索 BOSS 直聘校招职位。"""
 import asyncio
+import json
 import sys
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-from agent.core.agent import BrowserAgent
-from shared.delay import delay
+from browser_agent.core.agent import BrowserAgent
 from modes.zhipin.city_codes import get_city_code
-from modes.zhipin.storage import init_db, insert_job, get_stats
-from shared.logging_config import setup_logging, get_logger
 from modes.zhipin.selectors import CAPTCHA_KEYWORDS
+from modes.zhipin.storage import get_stats, init_db, insert_job
+from shared.delay import delay
+from shared.logging_config import get_logger, setup_logging
 
 setup_logging(log_to_console=True, log_to_file=True)
 logger = get_logger("search")
@@ -90,7 +91,7 @@ async def main():
                     })
 
         stats = get_stats()
-        logger.info("搜索完成！统计: %s", _json.dumps(stats, ensure_ascii=False))
+        logger.info("搜索完成！统计: %s", json.dumps(stats, ensure_ascii=False))
         logger.info("浏览器保持打开，您可查看结果。关闭浏览器窗口即可退出。")
 
     except KeyboardInterrupt:

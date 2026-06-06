@@ -14,6 +14,8 @@ __pycache__/
 # 浏览器配置文件
 browser_profile/
 .browser-data/
+data/profiles/
+*.egg-info/
 
 # 项目运行时数据
 data/jobs.db

@@ -1893,7 +1893,7 @@ from shared.engine.report_builder import ReportBuilder
 from shared.engine.adapter_protocol import DefaultAdapter
 from shared.delay import delay
 from shared.logging_config import get_logger
-from agent.core.anti_detect import human_scroll, random_delay
+from browser_agent.core.anti_detect import human_scroll, random_delay
 
 logger = get_logger("engine")
 
@@ -1947,7 +1947,7 @@ class ScrapingEngine:
         from modes.zhipin.storage import init_db, get_searched_cities
         from modes.zhipin.city_codes import get_city_code
         from playwright.async_api import async_playwright
-        from agent.core.anti_detect import STEALTH_SCRIPT, ANTI_REDIRECT_SCRIPT, build_browser_kwargs
+        from browser_agent.core.anti_detect import STEALTH_SCRIPT, ANTI_REDIRECT_SCRIPT, build_browser_kwargs
 
         cfg_dict = self.profile._global_config or {}
         init_db()

@@ -1,0 +1,968 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link "BOSS直聘" [ref=e6] [cursor=pointer]:
+        - /url: https://www.zhipin.com/
+      - paragraph [ref=e8] [cursor=pointer]:
+        - generic [ref=e10]: 淄博
+        - text: "[切换]"
+      - list [ref=e12]:
+        - listitem [ref=e13]:
+          - link "首页" [ref=e14] [cursor=pointer]:
+            - /url: https://www.zhipin.com/chengshi/c101120300/
+        - listitem [ref=e15]:
+          - link "职位" [ref=e16] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/geek/jobs
+        - list [ref=e17]:
+          - listitem [ref=e18]:
+            - link "公司" [ref=e19] [cursor=pointer]:
+              - /url: https://www.zhipin.com/gongsi/
+        - list [ref=e20]:
+          - listitem [ref=e21]:
+            - link "校园" [ref=e22] [cursor=pointer]:
+              - /url: https://www.zhipin.com/school/
+          - listitem [ref=e24]:
+            - link "海归" [ref=e25] [cursor=pointer]:
+              - /url: https://www.zhipin.com/returnee_jobs/
+        - listitem [ref=e26]:
+          - link "APP" [ref=e27] [cursor=pointer]:
+            - /url: https://app.zhipin.com/
+        - listitem [ref=e28]:
+          - link "有了" [ref=e29] [cursor=pointer]:
+            - /url: https://youle.zhipin.com/recommend/selected/
+        - listitem [ref=e30]:
+          - link "海外" [ref=e31] [cursor=pointer]:
+            - /url: https://www.zhipin.com/overseas/
+        - listitem [ref=e32]:
+          - link "无障碍专区" [ref=e33] [cursor=pointer]:
+            - /url: https://www.zhipin.com/accessible_job/
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - link "我要招聘" [ref=e37] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/user/?intent=1
+          - link "我要找工作" [ref=e38] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/user/?intent=0
+        - link "登录/注册" [ref=e39] [cursor=pointer]:
+          - /url: https://www.zhipin.com/web/user/
+    - text: 正在加载中
+    - generic [ref=e41]:
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - generic:
+            - generic [ref=e44]:
+              - generic [ref=e47] [cursor=pointer]: 职位类型
+              - paragraph [ref=e49]:
+                - textbox "搜索职位、公司" [ref=e50]
+            - link "地图" [ref=e51] [cursor=pointer]:
+              - /url: javascript:;
+            - button "搜索" [ref=e52] [cursor=pointer]
+        - generic [ref=e53]:
+          - generic [ref=e54]: "热门职位:"
+          - link "Java" [ref=e55] [cursor=pointer]:
+            - /url: /c101120300/?query=Java&industry=&position=
+          - link "全栈工程师" [ref=e56] [cursor=pointer]:
+            - /url: /c101120300/?query=%E5%85%A8%E6%A0%88%E5%B7%A5%E7%A8%8B%E5%B8%88&industry=&position=
+          - link "运维工程师" [ref=e57] [cursor=pointer]:
+            - /url: /c101120300/?query=%E8%BF%90%E7%BB%B4%E5%B7%A5%E7%A8%8B%E5%B8%88&industry=&position=
+          - link "数据分析师" [ref=e58] [cursor=pointer]:
+            - /url: /c101120300/?query=%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E5%B8%88&industry=&position=
+          - link "售前技术支持" [ref=e59] [cursor=pointer]:
+            - /url: /c101120300/?query=%E5%94%AE%E5%89%8D%E6%8A%80%E6%9C%AF%E6%94%AF%E6%8C%81&industry=&position=
+          - link "平面设计" [ref=e60] [cursor=pointer]:
+            - /url: /c101120300/?query=%E5%B9%B3%E9%9D%A2%E8%AE%BE%E8%AE%A1&industry=&position=
+          - link "新媒体运营" [ref=e61] [cursor=pointer]:
+            - /url: /c101120300/?query=%E6%96%B0%E5%AA%92%E4%BD%93%E8%BF%90%E8%90%A5&industry=&position=
+          - link "国内电商运营" [ref=e62] [cursor=pointer]:
+            - /url: /c101120300/?query=%E5%9B%BD%E5%86%85%E7%94%B5%E5%95%86%E8%BF%90%E8%90%A5&industry=&position=
+          - link "跨境电商运营" [ref=e63] [cursor=pointer]:
+            - /url: /c101120300/?query=%E8%B7%A8%E5%A2%83%E7%94%B5%E5%95%86%E8%BF%90%E8%90%A5&industry=&position=
+          - link "售后客服" [ref=e64] [cursor=pointer]:
+            - /url: /c101120300/?query=%E5%94%AE%E5%90%8E%E5%AE%A2%E6%9C%8D&industry=&position=
+      - text: 正在加载中
+    - generic [ref=e66]:
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - definition [ref=e71]:
+            - generic [ref=e73]: 互联网/AI
+            - link "Java" [ref=e74] [cursor=pointer]:
+              - /url: /c101120300-p100101/
+            - link "C/C++" [ref=e75] [cursor=pointer]:
+              - /url: /c101120300-p100102/
+            - link "PHP" [ref=e76] [cursor=pointer]:
+              - /url: /c101120300-p100103/
+          - definition [ref=e78]:
+            - generic [ref=e80]: 电子/电气/通信
+            - link "电子工程师" [ref=e81] [cursor=pointer]:
+              - /url: /c101120300-p101401/
+            - link "硬件工程师" [ref=e82] [cursor=pointer]:
+              - /url: /c101120300-p100801/
+            - link "嵌入式软件工程师" [ref=e83] [cursor=pointer]:
+              - /url: /c101120300-p100802/
+          - definition [ref=e85]:
+            - generic [ref=e87]: 产品
+            - link "产品经理" [ref=e88] [cursor=pointer]:
+              - /url: /c101120300-p110101/
+            - link "产品专员/助理" [ref=e89] [cursor=pointer]:
+              - /url: /c101120300-p110108/
+            - link "产品总监" [ref=e90] [cursor=pointer]:
+              - /url: /c101120300-p110302/
+          - definition [ref=e92]:
+            - generic [ref=e94]: 客服/运营
+            - link "客服专员" [ref=e95] [cursor=pointer]:
+              - /url: /c101120300-p130305/
+            - link "客服主管" [ref=e96] [cursor=pointer]:
+              - /url: /c101120300-p130306/
+            - link "客服经理" [ref=e97] [cursor=pointer]:
+              - /url: /c101120300-p130304/
+          - definition [ref=e99]:
+            - generic [ref=e101]: 销售
+            - link "销售专员" [ref=e102] [cursor=pointer]:
+              - /url: /c101120300-p140301/
+            - link "电话销售" [ref=e103] [cursor=pointer]:
+              - /url: /c101120300-p140310/
+            - link "网络销售" [ref=e104] [cursor=pointer]:
+              - /url: /c101120300-p140314/
+          - definition [ref=e106]:
+            - generic [ref=e108]: 人力/行政/法务
+            - link "人力资源专员/助理" [ref=e109] [cursor=pointer]:
+              - /url: /c101120300-p150104/
+            - link "人力资源经理/主管" [ref=e110] [cursor=pointer]:
+              - /url: /c101120300-p150403/
+            - link "人力资源总监" [ref=e111] [cursor=pointer]:
+              - /url: /c101120300-p150108/
+          - definition [ref=e113]:
+            - generic [ref=e115]: 财务/审计/税务
+            - link "会计" [ref=e116] [cursor=pointer]:
+              - /url: /c101120300-p150301/
+            - link "总账会计" [ref=e117] [cursor=pointer]:
+              - /url: /c101120300-p150311/
+            - link "成本会计" [ref=e118] [cursor=pointer]:
+              - /url: /c101120300-p150310/
+          - definition [ref=e120]:
+            - generic [ref=e122]: 生产制造
+            - link "普工/操作工" [ref=e123] [cursor=pointer]:
+              - /url: /c101120300-p300601/
+            - link "包装工" [ref=e124] [cursor=pointer]:
+              - /url: /c101120300-p300624/
+            - link "学徒工" [ref=e125] [cursor=pointer]:
+              - /url: /c101120300-p300628/
+          - definition [ref=e127]:
+            - generic [ref=e129]: 零售/生活服务
+            - link "店员/营业员" [ref=e130] [cursor=pointer]:
+              - /url: /c101120300-p290303/
+            - link "收银" [ref=e131] [cursor=pointer]:
+              - /url: /c101120300-p290201/
+            - link "导购" [ref=e132] [cursor=pointer]:
+              - /url: /c101120300-p290302/
+          - definition [ref=e134]:
+            - generic [ref=e136]: 餐饮
+            - link "服务员" [ref=e137] [cursor=pointer]:
+              - /url: /c101120300-p290202/
+            - link "收银" [ref=e138] [cursor=pointer]:
+              - /url: /c101120300-p290201/
+            - link "礼仪/迎宾/接待" [ref=e139] [cursor=pointer]:
+              - /url: /c101120300-p290107/
+          - definition [ref=e141]:
+            - generic [ref=e143]: 酒店/旅游
+            - link "酒店前台" [ref=e144] [cursor=pointer]:
+              - /url: /c101120300-p290102/
+            - link "礼仪/迎宾/接待" [ref=e145] [cursor=pointer]:
+              - /url: /c101120300-p290107/
+            - link "客房服务员" [ref=e146] [cursor=pointer]:
+              - /url: /c101120300-p290103/
+          - definition [ref=e148]:
+            - generic [ref=e150]: 教育培训
+            - link "教师" [ref=e151] [cursor=pointer]:
+              - /url: /c101120300-p190301/
+            - link "英语教师" [ref=e152] [cursor=pointer]:
+              - /url: /c101120300-p190309/
+            - link "助教" [ref=e153] [cursor=pointer]:
+              - /url: /c101120300-p190302/
+          - definition [ref=e155]:
+            - generic [ref=e157]: 设计
+            - link "平面设计" [ref=e158] [cursor=pointer]:
+              - /url: /c101120300-p120106/
+            - link "美工" [ref=e159] [cursor=pointer]:
+              - /url: /c101120300-p120117/
+            - link "设计师助理" [ref=e160] [cursor=pointer]:
+              - /url: /c101120300-p120119/
+          - definition [ref=e162]:
+            - generic [ref=e164]: 房地产/建筑
+            - link "建筑施工项目经理" [ref=e165] [cursor=pointer]:
+              - /url: /c101120300-p220212/
+            - link "工程造价" [ref=e166] [cursor=pointer]:
+              - /url: /c101120300-p220209/
+            - link "工程监理" [ref=e167] [cursor=pointer]:
+              - /url: /c101120300-p220208/
+          - definition [ref=e169]:
+            - generic [ref=e171]: 直播/影视/传媒
+            - link "主播" [ref=e172] [cursor=pointer]:
+              - /url: /c101120300-p170610/
+            - link "带货主播" [ref=e173] [cursor=pointer]:
+              - /url: /c101120300-p170625/
+            - link "直播运营" [ref=e174] [cursor=pointer]:
+              - /url: /c101120300-p130122/
+          - definition [ref=e176]:
+            - generic [ref=e178]: 市场/公关/广告
+            - link "市场营销策划" [ref=e179] [cursor=pointer]:
+              - /url: /c101120300-p140101/
+            - link "海外市场" [ref=e180] [cursor=pointer]:
+              - /url: /c101120300-p140111/
+            - link "活动策划执行" [ref=e181] [cursor=pointer]:
+              - /url: /c101120300-p140109/
+          - definition [ref=e183]:
+            - generic [ref=e185]: 物流/仓储/司机
+            - link "物流专员" [ref=e186] [cursor=pointer]:
+              - /url: /c101120300-p240103/
+            - link "物流经理" [ref=e187] [cursor=pointer]:
+              - /url: /c101120300-p240104/
+            - link "物流总监" [ref=e188] [cursor=pointer]:
+              - /url: /c101120300-p240402/
+          - definition [ref=e190]:
+            - generic [ref=e192]: 采购/贸易
+            - link "采购专员/助理" [ref=e193] [cursor=pointer]:
+              - /url: /c101120300-p250103/
+            - link "采购经理/主管" [ref=e194] [cursor=pointer]:
+              - /url: /c101120300-p250102/
+            - link "采购工程师" [ref=e195] [cursor=pointer]:
+              - /url: /c101120300-p250105/
+          - definition [ref=e197]:
+            - generic [ref=e199]: 汽车
+            - link "电池工程师" [ref=e200] [cursor=pointer]:
+              - /url: /c101120300-p300801/
+            - link "电机工程师" [ref=e201] [cursor=pointer]:
+              - /url: /c101120300-p300802/
+            - link "汽车项目管理" [ref=e202] [cursor=pointer]:
+              - /url: /c101120300-p230108/
+          - definition [ref=e204]:
+            - generic [ref=e206]: 医疗健康
+            - link "护士" [ref=e207] [cursor=pointer]:
+              - /url: /c101120300-p210201/
+            - link "导医" [ref=e208] [cursor=pointer]:
+              - /url: /c101120300-p210503/
+            - link "护士长" [ref=e209] [cursor=pointer]:
+              - /url: /c101120300-p210202/
+          - definition [ref=e211]:
+            - generic [ref=e213]: 金融
+            - link "柜员" [ref=e214] [cursor=pointer]:
+              - /url: /c101120300-p180402/
+            - link "银行大堂经理" [ref=e215] [cursor=pointer]:
+              - /url: /c101120300-p180404/
+            - link "客户经理" [ref=e216] [cursor=pointer]:
+              - /url: /c101120300-p180403/
+          - definition [ref=e218]:
+            - generic [ref=e220]: 项目管理
+            - link "项目经理/主管" [ref=e221] [cursor=pointer]:
+              - /url: /c101120300-p100601/
+            - link "项目专员/助理" [ref=e222] [cursor=pointer]:
+              - /url: /c101120300-p100603/
+            - link "建筑施工项目经理" [ref=e223] [cursor=pointer]:
+              - /url: /c101120300-p220212/
+          - definition [ref=e225]:
+            - generic [ref=e227]: 咨询/翻译/法律
+            - link "知识产权/专利/商标代理人" [ref=e228] [cursor=pointer]:
+              - /url: /c101120300-p260111/
+            - link "项目申报专员" [ref=e229] [cursor=pointer]:
+              - /url: /c101120300-p140804/
+            - link "咨询项目管理" [ref=e230] [cursor=pointer]:
+              - /url: /c101120300-p260106/
+          - definition [ref=e232]:
+            - generic [ref=e234]: 能源/环保/农业
+            - link "光伏系统工程师" [ref=e235] [cursor=pointer]:
+              - /url: /c101120300-p301002/
+            - link "风电/光伏运维工程师" [ref=e236] [cursor=pointer]:
+              - /url: /c101120300-p301003/
+            - link "水利工程师" [ref=e237] [cursor=pointer]:
+              - /url: /c101120300-p301004/
+          - definition [ref=e239]:
+            - generic [ref=e241]: 高级管理
+            - link "总裁/总经理/CEO" [ref=e242] [cursor=pointer]:
+              - /url: /c101120300-p150407/
+            - link "副总裁/副总经理/VP" [ref=e243] [cursor=pointer]:
+              - /url: /c101120300-p150408/
+            - link "总助/CEO助理/董事长助理" [ref=e244] [cursor=pointer]:
+              - /url: /c101120300-p150411/
+          - definition [ref=e246]:
+            - generic [ref=e248]: 其他
+            - link "其他职位" [ref=e249] [cursor=pointer]:
+              - /url: /c101120300-p200101/
+        - generic [ref=e251]:
+          - emphasis [ref=e252]: "1"
+          - text: / 4
+      - generic [ref=e261]:
+        - link [ref=e262] [cursor=pointer]:
+          - /url: https://cv.zhipin.com
+          - img [ref=e263]
+        - link [ref=e264] [cursor=pointer]:
+          - /url: https://www.zhipin.com/web/geek/job?query=%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%88
+          - img [ref=e265]
+        - link [ref=e266] [cursor=pointer]:
+          - /url: https://www.zhipin.com/web/geek/job?query=%E7%AE%97%E6%B3%95%E5%B7%A5%E7%A8%8B%E5%B8%88
+          - img [ref=e267]
+        - link [ref=e268] [cursor=pointer]:
+          - /url: https://www.zhipin.com/web/geek/job?query=java%E5%B7%A5%E7%A8%8B%E5%B8%88
+          - img [ref=e269]
+      - generic [ref=e270]:
+        - generic [ref=e271]: 热招职位
+        - heading "供应链/物流 销售 客服/运营 直播/影视/传媒 教育培训 服务业 生产制造 医疗健康 人力/财务/行政" [level=3] [ref=e272]:
+          - generic [ref=e273] [cursor=pointer]: 供应链/物流
+          - generic [ref=e274] [cursor=pointer]: 销售
+          - generic [ref=e275] [cursor=pointer]: 客服/运营
+          - generic [ref=e276] [cursor=pointer]: 直播/影视/传媒
+          - generic [ref=e277] [cursor=pointer]: 教育培训
+          - generic [ref=e278] [cursor=pointer]: 服务业
+          - generic [ref=e279] [cursor=pointer]: 生产制造
+          - generic [ref=e280] [cursor=pointer]: 医疗健康
+          - generic [ref=e281] [cursor=pointer]: 人力/财务/行政
+        - list [ref=e282]:
+          - listitem [ref=e283]:
+            - generic [ref=e284]:
+              - link "周村招学生暑假6k送餐员高薪自由供车供住 淄博 经验不限 学历不限 餐饮外卖 有摩托车驾驶证" [ref=e285] [cursor=pointer]:
+                - /url: /job_detail/78a4b5f06a13d8fd03F7296-ElpU.html
+                - generic [ref=e286]:
+                  - paragraph [ref=e288]: 周村招学生暑假6k送餐员高薪自由供车供住
+                  - paragraph
+                - paragraph [ref=e290]:
+                  - generic [ref=e291]: 淄博
+                  - generic [ref=e292]: 经验不限
+                  - generic [ref=e293]: 学历不限
+                  - generic [ref=e294]: 餐饮外卖
+                  - generic [ref=e295]: 有摩托车驾驶证
+              - link "天津吉城美家 天津吉城美家 生活服务(O2O) 未融资" [ref=e297] [cursor=pointer]:
+                - /url: /gongsi/7f71b4a469d1cb8e1HJ62tm0FlQ~.html
+                - paragraph [ref=e298]:
+                  - img "天津吉城美家" [ref=e299]
+                  - generic [ref=e300]: 天津吉城美家
+                - paragraph [ref=e301]:
+                  - generic [ref=e302]: 生活服务(O2O)
+                  - generic [ref=e304]: 未融资
+          - listitem [ref=e305]:
+            - generic [ref=e306]:
+              - link "就近安排美团送餐员（配车住）单量超级多！ 淄博 经验不限 学历不限 餐饮外卖 生鲜蔬果" [ref=e307] [cursor=pointer]:
+                - /url: /job_detail/04580c07a20182d11Xx52d-_FVtY.html
+                - generic [ref=e308]:
+                  - paragraph [ref=e310]: 就近安排美团送餐员（配车住）单量超级多！
+                  - paragraph
+                - paragraph [ref=e312]:
+                  - generic [ref=e313]: 淄博
+                  - generic [ref=e314]: 经验不限
+                  - generic [ref=e315]: 学历不限
+                  - generic [ref=e316]: 餐饮外卖
+                  - generic [ref=e317]: 生鲜蔬果
+              - link "优外卖 优外卖 生活服务(O2O) 不需要融资" [ref=e319] [cursor=pointer]:
+                - /url: /gongsi/e9a05c2a3efc98890XNz2tm7.html
+                - paragraph [ref=e320]:
+                  - img "优外卖" [ref=e321]
+                  - generic [ref=e322]: 优外卖
+                - paragraph [ref=e323]:
+                  - generic [ref=e324]: 生活服务(O2O)
+                  - generic [ref=e326]: 不需要融资
+          - listitem [ref=e327]:
+            - generic [ref=e328]:
+              - link "美团送餐员月入过万可预支 淄博 经验不限 学历不限 全职兼职均可 公司提供电动车/摩托车" [ref=e329] [cursor=pointer]:
+                - /url: /job_detail/ba5f66e326d98f05031409-1EVFX.html
+                - generic [ref=e330]:
+                  - paragraph [ref=e332]: 美团送餐员月入过万可预支
+                  - paragraph
+                - paragraph [ref=e334]:
+                  - generic [ref=e335]: 淄博
+                  - generic [ref=e336]: 经验不限
+                  - generic [ref=e337]: 学历不限
+                  - generic [ref=e338]: 全职兼职均可
+                  - generic [ref=e339]: 公司提供电动车/摩托车
+              - link "江苏飞兔 江苏飞兔 交通/运输 不需要融资" [ref=e341] [cursor=pointer]:
+                - /url: /gongsi/f26f5e00153cf90b1X153tm0GVQ~.html
+                - paragraph [ref=e342]:
+                  - img "江苏飞兔" [ref=e343]
+                  - generic [ref=e344]: 江苏飞兔
+                - paragraph [ref=e345]:
+                  - generic [ref=e346]: 交通/运输
+                  - generic [ref=e348]: 不需要融资
+          - listitem [ref=e349]:
+            - generic [ref=e350]:
+              - link "早起搬砖不如10点送餐 淄博 经验不限 学历不限 餐饮外卖 会用导航" [ref=e351] [cursor=pointer]:
+                - /url: /job_detail/6a49ccc0a94e310f03J53d67FFNQ.html
+                - generic [ref=e352]:
+                  - paragraph [ref=e354]: 早起搬砖不如10点送餐
+                  - paragraph
+                - paragraph [ref=e356]:
+                  - generic [ref=e357]: 淄博
+                  - generic [ref=e358]: 经验不限
+                  - generic [ref=e359]: 学历不限
+                  - generic [ref=e360]: 餐饮外卖
+                  - generic [ref=e361]: 会用导航
+              - link "北京美络 北京美络 即时配送" [ref=e363] [cursor=pointer]:
+                - /url: /gongsi/06ce55345ca6dba403Zz0tq5EFo~.html
+                - paragraph [ref=e364]:
+                  - img "北京美络" [ref=e365]
+                  - generic [ref=e366]: 北京美络
+                - paragraph [ref=e367]:
+                  - generic [ref=e368]: 即时配送
+          - listitem [ref=e369]:
+            - generic [ref=e370]:
+              - link "美团送餐员月入过万可预支 淄博 经验不限 学历不限 餐饮外卖 会用导航" [ref=e371] [cursor=pointer]:
+                - /url: /job_detail/c957037de3cf0d7b1HN93t6-F1tZ.html
+                - generic [ref=e372]:
+                  - paragraph [ref=e374]: 美团送餐员月入过万可预支
+                  - paragraph
+                - paragraph [ref=e376]:
+                  - generic [ref=e377]: 淄博
+                  - generic [ref=e378]: 经验不限
+                  - generic [ref=e379]: 学历不限
+                  - generic [ref=e380]: 餐饮外卖
+                  - generic [ref=e381]: 会用导航
+              - link "江苏飞兔 江苏飞兔 交通/运输 不需要融资" [ref=e383] [cursor=pointer]:
+                - /url: /gongsi/f26f5e00153cf90b1X153tm0GVQ~.html
+                - paragraph [ref=e384]:
+                  - img "江苏飞兔" [ref=e385]
+                  - generic [ref=e386]: 江苏飞兔
+                - paragraph [ref=e387]:
+                  - generic [ref=e388]: 交通/运输
+                  - generic [ref=e390]: 不需要融资
+          - listitem [ref=e391]:
+            - generic [ref=e392]:
+              - link "美团外卖员 淄博 经验不限 学历不限 全职 公司提供电动车/摩托车" [ref=e393] [cursor=pointer]:
+                - /url: /job_detail/81aa663c2c21f9d003dy3N--ElRU.html
+                - generic [ref=e394]:
+                  - paragraph [ref=e396]: 美团外卖员
+                  - paragraph
+                - paragraph [ref=e398]:
+                  - generic [ref=e399]: 淄博
+                  - generic [ref=e400]: 经验不限
+                  - generic [ref=e401]: 学历不限
+                  - generic [ref=e402]: 全职
+                  - generic [ref=e403]: 公司提供电动车/摩托车
+              - link "江苏飞兔 江苏飞兔 交通/运输 不需要融资" [ref=e405] [cursor=pointer]:
+                - /url: /gongsi/f26f5e00153cf90b1X153tm0GVQ~.html
+                - paragraph [ref=e406]:
+                  - img "江苏飞兔" [ref=e407]
+                  - generic [ref=e408]: 江苏飞兔
+                - paragraph [ref=e409]:
+                  - generic [ref=e410]: 交通/运输
+                  - generic [ref=e412]: 不需要融资
+          - listitem [ref=e413]:
+            - generic [ref=e414]:
+              - link "饿了么招聘外卖送餐员骑手 淄博 经验不限 学历不限 餐饮外卖 会用导航" [ref=e415] [cursor=pointer]:
+                - /url: /job_detail/7442843714c803b41HN-2Nq9GVRR.html
+                - generic [ref=e416]:
+                  - paragraph [ref=e418]: 饿了么招聘外卖送餐员骑手
+                  - paragraph
+                - paragraph [ref=e420]:
+                  - generic [ref=e421]: 淄博
+                  - generic [ref=e422]: 经验不限
+                  - generic [ref=e423]: 学历不限
+                  - generic [ref=e424]: 餐饮外卖
+                  - generic [ref=e425]: 会用导航
+              - link "东营蓝飙 东营蓝飙 即时配送 不需要融资" [ref=e427] [cursor=pointer]:
+                - /url: /gongsi/b7ace96539ddb00d1HV42dS4FlI~.html
+                - paragraph [ref=e428]:
+                  - img "东营蓝飙" [ref=e429]
+                  - generic [ref=e430]: 东营蓝飙
+                - paragraph [ref=e431]:
+                  - generic [ref=e432]: 即时配送
+                  - generic [ref=e434]: 不需要融资
+          - listitem [ref=e435]:
+            - generic [ref=e436]:
+              - link "淄博招送餐员配车住！爆单！0费用入职！ 淄博 经验不限 学历不限 餐饮外卖 全职兼职均可" [ref=e437] [cursor=pointer]:
+                - /url: /job_detail/e2e801bc0ccb0aea03d829q8FFRV.html
+                - generic [ref=e438]:
+                  - paragraph [ref=e440]: 淄博招送餐员配车住！爆单！0费用入职！
+                  - paragraph
+                - paragraph [ref=e442]:
+                  - generic [ref=e443]: 淄博
+                  - generic [ref=e444]: 经验不限
+                  - generic [ref=e445]: 学历不限
+                  - generic [ref=e446]: 餐饮外卖
+                  - generic [ref=e447]: 全职兼职均可
+              - link "优外卖 优外卖 生活服务(O2O) 不需要融资" [ref=e449] [cursor=pointer]:
+                - /url: /gongsi/e9a05c2a3efc98890XNz2tm7.html
+                - paragraph [ref=e450]:
+                  - img "优外卖" [ref=e451]
+                  - generic [ref=e452]: 优外卖
+                - paragraph [ref=e453]:
+                  - generic [ref=e454]: 生活服务(O2O)
+                  - generic [ref=e456]: 不需要融资
+          - listitem [ref=e457]:
+            - generic [ref=e458]:
+              - link "招一批暑假工美团骑手月入6K配车 淄博 经验不限 学历不限 餐饮外卖 全职兼职均可" [ref=e459] [cursor=pointer]:
+                - /url: /job_detail/d609d0118f902b7403F62tu8GFFW.html
+                - generic [ref=e460]:
+                  - paragraph [ref=e462]: 招一批暑假工美团骑手月入6K配车
+                  - paragraph
+                - paragraph [ref=e464]:
+                  - generic [ref=e465]: 淄博
+                  - generic [ref=e466]: 经验不限
+                  - generic [ref=e467]: 学历不限
+                  - generic [ref=e468]: 餐饮外卖
+                  - generic [ref=e469]: 全职兼职均可
+              - link "江苏飞兔 江苏飞兔 交通/运输 不需要融资" [ref=e471] [cursor=pointer]:
+                - /url: /gongsi/f26f5e00153cf90b1X153tm0GVQ~.html
+                - paragraph [ref=e472]:
+                  - img "江苏飞兔" [ref=e473]
+                  - generic [ref=e474]: 江苏飞兔
+                - paragraph [ref=e475]:
+                  - generic [ref=e476]: 交通/运输
+                  - generic [ref=e478]: 不需要融资
+        - paragraph [ref=e479]:
+          - link "查看更多" [ref=e480] [cursor=pointer]:
+            - /url: /web/geek/job-recommend
+      - generic [ref=e481]:
+        - generic [ref=e482]: 热门企业
+        - list [ref=e483]:
+          - listitem [ref=e484]:
+            - link "英科医疗科技 英科医疗科技 已上市 10000人以上 医疗器械" [ref=e485] [cursor=pointer]:
+              - /url: /gongsi/6b1ba0b302a516c00Hdz2tS1FA~~.html
+              - img "英科医疗科技" [ref=e487]
+              - generic [ref=e488]:
+                - heading "英科医疗科技" [level=3] [ref=e489]
+                - paragraph [ref=e490]:
+                  - text: 已上市
+                  - text: 10000人以上
+                  - text: 医疗器械
+            - list [ref=e493]:
+              - listitem [ref=e494]:
+                - link "包装人员 淄博 临淄区 临淄大道 经验不限 学历不限" [ref=e495] [cursor=pointer]:
+                  - /url: /job_detail/4fa2d70d792edb511HZ-3tq6ElJU.html
+                  - generic [ref=e496]:
+                    - paragraph [ref=e497]: 包装人员
+                    - paragraph
+                  - paragraph [ref=e499]:
+                    - generic [ref=e500]: 淄博 临淄区 临淄大道
+                    - generic [ref=e501]: 经验不限
+                    - generic [ref=e502]: 学历不限
+              - listitem [ref=e503]:
+                - link "【26届校招】产品专员 淄博 张店区 淄博高新区 在校/应届 本科" [ref=e504] [cursor=pointer]:
+                  - /url: /job_detail/bb2657b672c7354c03N_2ti5F1VV.html
+                  - generic [ref=e505]:
+                    - paragraph [ref=e506]: 【26届校招】产品专员
+                    - paragraph
+                  - paragraph [ref=e508]:
+                    - generic [ref=e509]: 淄博 张店区 淄博高新区
+                    - generic [ref=e510]: 在校/应届
+                    - generic [ref=e511]: 本科
+              - listitem [ref=e512]:
+                - link "新媒体达人商务BD 淄博 张店区 淄博高新区 1-3年 本科" [ref=e513] [cursor=pointer]:
+                  - /url: /job_detail/294cafc134365f68031-0tS9FlVQ.html
+                  - generic [ref=e514]:
+                    - paragraph [ref=e515]: 新媒体达人商务BD
+                    - paragraph
+                  - paragraph [ref=e517]:
+                    - generic [ref=e518]: 淄博 张店区 淄博高新区
+                    - generic [ref=e519]: 1-3年
+                    - generic [ref=e520]: 本科
+            - link "查看更多职位" [ref=e521] [cursor=pointer]:
+              - /url: /gongsi/job/6b1ba0b302a516c00Hdz2tS1FA~~.html
+          - listitem [ref=e522]:
+            - link "得益乳业 得益乳业 不需要融资 1000-9999人 其他行业" [ref=e523] [cursor=pointer]:
+              - /url: /gongsi/3800ac2552a57a491Xx52Nu8.html
+              - img "得益乳业" [ref=e525]
+              - generic [ref=e526]:
+                - heading "得益乳业" [level=3] [ref=e527]
+                - paragraph [ref=e528]:
+                  - text: 不需要融资
+                  - text: 1000-9999人
+                  - text: 其他行业
+            - list [ref=e531]:
+              - listitem [ref=e532]:
+                - link "产品规划管培生（26届提前批） 淄博 张店区 高新区 在校/应届 本科" [ref=e533] [cursor=pointer]:
+                  - /url: /job_detail/170b44f6be510cfc03N43dW4E1FX.html
+                  - generic [ref=e534]:
+                    - paragraph [ref=e535]: 产品规划管培生（26届提前批）
+                    - paragraph
+                  - paragraph [ref=e537]:
+                    - generic [ref=e538]: 淄博 张店区 高新区
+                    - generic [ref=e539]: 在校/应届
+                    - generic [ref=e540]: 本科
+              - listitem [ref=e541]:
+                - link "营销类管培生～2024届校园招聘 淄博 张店区 高新区 在校/应届 本科" [ref=e542] [cursor=pointer]:
+                  - /url: /job_detail/a4f5705d61859e1b1HB-2Nm5GVBW.html
+                  - generic [ref=e543]:
+                    - paragraph [ref=e544]: 营销类管培生～2024届校园招聘
+                    - paragraph
+                  - paragraph [ref=e546]:
+                    - generic [ref=e547]: 淄博 张店区 高新区
+                    - generic [ref=e548]: 在校/应届
+                    - generic [ref=e549]: 本科
+              - listitem [ref=e550]:
+                - link "电商主播 淄博 张店区 高新区 3-5年 大专" [ref=e551] [cursor=pointer]:
+                  - /url: /job_detail/7c89f7100d8a32de03x72dW0FldV.html
+                  - generic [ref=e552]:
+                    - paragraph [ref=e553]: 电商主播
+                    - paragraph
+                  - paragraph [ref=e555]:
+                    - generic [ref=e556]: 淄博 张店区 高新区
+                    - generic [ref=e557]: 3-5年
+                    - generic [ref=e558]: 大专
+            - link "查看更多职位" [ref=e559] [cursor=pointer]:
+              - /url: /gongsi/job/3800ac2552a57a491Xx52Nu8.html
+          - listitem [ref=e560]:
+            - link "英科环保 英科环保 已上市 1000-9999人 环保" [ref=e561] [cursor=pointer]:
+              - /url: /gongsi/0abcaded2ebd7b641nB73Nu0Ew~~.html
+              - img "英科环保" [ref=e563]
+              - generic [ref=e564]:
+                - heading "英科环保" [level=3] [ref=e565]
+                - paragraph [ref=e566]:
+                  - text: 已上市
+                  - text: 1000-9999人
+                  - text: 环保
+            - list [ref=e569]:
+              - listitem [ref=e570]:
+                - link "人力资源专员/助理 淄博 临淄区 临淄大道 经验不限 本科" [ref=e571] [cursor=pointer]:
+                  - /url: /job_detail/ca7e18c3c60916c503x409-4FVRW.html
+                  - generic [ref=e572]:
+                    - paragraph [ref=e573]: 人力资源专员/助理
+                    - paragraph
+                  - paragraph [ref=e575]:
+                    - generic [ref=e576]: 淄博 临淄区 临淄大道
+                    - generic [ref=e577]: 经验不限
+                    - generic [ref=e578]: 本科
+              - listitem [ref=e579]:
+                - link "生产储备干部 淄博 临淄区 临淄大道 在校/应届 本科" [ref=e580] [cursor=pointer]:
+                  - /url: /job_detail/a5ad027bd48dee9d1Hd529y4EVFQ.html
+                  - generic [ref=e581]:
+                    - paragraph [ref=e582]: 生产储备干部
+                    - paragraph
+                  - paragraph [ref=e584]:
+                    - generic [ref=e585]: 淄博 临淄区 临淄大道
+                    - generic [ref=e586]: 在校/应届
+                    - generic [ref=e587]: 本科
+              - listitem [ref=e588]:
+                - link "PVC 挤出工程师 淄博 临淄区 临淄大道 3-5年 初中及以下" [ref=e589] [cursor=pointer]:
+                  - /url: /job_detail/77530215809d6784031y3dq5EVdT.html
+                  - generic [ref=e590]:
+                    - paragraph [ref=e591]: PVC 挤出工程师
+                    - paragraph
+                  - paragraph [ref=e593]:
+                    - generic [ref=e594]: 淄博 临淄区 临淄大道
+                    - generic [ref=e595]: 3-5年
+                    - generic [ref=e596]: 初中及以下
+            - link "查看更多职位" [ref=e597] [cursor=pointer]:
+              - /url: /gongsi/job/0abcaded2ebd7b641nB73Nu0Ew~~.html
+          - listitem [ref=e598]:
+            - link "吉利控股集团 吉利控股集团 已上市 10000人以上 汽车研发/制造" [ref=e599] [cursor=pointer]:
+              - /url: /gongsi/754b2fa05c5e813e3n15294~.html
+              - img "吉利控股集团" [ref=e601]
+              - generic [ref=e602]:
+                - heading "吉利控股集团" [level=3] [ref=e603]
+                - paragraph [ref=e604]:
+                  - text: 已上市
+                  - text: 10000人以上
+                  - text: 汽车研发/制造
+            - list [ref=e607]:
+              - listitem [ref=e608]:
+                - link "一线操作工 淄博 经验不限 中专/中技" [ref=e609] [cursor=pointer]:
+                  - /url: /job_detail/1cdcea778995d05d1HJ72t27E1ZZ.html
+                  - generic [ref=e610]:
+                    - paragraph [ref=e611]: 一线操作工
+                    - paragraph
+                  - paragraph [ref=e613]:
+                    - generic [ref=e614]: 淄博
+                    - generic [ref=e615]: 经验不限
+                    - generic [ref=e616]: 中专/中技
+              - listitem [ref=e617]:
+                - link "汽车底盘工程师 淄博 淄川区 钟楼 经验不限 大专" [ref=e618] [cursor=pointer]:
+                  - /url: /job_detail/99f6bbd4b195764503Fz3Nu1EVNY.html
+                  - generic [ref=e619]:
+                    - paragraph [ref=e620]: 汽车底盘工程师
+                    - paragraph
+                  - paragraph [ref=e622]:
+                    - generic [ref=e623]: 淄博 淄川区 钟楼
+                    - generic [ref=e624]: 经验不限
+                    - generic [ref=e625]: 大专
+              - listitem [ref=e626]:
+                - link "汽车内外饰工程师 淄博 淄川区 钟楼 1-3年 大专" [ref=e627] [cursor=pointer]:
+                  - /url: /job_detail/e92f70c9ad3f14d103J63968GFFT.html
+                  - generic [ref=e628]:
+                    - paragraph [ref=e629]: 汽车内外饰工程师
+                    - paragraph
+                  - paragraph [ref=e631]:
+                    - generic [ref=e632]: 淄博 淄川区 钟楼
+                    - generic [ref=e633]: 1-3年
+                    - generic [ref=e634]: 大专
+            - link "查看更多职位" [ref=e635] [cursor=pointer]:
+              - /url: /gongsi/job/754b2fa05c5e813e3n15294~.html
+          - listitem [ref=e636]:
+            - link "轻喜到家 轻喜到家 C轮 10000人以上 生活服务(O2O)" [ref=e637] [cursor=pointer]:
+              - /url: /gongsi/56e8ea0a9a43f43e1nR529S4Eg~~.html
+              - img "轻喜到家" [ref=e639]
+              - generic [ref=e640]:
+                - heading "轻喜到家" [level=3] [ref=e641]
+                - paragraph [ref=e642]:
+                  - text: C轮
+                  - text: 10000人以上
+                  - text: 生活服务(O2O)
+            - list [ref=e645]:
+              - listitem [ref=e646]:
+                - link "急聘别墅打扫卫生 淄博 张店区 美食街 经验不限 学历不限" [ref=e647] [cursor=pointer]:
+                  - /url: /job_detail/309ec77ab4fce4ff031629-9GFRW.html
+                  - generic [ref=e648]:
+                    - paragraph [ref=e649]: 急聘别墅打扫卫生
+                    - paragraph
+                  - paragraph [ref=e651]:
+                    - generic [ref=e652]: 淄博 张店区 美食街
+                    - generic [ref=e653]: 经验不限
+                    - generic [ref=e654]: 学历不限
+              - listitem [ref=e655]:
+                - link "7000-1200月薪中高端小区打扫 接受新手 淄博 张店区 银泰城 经验不限 学历不限" [ref=e656] [cursor=pointer]:
+                  - /url: /job_detail/189d90c0f6ac9e4103J43d67FlpU.html
+                  - generic [ref=e657]:
+                    - paragraph [ref=e658]: 7000-1200月薪中高端小区打扫 接受新手
+                    - paragraph
+                  - paragraph [ref=e660]:
+                    - generic [ref=e661]: 淄博 张店区 银泰城
+                    - generic [ref=e662]: 经验不限
+                    - generic [ref=e663]: 学历不限
+              - listitem [ref=e664]:
+                - link "别墅保洁 月入7000+ 淄博 张店区 中润大道 经验不限 学历不限" [ref=e665] [cursor=pointer]:
+                  - /url: /job_detail/39a6a4480b7c84bc03x73du4FVJW.html
+                  - generic [ref=e666]:
+                    - paragraph [ref=e667]: 别墅保洁 月入7000+
+                    - paragraph
+                  - paragraph [ref=e669]:
+                    - generic [ref=e670]: 淄博 张店区 中润大道
+                    - generic [ref=e671]: 经验不限
+                    - generic [ref=e672]: 学历不限
+            - link "查看更多职位" [ref=e673] [cursor=pointer]:
+              - /url: /gongsi/job/56e8ea0a9a43f43e1nR529S4Eg~~.html
+          - listitem [ref=e674]:
+            - link "联辰医疗 联辰医疗 不需要融资 0-20人 医疗器械" [ref=e675] [cursor=pointer]:
+              - /url: /gongsi/d90529dec3e814761nB60t21F1U~.html
+              - img "联辰医疗" [ref=e677]
+              - generic [ref=e678]:
+                - heading "联辰医疗" [level=3] [ref=e679]
+                - paragraph [ref=e680]:
+                  - text: 不需要融资
+                  - text: 0-20人
+                  - text: 医疗器械
+            - list [ref=e683]:
+              - listitem [ref=e684]:
+                - link "联辰医疗招聘仓库管理员 淄博 张店区 高新区 1-3年 学历不限" [ref=e685] [cursor=pointer]:
+                  - /url: /job_detail/91611fa0e95ee39503Z_29u8ElJW.html
+                  - generic [ref=e686]:
+                    - paragraph [ref=e687]: 联辰医疗招聘仓库管理员
+                    - paragraph
+                  - paragraph [ref=e689]:
+                    - generic [ref=e690]: 淄博 张店区 高新区
+                    - generic [ref=e691]: 1-3年
+                    - generic [ref=e692]: 学历不限
+              - listitem [ref=e693]:
+                - link "车间主任 淄博 张店区 高新区 3-5年 大专" [ref=e694] [cursor=pointer]:
+                  - /url: /job_detail/d09b735f72da9b220nR62965FFFS.html
+                  - generic [ref=e695]:
+                    - paragraph [ref=e696]: 车间主任
+                    - paragraph
+                  - paragraph [ref=e698]:
+                    - generic [ref=e699]: 淄博 张店区 高新区
+                    - generic [ref=e700]: 3-5年
+                    - generic [ref=e701]: 大专
+              - listitem [ref=e702]:
+                - link "销售内勤 淄博 张店区 高新区 1-3年 中专/中技" [ref=e703] [cursor=pointer]:
+                  - /url: /job_detail/ddcd30c7e105b6fd03143d20FFFQ.html
+                  - generic [ref=e704]:
+                    - paragraph [ref=e705]: 销售内勤
+                    - paragraph
+                  - paragraph [ref=e707]:
+                    - generic [ref=e708]: 淄博 张店区 高新区
+                    - generic [ref=e709]: 1-3年
+                    - generic [ref=e710]: 中专/中技
+            - link "查看更多职位" [ref=e711] [cursor=pointer]:
+              - /url: /gongsi/job/d90529dec3e814761nB60t21F1U~.html
+          - listitem [ref=e712]:
+            - link "中国人寿 中国人寿 不需要融资 500-999人 其他专业服务" [ref=e713] [cursor=pointer]:
+              - /url: /gongsi/41fd9151e7310aa81ndz09S_Eg~~.html
+              - img "中国人寿" [ref=e715]
+              - generic [ref=e716]:
+                - heading "中国人寿" [level=3] [ref=e717]
+                - paragraph [ref=e718]:
+                  - text: 不需要融资
+                  - text: 500-999人
+                  - text: 其他专业服务
+            - list [ref=e721]:
+              - listitem [ref=e722]:
+                - link "综合助理岗 淄博 经验不限 大专" [ref=e723] [cursor=pointer]:
+                  - /url: /job_detail/dd12c739a088b70b03x-2ty6FlNY.html
+                  - generic [ref=e724]:
+                    - paragraph [ref=e725]: 综合助理岗
+                    - paragraph
+                  - paragraph [ref=e727]:
+                    - generic [ref=e728]: 淄博
+                    - generic [ref=e729]: 经验不限
+                    - generic [ref=e730]: 大专
+              - listitem [ref=e731]:
+                - link "综合助理 淄博 经验不限 大专" [ref=e732] [cursor=pointer]:
+                  - /url: /job_detail/dc4aa9f202b77d1f03x_0ty9EVBU.html
+                  - generic [ref=e733]:
+                    - paragraph [ref=e734]: 综合助理
+                    - paragraph
+                  - paragraph [ref=e736]:
+                    - generic [ref=e737]: 淄博
+                    - generic [ref=e738]: 经验不限
+                    - generic [ref=e739]: 大专
+              - listitem [ref=e740]:
+                - link "柜面保全员 淄博 经验不限 大专" [ref=e741] [cursor=pointer]:
+                  - /url: /job_detail/01dbbe7e70e25bc503xz29u5FVNV.html
+                  - generic [ref=e742]:
+                    - paragraph [ref=e743]: 柜面保全员
+                    - paragraph
+                  - paragraph [ref=e745]:
+                    - generic [ref=e746]: 淄博
+                    - generic [ref=e747]: 经验不限
+                    - generic [ref=e748]: 大专
+            - link "查看更多职位" [ref=e749] [cursor=pointer]:
+              - /url: /gongsi/job/41fd9151e7310aa81ndz09S_Eg~~.html
+          - listitem [ref=e750]:
+            - link "山东职业技工学校 山东职业技工学校 未融资 20-99人 学校/学历教育" [ref=e751] [cursor=pointer]:
+              - /url: /gongsi/bcb170edc0f49db81nF43du7GA~~.html
+              - img "山东职业技工学校" [ref=e753]
+              - generic [ref=e754]:
+                - heading "山东职业技工学校" [level=3] [ref=e755]
+                - paragraph [ref=e756]:
+                  - text: 未融资
+                  - text: 20-99人
+                  - text: 学校/学历教育
+            - list [ref=e759]:
+              - listitem [ref=e760]:
+                - link "招生项目合伙人 淄博 经验不限 学历不限" [ref=e761] [cursor=pointer]:
+                  - /url: /job_detail/fee472d75ef8935f03Z53tq8F1VW.html
+                  - generic [ref=e762]:
+                    - paragraph [ref=e763]: 招生项目合伙人
+                    - paragraph
+                  - paragraph [ref=e765]:
+                    - generic [ref=e766]: 淄博
+                    - generic [ref=e767]: 经验不限
+                    - generic [ref=e768]: 学历不限
+              - listitem [ref=e769]:
+                - link "培训中心主任/培训总监 淄博 5-10年 本科" [ref=e770] [cursor=pointer]:
+                  - /url: /job_detail/e58d9d7d680400f3031y3t-1F1BT.html
+                  - generic [ref=e771]:
+                    - paragraph [ref=e772]: 培训中心主任/培训总监
+                    - paragraph
+                  - paragraph [ref=e774]:
+                    - generic [ref=e775]: 淄博
+                    - generic [ref=e776]: 5-10年
+                    - generic [ref=e777]: 本科
+              - listitem [ref=e778]:
+                - link "山东职业技工学校招聘焊工 淄博 1-3年 大专" [ref=e779] [cursor=pointer]:
+                  - /url: /job_detail/b1e889e2cdd2a05a03Z5392-FFZW.html
+                  - generic [ref=e780]:
+                    - paragraph [ref=e781]: 山东职业技工学校招聘焊工
+                    - paragraph
+                  - paragraph [ref=e783]:
+                    - generic [ref=e784]: 淄博
+                    - generic [ref=e785]: 1-3年
+                    - generic [ref=e786]: 大专
+            - link "查看更多职位" [ref=e787] [cursor=pointer]:
+              - /url: /gongsi/job/bcb170edc0f49db81nF43du7GA~~.html
+          - listitem [ref=e788]:
+            - link "山东飒露光学科技 山东飒露光学科技 未融资 100-499人 其他制造业" [ref=e789] [cursor=pointer]:
+              - /url: /gongsi/9528f03b260b0eec1Hdz29u9FlE~.html
+              - img "山东飒露光学科技" [ref=e791]
+              - generic [ref=e792]:
+                - heading "山东飒露光学科技" [level=3] [ref=e793]
+                - paragraph [ref=e794]:
+                  - text: 未融资
+                  - text: 100-499人
+                  - text: 其他制造业
+            - list [ref=e797]:
+              - listitem [ref=e798]:
+                - link "山东飒露光学科技招聘电工 淄博 1-3年 学历不限" [ref=e799] [cursor=pointer]:
+                  - /url: /job_detail/9b438c61b09969de03J52dm0ElVX.html
+                  - generic [ref=e800]:
+                    - paragraph [ref=e801]: 山东飒露光学科技招聘电工
+                    - paragraph
+                  - paragraph [ref=e803]:
+                    - generic [ref=e804]: 淄博
+                    - generic [ref=e805]: 1-3年
+                    - generic [ref=e806]: 学历不限
+              - listitem [ref=e807]:
+                - link "山东飒露光学科技招聘机修工 淄博 1-3年 学历不限" [ref=e808] [cursor=pointer]:
+                  - /url: /job_detail/dfb1301412626e611HJ_0tW7GVtS.html
+                  - generic [ref=e809]:
+                    - paragraph [ref=e810]: 山东飒露光学科技招聘机修工
+                    - paragraph
+                  - paragraph [ref=e812]:
+                    - generic [ref=e813]: 淄博
+                    - generic [ref=e814]: 1-3年
+                    - generic [ref=e815]: 学历不限
+              - listitem [ref=e816]:
+                - link "山东飒露光学科技招聘电工 淄博 1年以内 初中及以下" [ref=e817] [cursor=pointer]:
+                  - /url: /job_detail/b918ce2ba20487c103B509i1F1dX.html
+                  - generic [ref=e818]:
+                    - paragraph [ref=e819]: 山东飒露光学科技招聘电工
+                    - paragraph
+                  - paragraph [ref=e821]:
+                    - generic [ref=e822]: 淄博
+                    - generic [ref=e823]: 1年以内
+                    - generic [ref=e824]: 初中及以下
+            - link "查看更多职位" [ref=e825] [cursor=pointer]:
+              - /url: /gongsi/job/9528f03b260b0eec1Hdz29u9FlE~.html
+        - paragraph [ref=e826]:
+          - link "查看更多" [ref=e827] [cursor=pointer]:
+            - /url: /gongsi/_zzz_c101120300/
+    - generic [ref=e829]:
+      - generic [ref=e830]:
+        - paragraph [ref=e831]: 企业服务热线和算法/未成年人等举报渠道 400 065 5799
+        - paragraph [ref=e832]: 老年人直连热线400 661 6030
+        - paragraph [ref=e833]: 工作日 8:00 - 22:00
+        - paragraph [ref=e834]: 休息日 8:00 - 22:00
+        - paragraph [ref=e835]:
+          - link [ref=e836] [cursor=pointer]:
+            - /url: https://www.weibo.com/bosszhipin
+          - link [ref=e837] [cursor=pointer]:
+            - /url: javascript:;
+          - link [ref=e838] [cursor=pointer]:
+            - /url: https://app.zhipin.com
+          - link "boss直聘电脑端下载" [ref=e839] [cursor=pointer]:
+            - /url: https://www.zhipin.com/desktop/
+      - generic [ref=e840]:
+        - generic [ref=e841]:
+          - term [ref=e842]: 企业服务
+          - definition [ref=e843]:
+            - link "职位搜索" [ref=e844] [cursor=pointer]:
+              - /url: https://www.zhipin.com/job_detail/
+            - link "BOSS直聘APP" [ref=e845] [cursor=pointer]:
+              - /url: https://app.zhipin.com/
+            - link "投资者关系 Investor Relations" [ref=e846] [cursor=pointer]:
+              - /url: https://ir.zhipin.com/
+            - link "直品公益基金会" [ref=e847] [cursor=pointer]:
+              - /url: https://gongyi.zhipin.com/home
+        - generic [ref=e848]:
+          - term [ref=e849]: 使用与帮助
+          - definition [ref=e850]:
+            - link "协议与规则" [ref=e851] [cursor=pointer]:
+              - /url: https://about.zhipin.com/agreement
+            - link "隐私政策" [ref=e852] [cursor=pointer]:
+              - /url: https://about.zhipin.com/agreement?id=personalinfopro
+            - link "防骗指南" [ref=e853] [cursor=pointer]:
+              - /url: https://www.zhipin.com/web/common/protocol/cheat-guide.html
+            - link "使用帮助" [ref=e854] [cursor=pointer]:
+              - /url: https://www.zhipin.com/web/common/protocol/use-help.html
+        - generic [ref=e855]:
+          - term [ref=e856]: 联系BOSS直聘
+          - definition [ref=e857]:
+            - paragraph [ref=e858]: 北京华品博睿网络技术有限公司
+            - paragraph [ref=e859]: 公司地址 北京市朝阳区太阳宫中路16号院1号楼18层1801内09
+            - paragraph [ref=e860]:
+              - text: 违法和不良信息举报邮箱/未成年人举报渠道
+              - link "jubao@kanzhun.com" [ref=e861] [cursor=pointer]:
+                - /url: mailto:jubao@kanzhun.com
+      - paragraph [ref=e863]:
+        - generic [ref=e864]: Copyright © 2026 BOSS直聘
+        - link "京ICP备14013441号-5" [ref=e866] [cursor=pointer]:
+          - /url: https://beian.miit.gov.cn/
+        - generic [ref=e867]: 京ICP证150923号
+        - link "电子营业执照" [ref=e869] [cursor=pointer]:
+          - /url: https://www.zhipin.com/web/common/protocol/business-license.html
+        - link "京公网安备11010502032801" [ref=e871] [cursor=pointer]:
+          - /url: http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502032801
+        - link "朝阳网警" [ref=e873] [cursor=pointer]:
+          - /url: https://sdwj.zhipin.com/web/index.html
+        - link "人力资源服务许可证" [ref=e875] [cursor=pointer]:
+          - /url: https://www.zhipin.com/web/common/protocol/hr-service.html
+        - link "网上有害信息举报专区" [ref=e877] [cursor=pointer]:
+          - /url: https://www.12377.cn
+        - generic [ref=e878] [cursor=pointer]: 朝阳区人社局监督电话
+        - link "算法备案信息" [ref=e880] [cursor=pointer]:
+          - /url: https://about.zhipin.com/agreement?id=b9f73536711c4928bde84337cb53aa91
+    - text: 正在加载中 正在加载中
+  - iframe

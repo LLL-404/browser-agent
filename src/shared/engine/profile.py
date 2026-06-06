@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -27,7 +27,7 @@ class UrlTemplate:
 
 @dataclass
 class UrlsConfig:
-    search: List[UrlTemplate] = field(default_factory=list)
+    search: list[UrlTemplate] = field(default_factory=list)
 
 
 @dataclass
@@ -48,24 +48,24 @@ class PaginationConfig:
 
 @dataclass
 class DetailSelectors:
-    description: List[str] = field(default_factory=list)
-    company: List[str] = field(default_factory=list)
-    recruiter_active: List[str] = field(default_factory=list)
+    description: list[str] = field(default_factory=list)
+    company: list[str] = field(default_factory=list)
+    recruiter_active: list[str] = field(default_factory=list)
     panel_salary: str = ""
 
 
 @dataclass
 class CaptchaConfig:
-    indicators: List[str] = field(default_factory=list)
-    keywords: List[str] = field(default_factory=list)
+    indicators: list[str] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
 
 
 @dataclass
 class LoginConfig:
     user_menu: str = ""
-    page_auth_patterns: List[str] = field(default_factory=list)
-    text_positive: List[str] = field(default_factory=list)
-    text_negative: List[str] = field(default_factory=list)
+    page_auth_patterns: list[str] = field(default_factory=list)
+    text_positive: list[str] = field(default_factory=list)
+    text_negative: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -98,7 +98,7 @@ class ReportDimension:
 @dataclass
 class ReportConfig:
     score_threshold: int = 6
-    dimensions: List[ReportDimension] = field(default_factory=list)
+    dimensions: list[ReportDimension] = field(default_factory=list)
 
 
 @dataclass
@@ -108,7 +108,7 @@ class SiteProfile:
     navigation: NavigationConfig = field(default_factory=NavigationConfig)
     urls: UrlsConfig = field(default_factory=UrlsConfig)
     dom: DomConfig = field(default_factory=DomConfig)
-    filters: List[FilterRule] = field(default_factory=list)
+    filters: list[FilterRule] = field(default_factory=list)
     report: ReportConfig = field(default_factory=ReportConfig)
 
     # 运行时合并的全局配置引用（从 config.yaml 注入）
@@ -128,7 +128,7 @@ class SiteProfile:
         return val if val is not None else default
 
 
-def load_profile(name: str, global_config: Optional[dict] = None) -> SiteProfile:
+def load_profile(name: str, global_config: dict | None = None) -> SiteProfile:
     """从 profiles/{name}.yaml 加载站点画像。"""
     import yaml
 
@@ -136,7 +136,7 @@ def load_profile(name: str, global_config: Optional[dict] = None) -> SiteProfile
     profile_path = os.path.join(base_dir, "profiles", f"{name}.yaml")
     if not os.path.exists(profile_path):
         raise FileNotFoundError(f"站点画像不存在: {profile_path}")
-    with open(profile_path, "r", encoding="utf-8") as f:
+    with open(profile_path, encoding="utf-8") as f:
         raw: dict = yaml.safe_load(f) or {}
     profile = _dict_to_profile(raw)
     if global_config:

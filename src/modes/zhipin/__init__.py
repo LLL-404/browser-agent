@@ -1,13 +1,15 @@
 """BOSS 直聘模式 — 模式注册、MCP 工具定义、CLI 命令绑定。"""
 
+from browser_agent.core.agent import BrowserAgent
 from modes.zhipin.scraper import (
-    search_jobs, analyze_jobs, import_analysis,
-    generate_report, generate_chat_prompt, health_check,
+    analyze_jobs,
+    generate_chat_prompt,
+    generate_report,
+    health_check,
+    import_analysis,
+    search_jobs,
 )
-from modes.zhipin.storage import get_jobs, get_job_by_id, update_job_status, get_stats, JobQuery
-from modes.zhipin.pre_filter import should_skip_job
-from modes.zhipin.exporter import export_for_analysis, import_from_analysis
-from agent.core.agent import BrowserAgent
+from modes.zhipin.storage import JobQuery, get_job_by_id, get_jobs, get_stats, update_job_status
 
 __all__ = [
     "search_jobs", "analyze_jobs", "import_analysis",
@@ -17,7 +19,7 @@ __all__ = [
 
 
 def get_mcp_tools():
-    from mcp import types
+    from mcp import types  # noqa: PLC0415
     return [
         types.Tool(name="search_jobs", description="在BOSS直聘搜索职位并存入数据库",
                    inputSchema={"type": "object", "properties": {
@@ -75,7 +77,7 @@ async def handle_mcp_call(name: str, arguments: dict, agent: BrowserAgent) -> li
     elif name == "generate_chat_prompt":
         result = generate_chat_prompt(arguments.get("job_id"))
     elif name == "filter_jobs":
-        from modes.zhipin.scraper import _filter_jobs_internal
+        from modes.zhipin.scraper import _filter_jobs_internal  # noqa: PLC0415
         result = _filter_jobs_internal(arguments.get("json_data", ""),
                                         arguments.get("title_kw", ""),
                                         arguments.get("min_salary", 0),
@@ -84,7 +86,7 @@ async def handle_mcp_call(name: str, arguments: dict, agent: BrowserAgent) -> li
         result = await health_check()
     else:
         return None
-    from mcp import types
+    from mcp import types  # noqa: PLC0415
     return [types.TextContent(type="text", text=str(result))]
 
 
@@ -109,14 +111,14 @@ def register_cli(subparsers):
 
 def _get_engine():
     """延迟导入引擎，避免循环依赖。"""
-    from shared.engine import ScrapingEngine, load_profile
-    from shared.config import get_config
+    from shared.config import get_config  # noqa: PLC0415
+    from shared.engine import ScrapingEngine, load_profile  # noqa: PLC0415
     profile = load_profile("zhipin", global_config=get_config())
     return ScrapingEngine(profile)
 
 
 async def run_cli(args) -> int:
-    from shared.logging_config import setup_logging
+    from shared.logging_config import setup_logging  # noqa: PLC0415
     setup_logging()
     if args.command == "run":
         from modes.zhipin.search_flow import main as run
@@ -134,17 +136,19 @@ async def run_cli(args) -> int:
         from modes.zhipin.scraper import generate_chat_prompt
         print(generate_chat_prompt(args.job_id))
     elif args.command == "stats":
-        from modes.zhipin.storage import get_stats
-        import json; print(json.dumps(get_stats(), ensure_ascii=False, indent=2))
+        import json  # noqa: PLC0415
+
+        from modes.zhipin.storage import get_stats  # noqa: PLC0415
+        print(json.dumps(get_stats(), ensure_ascii=False, indent=2))
     elif args.command == "status":
         from modes.zhipin.storage import update_job_status
         update_job_status(args.job_id, args.new_status)
         print("状态已更新")
     elif args.command == "serve":
-        from agent.mcp.server import main as mcp_main
+        from browser_agent.mcp.server import main as mcp_main
         await mcp_main()
     elif args.command == "browse":
-        from agent.core.browser import BrowserController
+        from browser_agent.core.browser import BrowserController
         ctrl = BrowserController()
         await ctrl.launch(headless=False)
         engine = _get_engine()

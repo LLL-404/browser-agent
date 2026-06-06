@@ -3,6 +3,7 @@
 新的过滤方式: FilterChain(profile.filters, profile).evaluate(job)
 """
 import warnings
+
 warnings.warn(
     "pre_filter.py 已废弃，过滤规则已迁移至 profiles/zhipin.yaml 的 filters 段。"
     "请使用 shared.engine.FilterChain 替代。",

@@ -2,7 +2,7 @@
   "mcpServers": {
     "browser-agent": {
       "command": "python",
-      "args": ["-m", "agent.mcp.server"],
+      "args": ["-m", "browser_agent.mcp.server"],
       "env": {"PYTHONIOENCODING": "utf-8"},
       "cwd": "d:\\G\\github\\游览器agent"
     },

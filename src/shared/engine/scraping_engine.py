@@ -1,19 +1,20 @@
 # src/shared/engine/scraping_engine.py
 """通用爬取主引擎 — 读取 SiteProfile，按声明式流程执行。"""
 from __future__ import annotations
+
 import asyncio
 import time
 from typing import Any
 
-from shared.engine.profile import SiteProfile
-from shared.engine.url_builder import UrlBuilder
+from browser_agent.core.anti_detect import human_scroll, random_delay
+from shared.delay import delay
+from shared.engine.adapter_protocol import DefaultAdapter
 from shared.engine.dom_reader import DomReader
 from shared.engine.filter_chain import FilterChain
+from shared.engine.profile import SiteProfile
 from shared.engine.report_builder import ReportBuilder
-from shared.engine.adapter_protocol import DefaultAdapter
-from shared.delay import delay
+from shared.engine.url_builder import UrlBuilder
 from shared.logging_config import get_logger
-from agent.core.anti_detect import human_scroll, random_delay
 
 logger = get_logger("engine")
 
@@ -47,11 +48,10 @@ class ScrapingEngine:
     async def run(self, cities=None, keywords=None, max_detail=None,
                   headless=False) -> dict[str, Any]:
         """主入口：导航 → 登录检测 → 逐城市搜索。"""
-        from modes.zhipin.storage import init_db, get_searched_cities, insert_job, update_search_log
-        from modes.zhipin.city_codes import get_city_code
-        from modes.zhipin.keyword_strategy import get_initial_keyword, get_keywords_for_city
         from playwright.async_api import async_playwright
-        from agent.core.anti_detect import STEALTH_SCRIPT, ANTI_REDIRECT_SCRIPT, build_browser_kwargs
+
+        from browser_agent.core.anti_detect import ANTI_REDIRECT_SCRIPT, STEALTH_SCRIPT, build_browser_kwargs
+        from modes.zhipin.storage import get_searched_cities, init_db
 
         cfg_dict = self.profile._global_config or {}
         init_db()
@@ -111,7 +111,7 @@ class ScrapingEngine:
 
     async def generate_report(self, *args, **kwargs) -> str:
         """委托给 ReportBuilder。"""
-        from modes.zhipin.storage import get_jobs, JobQuery
+        from modes.zhipin.storage import JobQuery, get_jobs
         jobs = get_jobs(JobQuery(status="analyzed", exclude_ignored=True))
         return self.report_builder.generate(jobs, *args, **kwargs)
 
@@ -127,7 +127,7 @@ class ScrapingEngine:
                     if await self._check_login(page):
                         logger.info("登录成功")
                         return True
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error("登录超时")
             return False
 

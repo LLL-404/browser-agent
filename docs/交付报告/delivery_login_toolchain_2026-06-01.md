@@ -8,7 +8,7 @@
 ## 任务一：auto_detect_login 开发完成
 
 **交付物**：`agent/core/session.py` — `auto_detect_login` 函数
-**新增 CLI**：`python -m agent.cli.main login --url <URL> --save <PATH> [--cookie <NAME>]`
+**新增 CLI**：`python -m browser_agent.cli.main login --url <URL> --save <PATH> [--cookie <NAME>]`
 
 ### 检测维度
 

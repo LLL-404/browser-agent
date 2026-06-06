@@ -1,7 +1,7 @@
 """统一配置管理模块，提供单例模式的 YAML 配置加载与缓存。"""
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import yaml
 
@@ -9,10 +9,10 @@ import yaml
 class _ConfigManager:
     """配置管理器，类级别缓存已加载的配置，避免重复 I/O。"""
 
-    _config: Dict[str, Any] | None = None
+    _config: dict[str, Any] | None = None
 
     @classmethod
-    def load_config(cls, config_path: str = "config.yaml") -> Dict[str, Any]:
+    def load_config(cls, config_path: str = "config.yaml") -> dict[str, Any]:
         """加载 YAML 配置文件，首次调用后缓存。
 
         参数:
@@ -26,13 +26,13 @@ class _ConfigManager:
             if not cfg_path.exists():
                 raise FileNotFoundError(f"配置文件不存在: {config_path}")
 
-            with open(cfg_path, "r", encoding="utf-8") as f:
+            with open(cfg_path, encoding="utf-8") as f:
                 cls._config = yaml.safe_load(f) or {}
 
         return cls._config
 
     @classmethod
-    def reload_config(cls, config_path: str = "config.yaml") -> Dict[str, Any]:
+    def reload_config(cls, config_path: str = "config.yaml") -> dict[str, Any]:
         """强制重新加载配置文件，清除缓存后重新读取。
 
         参数:
@@ -45,7 +45,7 @@ class _ConfigManager:
         return cls.load_config(config_path)
 
 
-def get_config() -> Dict[str, Any]:
+def get_config() -> dict[str, Any]:
     """获取当前配置的便捷函数。
 
     返回:

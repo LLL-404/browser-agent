@@ -30,13 +30,11 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["tests*"]
+include = ["browser_agent*"]
 
 # ====== Entry Points (CLI Commands) ======
 [project.scripts]
-agent-cli = "agent.cli.main:main"
-chat-agent = "chat.cli:main"
-send-report = "scripts.report.send_report:main"
+agent = "browser_agent.cli.main:main"
 
 # ====== Ruff 配置 ======
 [tool.ruff]
@@ -57,14 +55,17 @@ select = [
     "ASYNC",  # flake8-async
 ]
 ignore = [
-    "E501",   # 行过长（由 formatter 处理）
-    "N806",   # 变量名大写（配置字典常用）
-    "N802",   # 函数名大写（handler 函数）
-    "B008",   # 函数默认参数可变值（async handler 常用）
+    "E501",   # 行过长(由 formatter 处理)
+    "N806",   # 变量名大写(配置字典常用)
+    "N802",   # 函数名大写(handler 函数)
+    "B008",   # 函数默认参数可变值(async handler 常用)
+    "RUF001", # 中文字符串含全角标点(中文排版需要)
+    "RUF002", # 中文文档字符串含全角标点(中文排版需要)
+    "RUF003", # 中文注释含全角标点(中文排版需要)
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["agent", "chat", "modes", "scripts", "shared"]
+known-first-party = ["browser_agent", "modes", "shared"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -85,7 +86,7 @@ ignore_missing_imports = true
 
 # ====== Pytest 配置 ======
 [tool.pytest.ini_options]
-testpaths = ["src/tests"]
+testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -94,7 +95,7 @@ addopts = "-v --tb=short"
 
 # ====== Coverage 配置 ======
 [tool.coverage.run]
-source = ["src/agent", "src/chat", "src/modes", "src/scripts", "src/shared"]
+source = ["src/browser_agent", "modes", "shared"]
 relative_files = true
 branch = true
 omit = [
@@ -114,7 +115,7 @@ exclude_lines = [
 fail_under = 20
 
 [tool.coverage.paths]
-source = ["src/agent", "src/chat", "src/modes", "src/scripts", "src/shared"]
+source = ["src/browser_agent", "modes", "shared"]
 project = ["src"]
 
 [tool.coverage.html]

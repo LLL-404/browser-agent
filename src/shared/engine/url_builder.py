@@ -1,7 +1,7 @@
 # src/shared/engine/url_builder.py
 """URL 构建器 — 从 Profile.urls 模板构建实际访问地址。"""
 from __future__ import annotations
-from typing import Optional
+
 from shared.engine.profile import SiteProfile, UrlsConfig
 
 

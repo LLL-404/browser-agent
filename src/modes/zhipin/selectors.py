@@ -5,6 +5,7 @@
 - 2026-06-04: 更新为适配 BOSS 直聘新版页面结构
 """
 import warnings
+
 warnings.warn(
     "selectors.py 已废弃，选择器已迁移至 profiles/zhipin.yaml 的 dom 段。"
     "请使用 shared.engine.DomReader 替代。",

@@ -91,7 +91,7 @@ def save_report(content: str, output_dir: str = "data/reports") -> Path:
 
 def import_analysis_from_json(json_path: str) -> list[dict]:
     """从 JSON 文件读取 AI 分析结果"""
-    with open(json_path, "r", encoding="utf-8") as f:
+    with open(json_path, encoding="utf-8") as f:
         data = json.load(f)
     return data
 

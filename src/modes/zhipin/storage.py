@@ -1,12 +1,11 @@
 """数据持久化模块，提供 SQLite 数据库的初始化与 CRUD 操作。"""
 
-import sqlite3
 import json
+import sqlite3
+from collections.abc import Generator
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Generator
-
 
 DB_PATH = Path("data/jobs.db")
 

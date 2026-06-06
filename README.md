@@ -21,17 +21,17 @@ pip install -r requirements.txt
 playwright install chromium
 
 # 3. 运行 CLI（交互模式）
-python -m agent.cli.main browse
+python -m browser_agent.cli.main browse
 
 # 4. 或启动 MCP 服务器（供 AI 编辑器连接）
-python -m agent.mcp.server
+python -m browser_agent.mcp.server
 ```
 
 ## 项目结构
 
 ```
 游览器agent/
-├── agent/                    # 核心框架层
+├── browser_agent/            # 核心框架层
 │   ├── cli/main.py           #   CLI 入口（argparse，--mode 加载业务模式）
 │   ├── core/                 #   浏览器引擎
 │   │   ├── browser.py        #     双引擎控制（Camoufox → Playwright 自动回退）
@@ -78,13 +78,13 @@ python -m agent.mcp.server
 
 ```bash
 # 启动浏览器（交互浏览）
-python -m agent.cli.main browse
+python -m browser_agent.cli.main browse
 
 # 登录指定网站并保存会话
-python -m agent.cli.main login --url https://example.com
+python -m browser_agent.cli.main login --url https://example.com
 
 # 加载业务模式
-python -m agent.cli.main --mode zhipin run
+python -m browser_agent.cli.main --mode zhipin run
 ```
 
 ### MCP 服务器
@@ -93,10 +93,10 @@ MCP 服务器通过 stdio 或 SSE 协议向 AI 编辑器暴露工具：
 
 ```bash
 # stdio 模式（默认，供编辑器集成）
-python -m agent.mcp.server
+python -m browser_agent.mcp.server
 
 # SSE 模式（远程连接）
-python -m agent.mcp.server --port 8080
+python -m browser_agent.mcp.server --port 8080
 ```
 
 支持的工具类别：浏览器控制、页面分析、会话管理、模式业务工具（按加载的模式动态注册）。
@@ -110,7 +110,7 @@ python -m agent.mcp.server --port 8080
   "mcpServers": {
     "browser-agent": {
       "command": "python",
-      "args": ["-m", "agent.mcp.server"],
+      "args": ["-m", "browser_agent.mcp.server"],
       "cwd": "D:\\G\\github\\游览器agent"
     }
   }

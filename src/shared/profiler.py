@@ -6,7 +6,8 @@ import asyncio
 import functools
 import threading
 import time
-from typing import Any, Callable, ParamSpec, TypeVar
+from collections.abc import Callable
+from typing import Any, ParamSpec, TypeVar
 
 from shared.logging_config import get_logger
 
@@ -177,7 +178,7 @@ def generate_report() -> str:
         "# 性能分析报告",
         f"生成时间: {__import__('datetime').datetime.now().isoformat()}",
         "",
-        f"## 总览",
+        "## 总览",
         f"- 总调用次数: {total_calls}",
         f"- 总耗时: {total_time:.2f} 秒",
         f"- 监控函数数: {len(_stats)}",

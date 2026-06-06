@@ -22,7 +22,7 @@
 - 模式注册机制：启动时自动扫描 `modes/` 目录，每个子包提供 `get_mcp_tools()`
 
 ### T3: agent/cli/main.py — 通用 CLI 入口
-- `--mode` 参数分派：`python -m agent.cli.main --mode zhipin stats`
+- `--mode` 参数分派：`python -m browser_agent.cli.main --mode zhipin stats`
 - `browse` 通用子命令
 
 ### T4: modes/zhipin/ — BOSS 直聘插件
@@ -114,9 +114,9 @@ boss-job-hunter/
 | 测试项 | 结果 |
 |--------|------|
 | `pytest tests/` | **52/52 通过** |
-| `python -m agent.cli.main --help` | 正常输出 |
-| `python -m agent.cli.main --mode zhipin stats` | 正常输出 JSON 统计 |
-| `from agent.mcp.server import main` | 导入正常 |
+| `python -m browser_agent.cli.main --help` | 正常输出 |
+| `python -m browser_agent.cli.main --mode zhipin stats` | 正常输出 JSON 统计 |
+| `from browser_agent.mcp.server import main` | 导入正常 |
 | `scripts/manual/verify_system.py` | 全部模块通过 |
 
 ---
@@ -125,14 +125,14 @@ boss-job-hunter/
 
 | 旧命令 | 新命令 |
 |--------|--------|
-| `python -m entry.cli.main` | `python -m agent.cli.main --mode zhipin` |
-| `python -m entry.mcp.server` | `python -m agent.mcp.server` |
+| `python -m entry.cli.main` | `python -m browser_agent.cli.main --mode zhipin` |
+| `python -m entry.mcp.server` | `python -m browser_agent.mcp.server` |
 | `from core.engine.scraper import ...` | `from modes.zhipin.scraper import ...` |
 | `from core.infra.config import ...` | `from shared.config import ...` |
 | `from core.infra.logging_config import ...` | `from shared.logging_config import ...` |
 | `from core.infra.retry import ...` | `from shared.retry import ...` |
 | `from core.infra.storage import ...` | `from modes.zhipin.storage import ...` |
-| `from core.infra.cookie_manager import ...` | `from agent.core.session import ...` |
+| `from core.infra.cookie_manager import ...` | `from browser_agent.core.session import ...` |
 
 ---
 

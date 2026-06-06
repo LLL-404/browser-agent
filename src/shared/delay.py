@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import asyncio
 import random
-from typing import Optional
 
 from shared.config import get_config
 
@@ -26,7 +25,7 @@ def get_delay(name: str) -> float:
     return float(delays.get(name, _DEFAULT_SECONDS))
 
 
-async def delay(name: str, custom_seconds: Optional[float] = None) -> None:
+async def delay(name: str, custom_seconds: float | None = None) -> None:
     """执行命名延迟等待。
 
     Args:
