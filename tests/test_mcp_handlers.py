@@ -1,5 +1,4 @@
 """MCP Handler 单元测试 — mock 隔离测试各 handler 的正常路径与异常路径。"""
-# pylint: disable=redefined-outer-name,protected-access,missing-function-docstring,missing-class-docstring,too-few-public-methods
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock
@@ -276,7 +275,7 @@ class TestStorage:
         assert r["cookie"] is None
 
     @pytest.mark.asyncio
-    async def test_cookie_set(self, mock_agent, mock_ctrl, mock_page):  # pylint: disable=unused-argument
+    async def test_cookie_set(self, mock_agent, mock_ctrl, mock_page):
         r = await _cookie_set(mock_agent, mock_ctrl, {"name": "test", "value": "val"})
         assert r["ok"] is True
 
@@ -314,7 +313,7 @@ class TestVision:
         mock_page.mouse.click.assert_awaited_with(100, 200, button="left")
 
     @pytest.mark.asyncio
-    async def test_drag_coordinate(self, mock_agent, mock_ctrl, mock_page):  # pylint: disable=unused-argument
+    async def test_drag_coordinate(self, mock_agent, mock_ctrl, mock_page):
         r = await _drag_coordinate(
             mock_agent, mock_ctrl,
             {"start_x": 0, "start_y": 0, "end_x": 100, "end_y": 100},
@@ -322,7 +321,7 @@ class TestVision:
         assert r["ok"] is True
 
     @pytest.mark.asyncio
-    async def test_hover_coordinate(self, mock_agent, mock_ctrl, mock_page):  # pylint: disable=unused-argument
+    async def test_hover_coordinate(self, mock_agent, mock_ctrl, mock_page):
         r = await _hover_coordinate(mock_agent, mock_ctrl, {"x": 50, "y": 50})
         assert r["ok"] is True
 
@@ -381,7 +380,7 @@ class TestErrors:
         assert "fields" in r
 
     @pytest.mark.asyncio
-    async def test_vision_missing_coords(self, mock_agent, mock_ctrl, mock_page):  # pylint: disable=unused-argument
+    async def test_vision_missing_coords(self, mock_agent, mock_ctrl, mock_page):
         r = await _click_coordinate(mock_agent, mock_ctrl, {})
         assert r["ok"] is True  # defaults to 0,0
 

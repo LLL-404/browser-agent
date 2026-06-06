@@ -24,7 +24,7 @@ def _read_text_file(path: Path) -> str:
 
 def _read_pdf_file(path: Path) -> str:
     try:
-        from PyPDF2 import PdfReader
+        from PyPDF2 import PdfReader  # pylint: disable=import-outside-toplevel
     except ImportError:
         return f"[PDF 解析需要 PyPDF2 库: {path.name}]"
     try:
@@ -35,7 +35,7 @@ def _read_pdf_file(path: Path) -> str:
             if text:
                 pages.append(text)
         return "\n\n".join(pages)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.warning("PDF 解析失败 %s: %s", path, e)
         return f"[PDF 解析失败: {path.name}]"
 
@@ -63,6 +63,7 @@ class KnowledgeSource:
         self._tokens = _simple_tokenize(content)
 
     def match_score(self, query: str) -> float:
+        """计算查询与当前知识来源的关键词匹配分数。"""
         q_tokens = _simple_tokenize(query)
         return _keyword_score(q_tokens, self._tokens)
 
@@ -119,7 +120,7 @@ class KnowledgeBase:
                     self.sources.append(KnowledgeSource(name, content, "sqlite"))
 
             conn.close()
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("SQLite 加载失败: %s", e)
 
     def _load_docs_dir(self) -> None:
@@ -134,7 +135,7 @@ class KnowledgeBase:
                     name = f"doc:{rel}"
                     self.sources.append(KnowledgeSource(name, content, "doc"))
                     self._loaded_paths.add(str(fp.resolve()))
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.warning("文档加载失败 %s: %s", fp, e)
 
     def load_file(self, path: str) -> str:
@@ -172,7 +173,7 @@ class KnowledgeBase:
                 rel = str(path)
                 self.sources.append(KnowledgeSource(rel, content, "file"))
                 self._loaded_paths.add(str(path.resolve()))
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("文件加载失败 %s: %s", path, e)
 
     def search(self, query: str, top_k: int = 5) -> list[tuple[str, str, float]]:

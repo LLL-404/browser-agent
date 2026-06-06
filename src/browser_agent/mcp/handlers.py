@@ -401,7 +401,7 @@ async def _pdf_save(_agent, ctrl, args):
 # ── DevTools ──
 
 
-async def _devtools_dispatcher(_agent, ctrl, args, tool_name: str):  # pylint: disable=too-many-return-statements
+async def _devtools_dispatcher(_agent, ctrl, args, tool_name: str):
     page = ctrl.require_page()
     try:
         cdp = await page.context.new_cdp_session(page)

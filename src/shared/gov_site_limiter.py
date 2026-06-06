@@ -29,22 +29,22 @@ class GovernmentSiteLimiter:
         return cls._instance
 
     def _init(self):
-        self._request_timestamps = []
-        self._last_request_time = 0
-        self._enabled = True
-        self._domains = []
+        self._request_timestamps = []  # pylint: disable=attribute-defined-outside-init
+        self._last_request_time = 0  # pylint: disable=attribute-defined-outside-init
+        self._enabled = True  # pylint: disable=attribute-defined-outside-init
+        self._domains = []  # pylint: disable=attribute-defined-outside-init
         self._load_config()
 
     def _load_config(self):
         """加载政府网站配置"""
         cfg = get_config()
         gov_cfg = cfg.get("government_site", {})
-        self._enabled = gov_cfg.get("enabled", True)
-        self._domains = gov_cfg.get("domains", [])
-        self._max_requests_per_minute = gov_cfg.get("rate_limit", {}).get("max_requests_per_minute", 5)
-        self._max_requests_per_hour = gov_cfg.get("rate_limit", {}).get("max_requests_per_hour", 30)
-        self._min_interval_ms = gov_cfg.get("rate_limit", {}).get("min_interval_ms", 3000)
-        self._delays = gov_cfg.get("delays", {})
+        self._enabled = gov_cfg.get("enabled", True)  # pylint: disable=attribute-defined-outside-init
+        self._domains = gov_cfg.get("domains", [])  # pylint: disable=attribute-defined-outside-init
+        self._max_requests_per_minute = gov_cfg.get("rate_limit", {}).get("max_requests_per_minute", 5)  # pylint: disable=attribute-defined-outside-init
+        self._max_requests_per_hour = gov_cfg.get("rate_limit", {}).get("max_requests_per_hour", 30)  # pylint: disable=attribute-defined-outside-init
+        self._min_interval_ms = gov_cfg.get("rate_limit", {}).get("min_interval_ms", 3000)  # pylint: disable=attribute-defined-outside-init
+        self._delays = gov_cfg.get("delays", {})  # pylint: disable=attribute-defined-outside-init
 
     def is_government_site(self, url: str) -> bool:
         """判断 URL 是否为政府网站"""
@@ -58,14 +58,14 @@ class GovernmentSiteLimiter:
                 if gov_domain.lower() in domain:
                     return True
             return False
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return False
 
     def _cleanup_timestamps(self):
         """清理过期的请求时间戳"""
         now = time.time()
         # 保留最近1小时的请求记录
-        self._request_timestamps = [t for t in self._request_timestamps if now - t < 3600]
+        self._request_timestamps = [t for t in self._request_timestamps if now - t < 3600]  # pylint: disable=attribute-defined-outside-init
 
     def _get_request_count(self, seconds: int) -> int:
         """获取指定时间范围内的请求数量"""
@@ -117,7 +117,7 @@ class GovernmentSiteLimiter:
         # 记录请求
         now = time.time()
         self._request_timestamps.append(now)
-        self._last_request_time = now
+        self._last_request_time = now  # pylint: disable=attribute-defined-outside-init
 
         return {
             "is_gov_site": True,

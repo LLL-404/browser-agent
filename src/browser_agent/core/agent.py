@@ -57,6 +57,7 @@ class BrowserAgent:
 
     @property
     def is_running(self) -> bool:
+        """返回浏览器是否正在运行。"""
         return self._ctrl.is_running
 
     async def open(self, headless: bool = False,
@@ -77,10 +78,12 @@ class BrowserAgent:
         return page
 
     async def close(self) -> dict[str, Any]:
+        """关闭浏览器。"""
         ok = await self._ctrl.stop()
         return {"ok": ok, "message": "浏览器已关闭" if ok else "关闭失败"}
 
     async def navigate(self, url: str) -> dict[str, Any]:
+        """导航到指定 URL。"""
         self._step_count += 1
         try:
             ok = await self._ctrl.navigate_to(url)
@@ -97,7 +100,7 @@ class BrowserAgent:
             error["step"] = self._step_count
             error["ok"] = False
             return error
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.exception("导航时发生未预期异常: %s", e)
             return {
                 "ok": False,
@@ -158,11 +161,13 @@ class BrowserAgent:
                 "step": self._step_count}
 
     async def press(self, key: str = "Enter") -> dict[str, Any]:
+        """模拟按键。"""
         self._step_count += 1
         ok = await self._ctrl.press_key(key)
         return {"ok": ok, "key": key, "step": self._step_count}
 
     async def scroll(self, delta: int = 500) -> dict[str, Any]:
+        """滚动页面。"""
         self._step_count += 1
         ok = await self._ctrl.scroll_page(delta)
         return {"ok": ok, "delta": delta, "step": self._step_count}
@@ -229,7 +234,7 @@ class BrowserAgent:
                         "value": value, "step": self._step_count}
             return {"ok": False, "error": f"未知操作: {action}",
                     "step": self._step_count}
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             return {"ok": False, "error": str(e), "step": self._step_count}
 
     # ── 等待 ──────────────────────────────────────────────────
@@ -283,12 +288,15 @@ class BrowserAgent:
         return result
 
     async def html(self, max_len: int = 8000) -> dict[str, Any]:
+        """获取当前页面 HTML。"""
         return {"ok": True, "html": await self._ctrl.get_page_html(max_len)}
 
     async def text(self, max_len: int = 3000) -> dict[str, Any]:
+        """获取当前页面文本。"""
         return {"ok": True, "text": await self._ctrl.get_page_text(max_len)}
 
     async def url(self) -> dict[str, Any]:
+        """获取当前页面 URL 和标题。"""
         return {
             "ok": True,
             "url": await self._ctrl.get_current_url(),
@@ -296,7 +304,8 @@ class BrowserAgent:
         }
 
     async def screenshot(self, full_page: bool = False) -> dict[str, Any]:
-        import base64
+        """获取当前页面截图（base64）。"""
+        import base64  # pylint: disable=import-outside-toplevel
         buf = await self._ctrl.get_page_screenshot_bytes(full_page)
         if buf is None:
             return {"ok": False, "error": "截图失败"}
@@ -308,7 +317,7 @@ class BrowserAgent:
 
     async def save_session(self, name: str = "default") -> dict[str, Any]:
         """保存当前会话的 cookies 和 localStorage。"""
-        import os
+        import os  # pylint: disable=import-outside-toplevel
         cookies = await self._ctrl.save_cookies()
         ls_str = await self._ctrl.save_local_storage()
         data = {
@@ -325,7 +334,7 @@ class BrowserAgent:
 
     async def load_session(self, name: str = "default") -> dict[str, Any]:
         """恢复指定会话的 cookies 和 localStorage。"""
-        import os
+        import os  # pylint: disable=import-outside-toplevel
         path = f"{SESSION_DIR}/{name}.json"
         if not os.path.exists(path):
             return {"ok": False, "error": f"会话文件不存在: {path}",
@@ -350,8 +359,8 @@ class BrowserAgent:
 
     async def list_sessions(self) -> dict[str, Any]:
         """列出所有已保存的会话。"""
-        import glob as _glob
-        import os
+        import glob as _glob  # pylint: disable=import-outside-toplevel
+        import os  # pylint: disable=import-outside-toplevel
         files = _glob.glob(f"{SESSION_DIR}/*.json")
         sessions = []
         for f in files:
@@ -441,6 +450,7 @@ class BrowserAgent:
     # ── JS 执行 ───────────────────────────────────────────────
 
     async def execute_js(self, expression: str) -> dict[str, Any]:
+        """在页面中执行 JavaScript 表达式。"""
         self._step_count += 1
         result = await self._ctrl.execute_js(expression)
         if isinstance(result, dict):
@@ -531,6 +541,7 @@ class BrowsingAgent:
 
     @property
     def is_running(self) -> bool:
+        """返回浏览器是否正在运行。"""
         return self._ctrl.is_running
 
     # ── 核心循环 ──────────────────────────────────────────────
@@ -591,7 +602,7 @@ class BrowsingAgent:
                 exec_result = await self._executor.execute(action, snapshot)
                 results.append(exec_result)
                 steps += 1
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 # 执行失败时使用错误恢复策略
                 recovery_action = await self._error_recovery.handle_failure(
                     action, str(e), snapshot,
@@ -605,7 +616,7 @@ class BrowsingAgent:
                     )
                     results.append(exec_result)
                     steps += 1
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     break
 
             # d. 如果动作是 DONE，退出循环
@@ -625,7 +636,7 @@ class BrowsingAgent:
         try:
             current_url = await self._ctrl.get_current_url()
             current_title = await self._ctrl.get_page_title()
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         return {
@@ -705,12 +716,14 @@ class BrowsingAgent:
         }
 
     async def close(self) -> dict[str, Any]:
+        """关闭浏览器。"""
         ok = await self._ctrl.stop()
         return {"ok": ok, "message": "浏览器已关闭" if ok else "关闭失败"}
 
     # ── 向后兼容：导航 ────────────────────────────────────────
 
     async def navigate(self, url: str) -> dict[str, Any]:
+        """导航到指定 URL。"""
         self._step_count += 1
         try:
             ok = await self._ctrl.navigate_to(url)
@@ -727,7 +740,7 @@ class BrowsingAgent:
             error["step"] = self._step_count
             error["ok"] = False
             return error
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.exception("导航时发生未预期异常: %s", e)
             return {"ok": False, "error": str(e), "step": self._step_count}
 
@@ -759,11 +772,13 @@ class BrowsingAgent:
         }
 
     async def press(self, key: str = "Enter") -> dict[str, Any]:
+        """模拟按键。"""
         self._step_count += 1
         ok = await self._ctrl.press_key(key)
         return {"ok": ok, "key": key, "step": self._step_count}
 
     async def scroll(self, delta: int = 500) -> dict[str, Any]:
+        """滚动页面。"""
         self._step_count += 1
         ok = await self._ctrl.scroll_page(delta)
         return {"ok": ok, "delta": delta, "step": self._step_count}
@@ -841,7 +856,7 @@ class BrowsingAgent:
                 "ok": False, "error": f"未知操作: {action}",
                 "step": self._step_count,
             }
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             return {"ok": False, "error": str(e), "step": self._step_count}
 
     # ── 向后兼容：等待 ────────────────────────────────────────
@@ -894,12 +909,15 @@ class BrowsingAgent:
         return result
 
     async def html(self, max_len: int = 8000) -> dict[str, Any]:
+        """获取当前页面 HTML。"""
         return {"ok": True, "html": await self._ctrl.get_page_html(max_len)}
 
     async def text(self, max_len: int = 3000) -> dict[str, Any]:
+        """获取当前页面文本。"""
         return {"ok": True, "text": await self._ctrl.get_page_text(max_len)}
 
     async def url(self) -> dict[str, Any]:
+        """获取当前页面 URL 和标题。"""
         return {
             "ok": True,
             "url": await self._ctrl.get_current_url(),
@@ -907,7 +925,8 @@ class BrowsingAgent:
         }
 
     async def screenshot(self, full_page: bool = False) -> dict[str, Any]:
-        import base64
+        """获取当前页面截图（base64）。"""
+        import base64  # pylint: disable=import-outside-toplevel
         buf = await self._ctrl.get_page_screenshot_bytes(full_page)
         if buf is None:
             return {"ok": False, "error": "截图失败"}
@@ -921,7 +940,7 @@ class BrowsingAgent:
 
     async def save_session(self, name: str = "default") -> dict[str, Any]:
         """保存当前会话的 cookies 和 localStorage。"""
-        import os
+        import os  # pylint: disable=import-outside-toplevel
         cookies = await self._ctrl.save_cookies()
         ls_str = await self._ctrl.save_local_storage()
         data = {
@@ -940,7 +959,7 @@ class BrowsingAgent:
 
     async def load_session(self, name: str = "default") -> dict[str, Any]:
         """恢复指定会话的 cookies 和 localStorage。"""
-        import os
+        import os  # pylint: disable=import-outside-toplevel
         path = f"{SESSION_DIR}/{name}.json"
         if not os.path.exists(path):
             return {
@@ -969,8 +988,8 @@ class BrowsingAgent:
 
     async def list_sessions(self) -> dict[str, Any]:
         """列出所有已保存的会话。"""
-        import glob as _glob
-        import os
+        import glob as _glob  # pylint: disable=import-outside-toplevel
+        import os  # pylint: disable=import-outside-toplevel
         files = _glob.glob(f"{SESSION_DIR}/*.json")
         sessions = []
         for f in files:
@@ -1066,6 +1085,7 @@ class BrowsingAgent:
     # ── 向后兼容：JS 执行 ─────────────────────────────────────
 
     async def execute_js(self, expression: str) -> dict[str, Any]:
+        """在页面中执行 JavaScript 表达式。"""
         self._step_count += 1
         result = await self._ctrl.execute_js(expression)
         if isinstance(result, dict):

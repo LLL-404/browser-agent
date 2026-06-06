@@ -40,7 +40,7 @@ async def retry_async(func, *args, max_retries: int = MAX_RETRIES, **kwargs):
     for attempt in range(max_retries + 1):
         try:
             return await func(*args, **kwargs)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             last_exc = e
             if attempt < max_retries:
                 delay = _backoff_delay(attempt)

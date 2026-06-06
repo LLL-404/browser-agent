@@ -34,7 +34,7 @@ async def _safe_close(agent):
     """安全关闭 agent，忽略所有异常。"""
     try:
         await agent.close()
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         pass
 
 
@@ -134,7 +134,7 @@ async def _cmd_interact(args) -> None:
 
 
 async def _cmd_login(args) -> None:
-    import aiofiles
+    import aiofiles  # pylint: disable=import-outside-toplevel
 
     ctrl = BrowserController()
     agent = BrowsingAgent(controller=ctrl)
@@ -200,7 +200,7 @@ async def _cmd_login(args) -> None:
             try:
                 try:
                     _ = await page.title()
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     pages = ctrl.get_pages()
                     page = pages[0] if pages else await ctrl.new_page() or page
 
@@ -211,7 +211,7 @@ async def _cmd_login(args) -> None:
                 print(f"✅ 登录态已保存至 {save_file}")
                 print(f"   Cookie 数量: {cookie_count}")
                 break
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 if attempt < 2:
                     logger.info("保存失败 (attempt %d/3): %s", attempt + 1, e)
                     await asyncio.sleep(2 * (attempt + 1))
@@ -266,7 +266,7 @@ async def _cmd_snapshot(args) -> None:
             print(output)
 
         if args.screenshot:
-            import base64
+            import base64  # pylint: disable=import-outside-toplevel
             scr = await agent.screenshot()
             if scr.get("ok"):
                 img_data = base64.b64decode(scr["base64"])
@@ -290,7 +290,7 @@ async def _cmd_monitor(args) -> None:
             if page:
                 try:
                     health = await ctrl.detect_page_health()
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     health = {"healthy": False, "issues": ["无法获取页面状态"]}
             else:
                 health = {"healthy": False, "issues": ["无活动页面"]}
@@ -310,7 +310,7 @@ async def _cmd_monitor(args) -> None:
 
 
 async def _cmd_chat(args) -> None:
-    from browser_agent.chat.cli import ChatCLI
+    from browser_agent.chat.cli import ChatCLI  # pylint: disable=import-outside-toplevel
     cli = ChatCLI(tone=args.tone)
     await cli.interactive_loop()
 
@@ -324,7 +324,7 @@ async def _cmd_server(args) -> None:
     if args.headless:
         argv.append("--headless")
 
-    from browser_agent.mcp.server import main as mcp_main
+    from browser_agent.mcp.server import main as mcp_main  # pylint: disable=import-outside-toplevel
     await mcp_main(argv)
 
 
@@ -432,6 +432,7 @@ def _build_parser() -> argparse.ArgumentParser:
 # ════════════════════════════════════════════════════════════════════
 
 def main() -> None:
+    """CLI 主入口：解析参数并分发到对应子命令。"""
     setup_logging()
     parser = _build_parser()
     args = parser.parse_args()
@@ -457,7 +458,7 @@ def main() -> None:
     except KeyboardInterrupt:
         print("\n已取消")
         sys.exit(1)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.exception("CLI 执行异常: %s", e)
         print(json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False))
         sys.exit(1)

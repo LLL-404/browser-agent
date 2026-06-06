@@ -28,7 +28,8 @@ _BANNER = """
 
 
 class ChatCLI:
-    def __init__(self, knowledge_dir: str | None = None, knowledge_db: str | None = None, tone: str | None = None):
+    """聊天 Agent 命令行界面：支持交互式对话和单次问答。"""
+    def __init__(self, tone: str | None = None):
         self.tone_name = tone or get_default_tone()
         tone_prompt = get_tone_prompt(self.tone_name)
 
@@ -43,6 +44,7 @@ class ChatCLI:
         self.auto_confirm = False
 
     async def handle_message(self, text: str) -> str:
+        """处理用户消息：解析命令或调用引擎对话。"""
         text = text.strip()
         if not text:
             return ""
@@ -100,6 +102,7 @@ class ChatCLI:
         return "\n".join(lines)
 
     async def interactive_loop(self):
+        """交互式对话循环：持续读取用户输入并回复。"""
         print(_BANNER)
         print(f"当前语气: {self.tone_name}")
         print(f"已加载 {len(self.kb.sources)} 个知识来源")
@@ -132,6 +135,7 @@ class ChatCLI:
         print("再见！")
 
     async def single_query(self, query: str):
+        """单次问答模式：发送一次查询并打印结果。"""
         reply = await self.engine.chat(query)
         print(reply)
 
@@ -147,11 +151,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main():
+    """聊天 Agent CLI 入口：解析参数并启动对话。"""
     setup_logging()
     parser = _build_parser()
     args = parser.parse_args()
 
-    cli = ChatCLI(knowledge_dir=args.knowledge_dir, knowledge_db=args.knowledge_db, tone=args.tone)
+    cli = ChatCLI(tone=args.tone)
 
     if args.query:
         asyncio.run(cli.single_query(args.query))

@@ -127,7 +127,7 @@ def execute(cmd: str, timeout: int = 30, show_terminal: bool | None = None) -> d
 
         if show_terminal:
             logger.info("启动终端窗口执行: %s", cmd)
-            subprocess.Popen(
+            subprocess.Popen(  # pylint: disable=consider-using-with
                 translated,
                 shell=True,
                 creationflags=creation_flags,
@@ -140,7 +140,7 @@ def execute(cmd: str, timeout: int = 30, show_terminal: bool | None = None) -> d
                 "note": "已在新的终端窗口中启动，请切换到该窗口查看输出",
             }
 
-        result = subprocess.run(
+        result = subprocess.run(  # pylint: disable=subprocess-run-check
             translated,
             shell=True,
             capture_output=True,
@@ -159,7 +159,7 @@ def execute(cmd: str, timeout: int = 30, show_terminal: bool | None = None) -> d
         }
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": f"执行超时 ({timeout}秒)", "returncode": -1}
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.error("工具执行异常: %s", e)
         return {"ok": False, "error": str(e), "returncode": -1}
 

@@ -243,7 +243,7 @@ class SemanticInferrer:
                     semantic_type = sem_type
                     confidence = conf
                     break  # 按优先级取首个匹配
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 continue
 
         # 构建 AnnotatedElement
@@ -468,7 +468,7 @@ class PagePerceiver:
         try:
             main_content = await page.evaluate("document.body?.innerText || ''")
             main_content = main_content[:5000]
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         # 内容类型
@@ -515,7 +515,7 @@ class PagePerceiver:
         """通过 JS 获取页面中所有可见可交互元素，并用 SemanticInferrer 标注。"""
         try:
             raw_elements = await page.evaluate(self._JS_EXTRACT_ELEMENTS)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("元素提取失败: %s", e)
             return []
 
@@ -531,7 +531,7 @@ class PagePerceiver:
         """检测并聚合页面中的表单元素。"""
         try:
             form_data = await page.evaluate(self._JS_EXTRACT_FORMS)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("表单提取失败: %s", e)
             return []
 
@@ -558,7 +558,7 @@ class PagePerceiver:
         """检测页面分页信息。"""
         try:
             pag_data = await page.evaluate(self._JS_EXTRACT_PAGINATION)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("分页检测失败: %s", e)
             return None
 
@@ -586,7 +586,7 @@ class PagePerceiver:
         dialogs: list[AnnotatedElement] = []
         try:
             dialog_elements = await page.evaluate(self._JS_EXTRACT_DIALOGS)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("弹窗检测失败: %s", e)
             return dialogs
 
@@ -600,7 +600,7 @@ class PagePerceiver:
         nav_items: list[AnnotatedElement] = []
         try:
             nav_elements = await page.evaluate(self._JS_EXTRACT_NAV)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("导航检测失败: %s", e)
             return nav_items
 
@@ -613,7 +613,7 @@ class PagePerceiver:
         """对页面进行快速分类（轻量级，不需要完整快照）。"""
         try:
             body_text = await page.evaluate("document.body?.innerText?.substring(0, 2000) || ''")
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return PageType.UNKNOWN
 
         body_lower = body_text.lower()
@@ -633,7 +633,7 @@ class PagePerceiver:
         try:
             ready_state = await page.evaluate("document.readyState")
             return str(ready_state)
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return "unknown"
 
     @staticmethod
@@ -910,7 +910,7 @@ class PagePerceiver:
 
 async def asyncio_gather_optional(*coros) -> list[Any]:
     """并发执行多个协程，忽略单个失败并返回 None 占位。"""
-    import asyncio
+    import asyncio  # pylint: disable=import-outside-toplevel
     results: list[Any] = []
     wrapped = [_or_none(c) for c in coros]
     gathered = await asyncio.gather(*wrapped)
@@ -922,6 +922,6 @@ async def _or_none(coro):
     """包装协程，异常时返回 None。"""
     try:
         return await coro
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.warning("子任务失败: %s", e)
         return None

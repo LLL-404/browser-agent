@@ -27,13 +27,16 @@ class LogCollector:
 
     @property
     def page(self) -> Page | None:
+        """获取当前关联的页面对象。"""
         return self._page
 
     @page.setter
     def page(self, value: Page | None) -> None:
+        """设置当前关联的页面对象。"""
         self._page = value
 
     def get_console_logs(self, level: str = "info") -> list[dict]:
+        """按级别筛选控制台日志。"""
         levels = {"error": 0, "warning": 1, "info": 2, "debug": 3}
         min_level = levels.get(level, 2)
         result = []
@@ -44,6 +47,7 @@ class LogCollector:
         return result
 
     def get_network_logs(self, include_static: bool = False) -> list[dict]:
+        """获取网络请求日志。"""
         if include_static:
             return list(self._network_logs)
         static_types = {"image", "font", "stylesheet", "media"}
@@ -51,6 +55,7 @@ class LogCollector:
                 if r.get("resource_type", "") not in static_types]
 
     async def get_pending_dialog(self) -> dict | None:
+        """获取待处理的对话框。"""
         if self._pending_dialog:
             return {
                 "type": self._pending_dialog.get("type"),
@@ -60,6 +65,7 @@ class LogCollector:
         return None
 
     async def get_accessibility_snapshot(self) -> dict | None:
+        """获取可访问性快照。"""
         if not self._page:
             raise PageNotReadyError(
                 "页面未初始化，请先调用 start() 启动浏览器",
@@ -93,11 +99,12 @@ class LogCollector:
                 return entry
 
             return flatten(tree)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("无障碍树获取失败: %s", e)
             return None
 
     async def handle_dialog(self, accept: bool, prompt_text: str = "") -> bool:
+        """处理浏览器对话框。"""
         d = self._pending_dialog
         if d is None:
             return False

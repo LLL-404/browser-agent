@@ -30,6 +30,7 @@ class CityResult:
         self.elapsed = elapsed
 
     def to_dict(self) -> dict:
+        """将城市搜索结果转为字典格式。"""
         return {"searched": self.searched, "stored": self.stored,
                 "skipped": self.skipped, "elapsed": self.elapsed}
 
@@ -48,12 +49,12 @@ class ScrapingEngine:
     async def run(self, cities=None, keywords=None, max_detail=None,
                   headless=False) -> dict[str, Any]:
         """主入口：导航 → 登录检测 → 逐城市搜索。"""
-        from playwright.async_api import async_playwright
+        from playwright.async_api import async_playwright  # pylint: disable=import-outside-toplevel
 
-        from browser_agent.core.anti_detect import ANTI_REDIRECT_SCRIPT, STEALTH_SCRIPT, build_browser_kwargs
-        from modes.zhipin.storage import get_searched_cities, init_db
+        from browser_agent.core.anti_detect import ANTI_REDIRECT_SCRIPT, STEALTH_SCRIPT, build_browser_kwargs  # pylint: disable=import-outside-toplevel
+        from modes.zhipin.storage import get_searched_cities, init_db  # pylint: disable=import-outside-toplevel
 
-        cfg_dict = self.profile._global_config or {}
+        cfg_dict = self.profile._global_config or {}  # pylint: disable=protected-access
         init_db()
 
         if max_detail is None:
@@ -111,7 +112,7 @@ class ScrapingEngine:
 
     async def generate_report(self, *args, **kwargs) -> str:
         """委托给 ReportBuilder。"""
-        from modes.zhipin.storage import JobQuery, get_jobs
+        from modes.zhipin.storage import JobQuery, get_jobs  # pylint: disable=import-outside-toplevel
         jobs = get_jobs(JobQuery(status="analyzed", exclude_ignored=True))
         return self.report_builder.generate(jobs, *args, **kwargs)
 
@@ -133,9 +134,9 @@ class ScrapingEngine:
 
     async def _search_city(self, page, city: str, keywords,
                            max_detail: int) -> CityResult:
-        from modes.zhipin.city_codes import get_city_code
-        from modes.zhipin.keyword_strategy import get_initial_keyword
-        from modes.zhipin.storage import insert_job, update_search_log
+        from modes.zhipin.city_codes import get_city_code  # pylint: disable=import-outside-toplevel
+        from modes.zhipin.keyword_strategy import get_initial_keyword  # pylint: disable=import-outside-toplevel
+        from modes.zhipin.storage import insert_job, update_search_log  # pylint: disable=import-outside-toplevel
 
         t_start = time.time()
         stored = skipped = searched = 0
@@ -161,7 +162,7 @@ class ScrapingEngine:
                     if "about:blank" not in page.url:
                         navigated = True
                         break
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught
                     logger.debug("导航失败: %s", e)
             if not navigated:
                 continue
@@ -175,7 +176,7 @@ class ScrapingEngine:
                     break
                 job = await self.dom_reader.parse_card(card, page)
                 job["city"] = city
-                skip, reason = self.filter_chain.evaluate(job)
+                skip, _ = self.filter_chain.evaluate(job)
                 if skip:
                     skipped += 1
                     continue

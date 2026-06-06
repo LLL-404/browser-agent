@@ -84,6 +84,43 @@ check_untyped_defs = true
 module = ["playwright.*", "camoufox.*", "mcp.*"]
 ignore_missing_imports = true
 
+# ====== Pylint 配置 ======
+[tool.pylint.messages_control]
+disable = [
+    # ---- 第三方包误报（本地 mcp/ 目录遮蔽了 mcp 包）----
+    "no-name-in-module",
+    "import-error",
+    "no-member",
+
+    # ---- 结构性设计决策（大模块/大类是架构选择，非代码质量问题）----
+    "too-many-public-methods",
+    "too-many-lines",
+    "too-many-positional-arguments",
+    "too-many-instance-attributes",
+    "too-many-arguments",
+    "too-many-locals",
+    "too-many-branches",
+    "too-many-statements",
+    "too-many-nested-blocks",
+    "too-many-return-statements",
+    "too-many-boolean-expressions",
+    "too-many-ancestors",
+    "too-few-public-methods",
+]
+
+[tool.pylint.format]
+max-line-length = 120
+max-module-lines = 2000
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "e", "ex", "fn", "fd", "_", "__", "id", "db"]
+
+[tool.pylint.typecheck]
+generated-members = ["mcp.*"]
+
+[tool.pylint.main]
+source-roots = ["src"]
+
 # ====== Pytest 配置 ======
 [tool.pytest.ini_options]
 testpaths = ["tests"]

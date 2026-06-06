@@ -22,6 +22,7 @@ _PROVIDER_MAP = {
 
 @dataclass
 class ChatConfig:
+    """对话引擎配置：提供商、模型、API 密钥等参数。"""
     provider: str = "deepseek"
     base_url: str = "https://api.deepseek.com/v1"
     api_key: str = ""
@@ -89,10 +90,12 @@ class ChatEngine:
         self.knowledge_context = knowledge_context
 
     def update_knowledge(self, context: str) -> None:
+        """更新知识上下文并重建系统提示词。"""
         self.knowledge_context = context
         self.system_prompt = _build_system_prompt(self.tone_system_prompt, context)
 
     def update_tone(self, tone_prompt: str) -> None:
+        """更新语气提示词并重建系统提示词。"""
         self.tone_system_prompt = tone_prompt
         self.system_prompt = _build_system_prompt(tone_prompt, self.knowledge_context)
 
@@ -143,7 +146,7 @@ class ChatEngine:
             return f"【API 错误 {status}】{e}"
         except httpx.TimeoutException:
             return "【请求超时】API 响应超时，请检查网络连接或稍后再试。"
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error("API 调用异常: %s", e)
             return f"【请求失败】{e}"
 
@@ -162,4 +165,5 @@ class ChatEngine:
         return reply
 
     def clear_history(self) -> None:
+        """清空对话历史记录。"""
         self.history.clear()

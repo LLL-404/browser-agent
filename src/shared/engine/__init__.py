@@ -26,9 +26,9 @@ warnings.warn(
 def get_engine(profile=None):
     """延迟创建引擎实例。"""
     if profile is None:
-        from shared.config import get_config
+        from shared.config import get_config  # pylint: disable=import-outside-toplevel
         profile = load_profile("zhipin", global_config=get_config())
-    from shared.engine.scraping_engine import ScrapingEngine
+    from shared.engine.scraping_engine import ScrapingEngine  # pylint: disable=import-outside-toplevel
     return ScrapingEngine(profile)
 
 __all__ = [

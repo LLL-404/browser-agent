@@ -116,7 +116,7 @@ class HealthMonitor:
         try:
             result["url"] = page.url
             result["title"] = await page.title() or ""
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         # 检查1: URL 是否为 about:blank 或空
@@ -146,7 +146,7 @@ class HealthMonitor:
                 if body_text.strip():
                     result["issues"].append(f"内容预览: {body_text.strip()[:80]}")
                 return result
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             result["healthy"] = False
             result["issues"].append(f"读取 body 失败: {e}")
             return result
@@ -157,7 +157,7 @@ class HealthMonitor:
                 if kw in body_text:
                     result["healthy"] = False
                     result["issues"].append(f"检测到反爬/异常文本: '{kw}'")
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         # 检查4: 页面加载状态
@@ -167,7 +167,7 @@ class HealthMonitor:
             )
             if loading_state == "loading":
                 result["issues"].append("页面仍在加载中 (readyState=loading)")
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         if result["issues"]:
@@ -285,7 +285,7 @@ class HealthMonitor:
             else:
                 details["webdriver_hidden"] = False
                 symptoms.append("navigator.webdriver 未被隐藏（可能被检测）")
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         # 6. 检测验证码元素
@@ -301,7 +301,7 @@ class HealthMonitor:
                 el = await page.query_selector(sel)
                 if el and await el.is_visible():
                     captcha_found.append(sel)
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 continue
         if captcha_found:
             symptoms.append(f"检测到验证码组件: {', '.join(captcha_found[:3])}")
@@ -311,7 +311,7 @@ class HealthMonitor:
         body_text = ""
         try:
             body_text = (await page.inner_text("body") or "").strip()
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         # 规则引擎：按优先级匹配根因
@@ -370,7 +370,7 @@ class HealthMonitor:
             )
             logger.info("[修复] 页面已渲染出足够元素")
             return True
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             logger.warning("[修复] 等待渲染超时")
             return False
 
@@ -383,7 +383,7 @@ class HealthMonitor:
             await asyncio.sleep(2)
             logger.info("[修复] 反检测脚本已重新注入并刷新页面")
             return True
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("[修复] 反检测脚本注入失败: %s", e)
             return False
 
@@ -398,7 +398,7 @@ class HealthMonitor:
             await asyncio.sleep(3)
             logger.info("[修复] 已执行硬刷新")
             return True
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("[修复] 硬刷新失败: %s", e)
             return False
 
@@ -409,14 +409,14 @@ class HealthMonitor:
             await asyncio.sleep(2)
             logger.info("[修复] JS 已完全就绪 (networkidle)")
             return True
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             # networkidle 超时再等一次 domcontentloaded
             try:
                 await page.wait_for_load_state("domcontentloaded", timeout=10000)
                 await asyncio.sleep(5)
                 logger.info("[修复] 等待超时但 DOM 已就绪")
                 return True
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.warning("[修复] 等待 JS 就绪失败: %s", e)
                 return False
 
@@ -430,7 +430,7 @@ class HealthMonitor:
             await asyncio.sleep(3)
             logger.info("[修复] 已重新导航到 %s", target[:60])
             return True
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("[修复] 重新导航失败: %s", e)
             return False
 
@@ -457,7 +457,7 @@ class HealthMonitor:
                     if el and await el.is_visible():
                         still_visible = True
                         break
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     continue
             if not still_visible:
                 logger.info("[修复] 验证码已通过")
@@ -490,7 +490,7 @@ class HealthMonitor:
             await asyncio.sleep(3)
             logger.info("[修复] 已打断重定向并重新导航")
             return True
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("[修复] 打断重定向失败: %s", e)
             return False
 
@@ -518,7 +518,7 @@ class HealthMonitor:
             status = "成功" if result else "失败"
             logger.info("[修复] 策略 [%s]: %s", name, status)
             return result, name
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error("[修复] 策略 [%s] 异常: %s", name, e)
             return False, f"{name} ({e})"
 

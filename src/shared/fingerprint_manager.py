@@ -1,3 +1,9 @@
+"""浏览器指纹伪装模块 — 生成随机化的浏览器配置参数。
+
+通过随机选择窗口尺寸、操作系统、硬件并发数等参数，
+模拟真实用户的浏览器环境，降低被识别为自动化工具的风险。
+"""
+
 from __future__ import annotations
 
 from random import choice, randint
@@ -26,23 +32,24 @@ PIXEL_RATIOS = [1.0, 1.0, 1.25, 1.5, 1.5, 2.0]
 
 
 def generate_camoufox_opts() -> dict[str, Any]:
+    """生成随机化的 Camoufox 浏览器配置参数。"""
     w, h = choice(WINDOW_PRESETS)
 
     screen_w = w + randint(0, 400)
     screen_h = h + randint(20, 200)
 
-    return dict(
-        window=(w, h),
-        os=[choice(OS_WEIGHTED)],
-        screen=dict(
-            width=screen_w,
-            height=screen_h,
-            availWidth=screen_w,
-            availHeight=screen_h - randint(30, 60),
-            colorDepth=24,
-            pixelDepth=24,
-        ),
-    )
+    return {
+        "window": (w, h),
+        "os": [choice(OS_WEIGHTED)],
+        "screen": {
+            "width": screen_w,
+            "height": screen_h,
+            "availWidth": screen_w,
+            "availHeight": screen_h - randint(30, 60),
+            "colorDepth": 24,
+            "pixelDepth": 24,
+        },
+    }
 
 
 FALLBACK_UA_LIST = [
@@ -55,4 +62,5 @@ FALLBACK_UA_LIST = [
 
 
 def random_user_agent() -> str:
+    """从预定义列表中随机返回一个 User-Agent 字符串。"""
     return choice(FALLBACK_UA_LIST)

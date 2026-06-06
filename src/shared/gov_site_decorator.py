@@ -18,7 +18,7 @@ from shared.gov_site_limiter import check_gov_site_limit, gov_safe_delay
 logger = logging.getLogger(__name__)
 
 
-def gov_site_rate_limit(func=None, *, delay_name: str = "page_ready"):
+def gov_site_rate_limit(func=None, *, delay_name: str = "page_ready"):  # pylint: disable=unused-argument
     """装饰器：自动对政府网站应用访问限制。
     
     Args:
@@ -43,9 +43,9 @@ def gov_site_rate_limit(func=None, *, delay_name: str = "page_ready"):
                 result = await check_gov_site_limit(url)
                 if result["is_gov_site"]:
                     if result["rate_limited"]:
-                        logger.info(f"政府网站速率限制触发，已等待 {result['waited_seconds']:.2f} 秒")
-                    logger.info(f"政府网站访问 - 过去1分钟: {result['requests_in_minute']}次, "
-                                f"过去1小时: {result['requests_in_hour']}次")
+                        logger.info("政府网站速率限制触发，已等待 %.2f 秒", result['waited_seconds'])
+                    logger.info("政府网站访问 - 过去1分钟: %s次, 过去1小时: %s次",
+                                result['requests_in_minute'], result['requests_in_hour'])
 
             # 执行原函数
             return await func(*args, **kwargs)
@@ -56,7 +56,7 @@ def gov_site_rate_limit(func=None, *, delay_name: str = "page_ready"):
 
             if url:
                 # 同步版本：检查但不等待（同步代码中不应该访问政府网站）
-                from shared.gov_site_limiter import is_gov_domain
+                from shared.gov_site_limiter import is_gov_domain  # pylint: disable=import-outside-toplevel
                 if is_gov_domain(url):
                     logger.warning("同步函数尝试访问政府网站，请使用异步版本")
 
@@ -84,7 +84,7 @@ def gov_site_delay(delay_name: str = "page_ready"):
 
             url = _extract_url_from_args(args, kwargs)
             if url:
-                from shared.gov_site_limiter import is_gov_domain
+                from shared.gov_site_limiter import is_gov_domain  # pylint: disable=import-outside-toplevel
                 if is_gov_domain(url):
                     await gov_safe_delay(url, delay_name)
 

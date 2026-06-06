@@ -103,7 +103,7 @@ def handle_session_error(default_return: Any = None, log_level: str = "warning")
         async def async_wrapper(*args, **kwargs):
             try:
                 return await func(*args, **kwargs)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 log_func = getattr(logger, log_level, logger.warning)
                 log_func("Session 操作失败 [%s]: %s", func.__name__, e)
                 return default_return
@@ -112,7 +112,7 @@ def handle_session_error(default_return: Any = None, log_level: str = "warning")
         def sync_wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 log_func = getattr(logger, log_level, logger.warning)
                 log_func("Session 操作失败 [%s]: %s", func.__name__, e)
                 return default_return
@@ -136,14 +136,14 @@ def safe_call(default_return: Any = None):
         async def async_inner():
             try:
                 return await fn()
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 return default_return
 
         @functools.wraps(fn)
         def sync_inner():
             try:
                 return fn()
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 return default_return
 
         if inspect.iscoroutinefunction(fn):

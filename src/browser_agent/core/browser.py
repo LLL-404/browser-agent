@@ -34,11 +34,11 @@ if TYPE_CHECKING:
 class _BrowserLike(Protocol):
     """AsyncCamoufox 和 BrowserContext 的公共接口协议。"""
 
-    async def new_page(self) -> _Page: ...
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> bool | None: ...
-    async def close(self) -> None: ...
+    async def new_page(self) -> _Page: ...  # pylint: disable=missing-function-docstring
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> bool | None: ...  # pylint: disable=missing-function-docstring
+    async def close(self) -> None: ...  # pylint: disable=missing-function-docstring
     @property
-    def pages(self) -> list[_Page]: ...
+    def pages(self) -> list[_Page]: ...  # pylint: disable=missing-function-docstring
 
 
 try:
@@ -145,19 +145,19 @@ class BrowserController:
 
     async def _start_camoufox(self, headless: bool) -> bool:
         try:
-            from shared.fingerprint_manager import generate_camoufox_opts
+            from shared.fingerprint_manager import generate_camoufox_opts  # pylint: disable=import-outside-toplevel
             persistent = not headless
-            opts = dict(
-                headless=headless,
-                humanize=True,
-                geoip=True,
-                block_images=False,
-                enable_cache=False,
-                exclude_addons=[DefaultAddons.UBO],
+            opts = {
+                "headless": headless,
+                "humanize": True,
+                "geoip": True,
+                "block_images": False,
+                "enable_cache": False,
+                "exclude_addons": [DefaultAddons.UBO],
                 **generate_camoufox_opts(),
-            )
+            }
             if persistent:
-                from browser_agent.core.session import cleanup_old_profiles, session_profile_dir
+                from browser_agent.core.session import cleanup_old_profiles, session_profile_dir  # pylint: disable=import-outside-toplevel
                 udir = session_profile_dir()
                 opts["user_data_dir"] = str(udir)
                 opts["persistent_context"] = True
@@ -165,11 +165,11 @@ class BrowserController:
             else:
                 opts["persistent_context"] = False
             logger.info("正在启动 Camoufox (headless=%s)...", headless)
-            self._browser = await AsyncCamoufox(**opts).__aenter__()
+            self._browser = await AsyncCamoufox(**opts).__aenter__()  # pylint: disable=unnecessary-dunder-call
             self._page = await self._browser.new_page()
             await self._setup_page_listeners(self._page)
 
-            from browser_agent.core.session import has_saved_cookies, load_cookies_from_file
+            from browser_agent.core.session import has_saved_cookies, load_cookies_from_file  # pylint: disable=import-outside-toplevel
             if has_saved_cookies():
                 cookies = await load_cookies_from_file()
                 if cookies:
@@ -191,7 +191,7 @@ class BrowserController:
 
     async def _start_playwright(self, headless: bool) -> bool:
         try:
-            self._pw = await async_playwright().__aenter__()
+            self._pw = await async_playwright().__aenter__()  # pylint: disable=unnecessary-dunder-call
 
             cfg = get_config()
             kwargs = build_browser_kwargs(cfg, headless)
@@ -224,6 +224,7 @@ class BrowserController:
         return None
 
     async def click_selector(self, selector: str, timeout: int = 10000) -> bool:
+        """通过 CSS 选择器点击元素。"""
         page = self._require_page()
         try:
             await page.click(selector, timeout=timeout)
@@ -239,6 +240,7 @@ class BrowserController:
             return False
 
     async def find_selector(self, selector: str) -> bool:
+        """查找指定选择器是否存在。"""
         page = self._require_page()
         try:
             return await page.query_selector(selector) is not None
@@ -251,6 +253,7 @@ class BrowserController:
             return False
 
     async def fill_input(self, selector: str, value: str) -> bool:
+        """向输入框填充文本。"""
         page = self._require_page()
         try:
             await page.fill(selector, value)
@@ -265,18 +268,22 @@ class BrowserController:
 
     @_handle_errors(default_return="", crash_msg="获取页面文本")
     async def get_page_text(self, max_len: int = 2000) -> str:
+        """获取页面可见文本内容。"""
         text = await self._require_page().inner_text("body")
         return text[:max_len] if text else ""
 
     @_handle_errors(default_return="", crash_msg="获取页面标题")
     async def get_page_title(self) -> str:
+        """获取页面标题。"""
         return await self._require_page().title() or ""
 
     @_handle_errors(default_return="", crash_msg="获取当前URL")
     async def get_current_url(self) -> str:
+        """获取当前页面 URL。"""
         return self._require_page().url
 
     async def get_detection_status(self) -> dict:
+        """获取反检测状态检查结果。"""
         page = self._require_page()
         checks = {}
         checks_to_run = [
@@ -332,39 +339,38 @@ class BrowserController:
         return await self._health_monitor.diagnose_page_issue(url=url)
 
     # ── 修复方法实现 ────────────────────────────────────────
-    # pylint: disable=protected-access
 
     async def _repair_wait_render(self, page, **kwargs) -> bool:
         """等待页面异步渲染完成（SPA 应用常见）。"""
-        return await self._health_monitor._repair_wait_render(page=page, **kwargs)
+        return await self._health_monitor._repair_wait_render(page=page, **kwargs)  # pylint: disable=protected-access
 
     async def _repair_reinject_stealth(self, page, **kwargs) -> bool:
         """重新注入反检测脚本。"""
-        return await self._health_monitor._repair_reinject_stealth(page=page, **kwargs)
+        return await self._health_monitor._repair_reinject_stealth(page=page, **kwargs)  # pylint: disable=protected-access
 
     async def _repair_hard_reload(self, page, **kwargs) -> bool:
         """强制硬刷新（绕过缓存）。"""
-        return await self._health_monitor._repair_hard_reload(page=page, **kwargs)
+        return await self._health_monitor._repair_hard_reload(page=page, **kwargs)  # pylint: disable=protected-access
 
     async def _repair_wait_js_ready(self, page, **kwargs) -> bool:
         """等待 JS 完全就绪。"""
-        return await self._health_monitor._repair_wait_js_ready(page=page, **kwargs)
+        return await self._health_monitor._repair_wait_js_ready(page=page, **kwargs)  # pylint: disable=protected-access
 
     async def _repair_renavigate(self, page, url="", **kwargs) -> bool:
         """重新导航到目标 URL。"""
-        return await self._health_monitor._repair_renavigate(page=page, url=url, **kwargs)
+        return await self._health_monitor._repair_renavigate(page=page, url=url, **kwargs)  # pylint: disable=protected-access
 
     async def _repair_wait_and_retry(self, page, **kwargs) -> bool:
         """等待一段时间后让浏览器自然恢复。"""
-        return await self._health_monitor._repair_wait_and_retry(page=page, **kwargs)
+        return await self._health_monitor._repair_wait_and_retry(page=page, **kwargs)  # pylint: disable=protected-access
 
     async def _repair_wait_for_captcha_solve(self, page, **kwargs) -> bool:
         """等待用户手动通过验证码。"""
-        return await self._health_monitor._repair_wait_for_captcha_solve(page=page, **kwargs)
+        return await self._health_monitor._repair_wait_for_captcha_solve(page=page, **kwargs)  # pylint: disable=protected-access
 
     async def _repair_break_redirect(self, page, **kwargs) -> bool:
         """打断重定向循环，直接导航到目标 URL。"""
-        return await self._health_monitor._repair_break_redirect(page=page, **kwargs)
+        return await self._health_monitor._repair_break_redirect(page=page, **kwargs)  # pylint: disable=protected-access
 
     async def _execute_repair(
         self,
@@ -377,7 +383,7 @@ class BrowserController:
         Returns:
             (成功与否, 策略描述)
         """
-        return await self._health_monitor._execute_repair(
+        return await self._health_monitor._execute_repair(  # pylint: disable=protected-access
             strategy=strategy, page=page, target_url=target_url,
         )
 
@@ -469,29 +475,30 @@ class BrowserController:
                         repair_result["rounds"],
                     )
                     return True
-                else:
-                    logger.error(
-                        "自动修复失败: %s",
-                        repair_result["final_health"].get("issues", []),
-                    )
-                    if attempt < max_retries:
-                        await asyncio.sleep(3 * attempt)
-                        continue
-                    return False
-            else:
-                # 不自动修复，仅记录警告
-                logger.warning(
-                    "页面健康检测未通过 [第%d/%d次]: %s",
-                    attempt, max_retries,
-                    "; ".join(health["issues"]),
+
+                logger.error(
+                    "自动修复失败: %s",
+                    repair_result["final_health"].get("issues", []),
                 )
                 if attempt < max_retries:
-                    await asyncio.sleep(2 * attempt)
+                    await asyncio.sleep(3 * attempt)
                     continue
+                return False
+
+            # 不自动修复，仅记录警告
+            logger.warning(
+                "页面健康检测未通过 [第%d/%d次]: %s",
+                attempt, max_retries,
+                "; ".join(health["issues"]),
+            )
+            if attempt < max_retries:
+                await asyncio.sleep(2 * attempt)
+                continue
 
         return False
 
     async def get_dom_structure(self, selectors: list[str] | None = None) -> dict:
+        """获取页面 DOM 结构信息。"""
         page = self._require_page()
         result: dict = {"has_body": False, "body_len": 0}
         try:
@@ -511,6 +518,7 @@ class BrowserController:
         return result
 
     async def take_screenshot(self, path: str) -> bool:
+        """保存页面截图到指定路径。"""
         page = self._require_page()
         try:
             await page.screenshot(path=path)
@@ -520,7 +528,7 @@ class BrowserController:
             if exc_cls is BrowserCrashError:
                 logger.error("浏览器崩溃: %s", e)
                 raise exc_cls(f"浏览器崩溃: {e}") from e
-            elif exc_cls is NavigationTimeoutError:
+            if exc_cls is NavigationTimeoutError:
                 logger.warning("截图超时: %s", e)
             else:
                 logger.warning("截图失败: %s", e)
@@ -563,12 +571,11 @@ class BrowserController:
             if attribute == "innerText":
                 text = await el.inner_text()
                 return {"found": True, "selector": selector, "text": text}
-            elif attribute == "outerHTML":
+            if attribute == "outerHTML":
                 html = await el.evaluate("el => el.outerHTML")
                 return {"found": True, "selector": selector, "html": html}
-            else:
-                val = await el.get_attribute(attribute)
-                return {"found": True, "selector": selector, "value": val}
+            val = await el.get_attribute(attribute)
+            return {"found": True, "selector": selector, "value": val}
         except _PLAYWRIGHT_ERRORS as e:
             exc_cls = classify_playwright_error(e)
             if exc_cls is BrowserCrashError:
@@ -633,37 +640,46 @@ class BrowserController:
 
     @_handle_errors(default_return=False, crash_msg="悬停")
     async def hover_selector(self, selector: str, timeout: int = 10000) -> bool:
+        """悬停到指定元素上。"""
         await self._require_page().hover(selector, timeout=timeout)
         return True
 
     @_handle_errors(default_return=False, crash_msg="选择选项")
     async def select_option_value(self, selector: str, value: str, timeout: int = 10000) -> bool:
+        """选择下拉框选项。"""
         await self._require_page().select_option(selector, value, timeout=timeout)
         return True
 
     @_handle_errors(default_return=False, crash_msg="后退")
     async def go_back(self) -> bool:
+        """返回上一页。"""
         await self._require_page().go_back(wait_until="domcontentloaded")
         return True
 
     @_handle_errors(default_return=False, crash_msg="文件上传")
     async def set_file_inputs(self, selector: str, paths: list[str]) -> bool:
+        """设置文件上传。"""
         await self._require_page().set_input_files(selector, paths)
         return True
 
     def get_console_logs(self, level: str = "info") -> list[dict]:
+        """获取控制台日志。"""
         return self._log_collector.get_console_logs(level=level)
 
     def get_network_logs(self, include_static: bool = False) -> list[dict]:
+        """获取网络请求日志。"""
         return self._log_collector.get_network_logs(include_static=include_static)
 
     async def get_pending_dialog(self) -> dict | None:
+        """获取待处理的对话框。"""
         return await self._log_collector.get_pending_dialog()
 
     async def get_accessibility_snapshot(self) -> dict | None:
+        """获取可访问性快照。"""
         return await self._log_collector.get_accessibility_snapshot()
 
     async def handle_dialog(self, accept: bool, prompt_text: str = "") -> bool:
+        """处理浏览器对话框。"""
         return await self._log_collector.handle_dialog(accept=accept, prompt_text=prompt_text)
 
     async def save_cookies(self) -> list[dict]:
@@ -686,8 +702,8 @@ class BrowserController:
         """提取页面中所有可交互元素及其唯一 CSS 选择器。"""
         return await self._session_manager.get_interactive_elements()
 
-    async def _setup_page_listeners(self, page):  # pylint: disable=protected-access
-        self._log_collector._setup_page_listeners(page)
+    async def _setup_page_listeners(self, page):
+        self._log_collector._setup_page_listeners(page)  # pylint: disable=protected-access
 
     def _release_resources(self):
         """释放所有内部引用，确保不再持有浏览器资源。"""
@@ -708,6 +724,7 @@ class BrowserController:
             logger.warning("静默关闭浏览器超时或失败")
 
     async def stop(self) -> bool:
+        """停止浏览器并释放资源。"""
         if not self._is_running:
             return True
         try:

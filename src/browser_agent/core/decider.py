@@ -206,7 +206,7 @@ class FlowRegistry:
         if "*" not in pattern:
             return pattern in url
         # 简单通配符匹配
-        import fnmatch
+        import fnmatch  # pylint: disable=import-outside-toplevel
         return fnmatch.fnmatch(url, pattern)
 
     def _load_builtin_flows(self) -> None:
@@ -393,6 +393,7 @@ class LoopController:
 
     @property
     def state(self) -> LoopState:
+        """返回当前循环状态。"""
         return self._state
 
     def should_continue(self, action: Action) -> tuple[bool, str]:
@@ -727,7 +728,7 @@ class SemanticDecider:
             action = self._parse_action(response)
             self._add_to_history(prompt, response)
             return action
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("LLM 决策失败，使用静态回退: %s", e)
             return self._static_fallback(snapshot, task)
 
@@ -797,7 +798,7 @@ class SemanticDecider:
             data = json.loads(response)
         except json.JSONDecodeError:
             # 尝试提取第一个 JSON 对象
-            import re
+            import re  # pylint: disable=import-outside-toplevel
             match = re.search(r'\{[^{}]*\}', response)
             if match:
                 data = json.loads(match.group())

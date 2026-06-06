@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-_logger: logging.Logger | None = None
+_logger: logging.Logger | None = None  # pylint: disable=invalid-name
 
 
 def _get_log_level(config: dict | None) -> int:
@@ -31,7 +31,7 @@ def setup_logging(config: dict | None = None,
         log_to_file: 是否输出到文件（data/logs/）。
         console_stream: 控制台输出流，默认 stderr（避免污染 MCP stdio）。
     """
-    global _logger
+    global _logger  # pylint: disable=global-statement
     if _logger is not None:
         return _logger
 

@@ -14,6 +14,7 @@ class UrlBuilder:
 
     def build_search(self, city_code: str, keyword: str,
                      priority: int | None = None) -> str:
+        """根据城市代码和关键词构建搜索 URL，支持优先级筛选。"""
         base = self.profile.navigation.home.rstrip("/")
         templates = self.urls.search
         if not templates:
@@ -28,13 +29,16 @@ class UrlBuilder:
         return url
 
     def get_home_url(self) -> str:
+        """获取站点首页 URL。"""
         return self.profile.navigation.home
 
     def get_login_url(self) -> str:
+        """获取站点登录页 URL。"""
         return self.profile.navigation.login
 
     def get_all_search_urls(self, city_code: str,
                              keyword: str) -> list[tuple[int, str]]:
+        """获取所有搜索模板生成的 URL 列表，按优先级排序。"""
         base = self.profile.navigation.home.rstrip("/")
         results = []
         for tmpl in sorted(self.urls.search, key=lambda t: t.priority):

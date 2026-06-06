@@ -13,6 +13,7 @@ from typing import Any
 
 @dataclass
 class BrowserConfig:
+    """浏览器配置类。"""
     browser_name: str = "chromium"
     headless: bool = False
     user_data_dir: str = ""
@@ -29,6 +30,7 @@ class BrowserConfig:
 
 @dataclass
 class ServerConfig:
+    """服务器配置类。"""
     port: int = 0
     host: str = "localhost"
     allowed_hosts: list[str] = field(default_factory=lambda: ["localhost"])
@@ -36,6 +38,7 @@ class ServerConfig:
 
 @dataclass
 class McpConfig:
+    """MCP 配置类，合并浏览器和服务器配置。"""
     browser: BrowserConfig = field(default_factory=BrowserConfig)
     server: ServerConfig = field(default_factory=ServerConfig)
     capabilities: list[str] = field(default_factory=lambda: ["core"])
@@ -51,7 +54,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(prog="mcp-server", description="Playwright MCP Server")
     p.add_argument("--config", type=str, default="", help="JSON 配置文件路径")
     p.add_argument("--headless", action="store_true", help="无头模式")
-    p.add_argument("--browser", type=str, default="chromium", choices=["chromium", "firefox", "webkit", "chrome", "msedge"], help="浏览器引擎")
+    p.add_argument("--browser", type=str, default="chromium",
+                   choices=["chromium", "firefox", "webkit", "chrome", "msedge"], help="浏览器引擎")
     p.add_argument("--port", type=int, default=0, help="HTTP SSE 端口（0=禁用）")
     p.add_argument("--host", type=str, default="localhost", help="绑定主机")
     p.add_argument("--storage-state", type=str, default="", help="初始 storage_state 文件路径")
@@ -59,7 +63,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--isolated", action="store_true", help="隔离模式，不持久化 profile")
     p.add_argument("--caps", type=str, default="core", help="启用能力: core,vision,pdf,devtools（逗号分隔）")
     p.add_argument("--output-dir", type=str, default="", help="输出文件目录")
-    p.add_argument("--console-level", type=str, default="info", choices=["error", "warning", "info", "debug"], help="控制台消息级别")
+    p.add_argument("--console-level", type=str, default="info",
+                   choices=["error", "warning", "info", "debug"], help="控制台消息级别")
     p.add_argument("--snapshot-mode", type=str, default="full", choices=["full", "none"], help="快照模式")
     p.add_argument("--viewport-size", type=str, default="", help="视口大小如 1280x720")
     p.add_argument("--proxy-server", type=str, default="", help="代理服务器地址")
@@ -141,6 +146,7 @@ def _merge_config(json_cfg: dict, args: argparse.Namespace) -> McpConfig:
 
 
 def load_config(argv: list[str] | None = None) -> McpConfig:
+    """加载配置：解析命令行参数并合并 JSON 配置文件。"""
     args = _parse_args(argv)
     json_cfg = _load_json_config(args.config) if args.config else {}
     return _merge_config(json_cfg, args)

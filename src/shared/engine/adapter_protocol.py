@@ -12,11 +12,11 @@ class SiteAdapter(Protocol):
 
     def parse_salary(self, text: str) -> int | None:
         """从薪资文本提取最低月薪。如 '4K-6K' → 4000"""
-        ...
+        ...  # pylint: disable=unnecessary-ellipsis
 
     def parse_inactive_days(self, text: str) -> int | None:
         """从活跃时间文本提取天数。如 '3天前' → 3, '刚刚' → 0"""
-        ...
+        ...  # pylint: disable=unnecessary-ellipsis
 
 
 class DefaultAdapter:
@@ -29,6 +29,7 @@ class DefaultAdapter:
     _RE_MONTH = re.compile(r"(\d+)\s*个月")
 
     def parse_salary(self, text: str) -> int | None:
+        """从薪资文本提取最低月薪，支持 K 和纯数字两种格式。"""
         if not text:
             return None
         nums = self._RE_SALARY_K.findall(text)
@@ -40,6 +41,7 @@ class DefaultAdapter:
         return None
 
     def parse_inactive_days(self, text: str) -> int | None:
+        """从活跃时间文本提取天数，支持天/周/月及常见口语表达。"""
         if not text:
             return None
         text = text.strip()
@@ -65,8 +67,10 @@ _ADAPTER_REGISTRY: dict[str, SiteAdapter] = {}
 
 
 def register_adapter(site_name: str, adapter: SiteAdapter) -> None:
+    """注册站点适配器到全局注册表。"""
     _ADAPTER_REGISTRY[site_name] = adapter
 
 
 def get_adapter(site_name: str) -> SiteAdapter:
+    """获取站点适配器，未注册时返回默认适配器。"""
     return _ADAPTER_REGISTRY.get(site_name, DefaultAdapter())

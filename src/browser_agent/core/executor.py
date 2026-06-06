@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
     @_dc
     class Action:
+        """动作数据类（TYPE_CHECKING 兼容）。"""
         type: str
         target: str | None = None
         value: str | None = None
@@ -37,6 +38,7 @@ if TYPE_CHECKING:
 
     @_dc
     class PageSnapshot:
+        """页面快照数据类（TYPE_CHECKING 兼容）。"""
         url: str
         title: str
         page_type: str = "unknown"
@@ -54,15 +56,21 @@ if TYPE_CHECKING:
         redirect_count: int = 0
 
         def elements_by_type(self, sem_type: str) -> list[Any]:
+            """按语义类型筛选元素。"""
             return [e for e in self.elements
                     if getattr(e, "semantic_type", "") == sem_type]
 
     class RefManager:
+        """引用管理器（TYPE_CHECKING 兼容）。"""
         _snapshot: PageSnapshot | None
 
-        def __init__(self) -> None: ...
-        def update(self, _snapshot: PageSnapshot) -> None: ...
-        def resolve(self, _target: str) -> Any | None: ...
+        def __init__(self) -> None: ...  # pylint: disable=unnecessary-ellipsis
+        def update(self, _snapshot: PageSnapshot) -> None:
+            """更新快照引用。"""
+            ...  # pylint: disable=unnecessary-ellipsis
+        def resolve(self, _target: str) -> Any | None:
+            """解析目标引用。"""
+            ...  # pylint: disable=unnecessary-ellipsis
 
 
 # ========================================================================
@@ -123,10 +131,12 @@ class SpeedController:
 
     @property
     def mode(self) -> str:
+        """返回当前速度模式。"""
         return self._mode
 
     @property
     def risk_level(self) -> int:
+        """返回当前风险等级。"""
         return self._risk_level
 
 
@@ -195,7 +205,7 @@ class BehaviorSimulator:
                 f"window._cursorX = {tx}; window._cursorY = {ty};",
             )
             return {"ok": True, "action": "click", "target": target}
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("拟人化点击失败: %s", e)
             return {"ok": False, "error": str(e)}
 
@@ -237,7 +247,7 @@ class BehaviorSimulator:
                 await asyncio.sleep(delay_ms / 1000)
 
             return {"ok": True, "action": "type", "target": target, "text": text}
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("拟人化输入失败: %s", e)
             return {"ok": False, "error": str(e)}
 
@@ -271,7 +281,7 @@ class BehaviorSimulator:
                     await asyncio.sleep(self._natural_delay(50, 0.5) / 1000)
 
             return {"ok": True, "action": "scroll", "delta_y": delta_y}
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("拟人化滚动失败: %s", e)
             return {"ok": False, "error": str(e)}
 
@@ -385,7 +395,7 @@ class ExecutionEngine:
 
         try:
             result = await handler(self._browser, target, value, simulate, params)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.exception("执行 %s 时发生未预期异常", action_type)
             result = {"ok": False, "error": str(e)}
 
@@ -412,7 +422,7 @@ class ExecutionEngine:
                     selector = getattr(resolved, "selector", "")
                     if selector:
                         return selector
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 pass
             return target
 
@@ -423,7 +433,7 @@ class ExecutionEngine:
                 selector = getattr(elements[0], "selector", "")
                 if selector:
                     return selector
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         # CSS 选择器直接使用
@@ -544,16 +554,16 @@ class ExecutionEngine:
                 text = ""
                 try:
                     text = await el.inner_text()
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     pass
                 href = ""
                 try:
                     href = await el.get_attribute("href") or ""
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     pass
                 results.append({"text": text.strip(), "href": href})
             return {"ok": True, "count": len(results), "results": results}
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             return {"ok": False, "error": str(e)}
 
     async def _execute_screenshot(

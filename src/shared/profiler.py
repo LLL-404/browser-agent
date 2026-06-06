@@ -19,12 +19,12 @@ R = TypeVar("R")
 # 全局性能统计存储
 _stats: dict[str, dict[str, Any]] = {}
 _sync_lock = threading.Lock()
-_async_lock: asyncio.Lock | None = None
+_async_lock: asyncio.Lock | None = None  # pylint: disable=invalid-name
 
 
 def _get_lock() -> asyncio.Lock:
     """获取或创建异步锁（延迟初始化避免模块加载问题）。"""
-    global _async_lock
+    global _async_lock  # pylint: disable=global-statement
     if _async_lock is None:
         _async_lock = asyncio.Lock()
     return _async_lock
@@ -60,7 +60,7 @@ async def async_record_execution(
         record_execution(func_name, duration, success)
 
 
-class profile_async:
+class profile_async:  # pylint: disable=invalid-name
     """异步函数性能分析装饰器。
 
     用法:
@@ -103,7 +103,7 @@ class profile_async:
         return wrapper
 
 
-class profile_sync:
+class profile_sync:  # pylint: disable=invalid-name
     """同步函数性能分析装饰器。
 
     用法:
@@ -218,5 +218,5 @@ def generate_report() -> str:
 
 def clear_stats() -> None:
     """清除所有性能统计数据（用于测试或重置）。"""
-    global _stats
+    global _stats  # pylint: disable=global-variable-not-assigned
     _stats.clear()

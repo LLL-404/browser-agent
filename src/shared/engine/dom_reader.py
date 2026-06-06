@@ -32,7 +32,7 @@ class DomReader:
             return []
         return await page.query_selector_all(selector)
 
-    async def parse_card(self, card: Any, page: Any) -> dict[str, Any]:
+    async def parse_card(self, card: Any, _page: Any) -> dict[str, Any]:
         """用 dom.list.* 选择器解析单张卡片字段。
 
         返回字典包含：title, company, salary, tags, href, job_id
@@ -180,7 +180,7 @@ class DomReader:
             el = await element.query_selector(selector)
             if el:
                 return await el.inner_text() or ""
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
         return ""
 
@@ -197,7 +197,7 @@ class DomReader:
                 if text:
                     results.append(text.strip())
             return results
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return []
 
     @staticmethod
@@ -210,7 +210,7 @@ class DomReader:
             if el:
                 val = await el.get_attribute(attr)
                 return val or ""
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
         return ""
 
@@ -236,6 +236,6 @@ class DomReader:
                     text = await el.inner_text() or ""
                     if len(text.strip()) >= min_length:
                         return text.strip()
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 continue
         return ""

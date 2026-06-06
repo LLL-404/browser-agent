@@ -1,3 +1,11 @@
+"""会话管理模块 — Cookie 持久化、状态保存与恢复。
+
+提供浏览器会话的持久化存储能力，支持：
+- Cookie 文件的读写
+- 会话状态的保存与恢复
+- 定时刷新机制
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -25,14 +33,17 @@ def _ensure_dir():
 
 
 def cookie_path(name: str = "boss") -> Path:
+    """获取 Cookie 文件路径。"""
     return COOKIE_DIR / f"{name}_cookies.json"
 
 
 def storage_state_path() -> Path:
+    """获取 storage_state 文件路径。"""
     return COOKIE_DIR / "storage_state.json"
 
 
 def session_profile_dir() -> Path:
+    """创建并返回会话临时目录。"""
     ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:19]
     d = COOKIE_DIR / "profiles" / f"session_{ts}"
     d.mkdir(parents=True, exist_ok=True)
@@ -53,6 +64,7 @@ def _is_expired(cookie: dict) -> bool:
 
 
 def filter_expired_cookies(cookies: list[dict]) -> list[dict]:
+    """过滤已过期的 Cookie。"""
     valid = [c for c in cookies if not _is_expired(c)]
     removed = len(cookies) - len(valid)
     if removed:
@@ -62,6 +74,7 @@ def filter_expired_cookies(cookies: list[dict]) -> list[dict]:
 
 @handle_session_error(default_return={"ok": False, "error": "保存 Cookie 失败"})
 async def save_cookies_to_file(cookies: list[dict], name: str = "boss") -> dict:
+    """保存 Cookie 到文件。"""
     _ensure_dir()
     path = cookie_path(name)
     filtered = filter_expired_cookies(cookies)
@@ -74,6 +87,7 @@ async def save_cookies_to_file(cookies: list[dict], name: str = "boss") -> dict:
 
 @handle_session_error(default_return=[])
 async def load_cookies_from_file(name: str = "boss") -> list[dict]:
+    """从文件加载 Cookie。"""
     path = cookie_path(name)
     if not path.exists():
         logger.info("Cookie 文件不存在: %s", path)
@@ -93,6 +107,7 @@ async def load_cookies_from_file(name: str = "boss") -> list[dict]:
 
 
 def has_saved_cookies(name: str = "boss") -> bool:
+    """检查是否已有保存的 Cookie 文件。"""
     return cookie_path(name).exists()
 
 
@@ -208,7 +223,7 @@ async def refresh_short_lived_cookies(
     Returns:
         {"ok": bool, "refreshed": [...], "unchanged": [...], "error": str|None}
     """
-    from shared.config import get_config
+    from shared.config import get_config  # pylint: disable=import-outside-toplevel
 
     _rules = rules or SHORT_LIVED_COOKIE_RULES
     rule_names = set(_rules.keys())
@@ -221,7 +236,7 @@ async def refresh_short_lived_cookies(
     try:
         old_cookies = await page.context.cookies()
         old_values = {c["name"]: c.get("value") for c in old_cookies}
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.warning("获取旧 Cookie 失败，跳过对比: %s", e)
         return {"ok": False, "error": str(e), "refreshed": [], "unchanged": []}
 
@@ -229,14 +244,14 @@ async def refresh_short_lived_cookies(
     try:
         await page.goto(target_url, wait_until="domcontentloaded", timeout=timeout)
         await delay("page_ready")
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.warning("访问 %s 失败: %s", target_url, e)
         return {"ok": False, "error": f"导航失败: {e}", "refreshed": [], "unchanged": []}
 
     # 提取刷新后的 Cookie
     try:
         new_cookies = await page.context.cookies()
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         return {"ok": False, "error": f"提取新 Cookie 失败: {e}", "refreshed": [], "unchanged": []}
 
     # 对比差异
@@ -268,7 +283,7 @@ async def refresh_short_lived_cookies(
             state.get("origins", []),
         )
         logger.info("已保存刷新后的 storage_state（含 %d 条 Cookie）", len(state.get("cookies", [])))
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.warning("保存刷新后的 storage_state 失败: %s", e)
 
     return {
@@ -291,31 +306,36 @@ class _PageProxy:
 
     @safe_call(default_return="")
     async def get_url(self) -> str:
+        """获取当前页面 URL。"""
         return await self._page.evaluate("() => window.location.href") or ""
 
     @safe_call(default_return=[])
     async def get_cookies(self) -> list[dict]:
+        """获取当前上下文的所有 Cookie。"""
         return await self._page.context.cookies()
 
     @safe_call(default_return=False)
     async def text_exists(self, text: str) -> bool:
+        """检查指定文本是否在页面中可见。"""
         el = self._page.get_by_text(text, exact=False).first
         return await el.count() > 0 and await el.is_visible()
 
     @safe_call(default_return=False)
     async def selector_exists(self, selector: str) -> bool:
+        """检查指定选择器是否在页面中可见。"""
         el = self._page.locator(selector).first
         return await el.count() > 0 and await el.is_visible()
 
     @safe_call(default_return=True)
     async def selector_disappeared(self, selector: str) -> bool:
+        """检查指定选择器是否已从页面消失。"""
         el = self._page.locator(selector).first
         return await el.count() == 0
 
 
 async def auto_detect_login(
     page,
-    timeout: int = 120,
+    timeout: int = 120,  # noqa: ASYNC109
     interval: int | None = None,
     cookie_names: list[str] | None = None,
     custom_rules: dict | None = None,
@@ -350,11 +370,11 @@ async def auto_detect_login(
     poll_interval = interval if interval is not None else get_delay("login_poll")
 
     # 从配置中读取登录检测选择器
-    from shared.config import get_config
+    from shared.config import get_config  # pylint: disable=import-outside-toplevel
     cfg = get_config()
     login_detection_cfg = cfg.get("session", {}).get("login_detection", {})
 
-    USER_INDICATORS = login_detection_cfg.get("user_indicators", [
+    USER_INDICATORS = login_detection_cfg.get("user_indicators", [  # pylint: disable=invalid-name
         "button:has-text('退出')",
         "a:has-text('退出')",
         "span:has-text('退出')",
@@ -367,8 +387,9 @@ async def auto_detect_login(
         ".login-user-name",
         ".header-user-name",
     ])
-    LOGIN_BTN_TEXTS = login_detection_cfg.get("login_button_texts", ["登录", "登入", "Sign in", "Log in"])
-    LOGIN_BTN_SELECTOR = "button:has-text('{t}'), a:has-text('{t}'), span:has-text('{t}'), div:has-text('{t}')"
+    LOGIN_BTN_TEXTS = login_detection_cfg.get(  # pylint: disable=invalid-name
+        "login_button_texts", ["登录", "登入", "Sign in", "Log in"])
+    LOGIN_BTN_SELECTOR = "button:has-text('{t}'), a:has-text('{t}'), span:has-text('{t}'), div:has-text('{t}')"  # pylint: disable=invalid-name
 
     if cookie_names is None:
         cookie_names = []
@@ -393,7 +414,7 @@ async def auto_detect_login(
             if await proxy.selector_exists(sel):
                 initial_login_btn_exists = True
                 break
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             continue
 
     # Check if already logged in initially
@@ -403,7 +424,7 @@ async def auto_detect_login(
                 logger.info("初始状态即已登录: %s", sel)
                 return {"detected": True, "reason": "already_logged_in",
                         "detail": f"初始检测到用户元素: {sel}"}
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             continue
 
     logger.info("开始检测登录: url=%s, timeout=%ds, login_btn_exists=%s",
@@ -420,18 +441,18 @@ async def auto_detect_login(
         current_url = await proxy.get_url()
 
         # ── Signal 1: URL change (login page → non-login page) ──
-        if current_url and initial_url and url_has_login:
-            if "login" in initial_url.lower() and "login" not in current_url.lower():
-                logger.info("检测到登录: URL 从登录页跳转至 %s", current_url)
-                return {"detected": True, "reason": "url_change",
-                        "detail": f"URL 从登录页跳转至 {current_url}"}
+        if current_url and initial_url and url_has_login and \
+        "login" in initial_url.lower() and "login" not in current_url.lower():
+            logger.info("检测到登录: URL 从登录页跳转至 %s", current_url)
+            return {"detected": True, "reason": "url_change",
+                    "detail": f"URL 从登录页跳转至 {current_url}"}
 
         # ── Signal 2: Custom URL trigger ──
-        if custom_url_trigger and current_url:
-            if custom_url_trigger in current_url and custom_url_trigger not in initial_url:
-                logger.info("检测到登录: URL 匹配 %s", custom_url_trigger)
-                return {"detected": True, "reason": "custom",
-                        "detail": f"URL 匹配自定义规则: {custom_url_trigger}"}
+        if custom_url_trigger and current_url and \
+        custom_url_trigger in current_url and custom_url_trigger not in initial_url:
+            logger.info("检测到登录: URL 匹配 %s", custom_url_trigger)
+            return {"detected": True, "reason": "custom",
+                    "detail": f"URL 匹配自定义规则: {custom_url_trigger}"}
 
         # ── Signal 3: Cookie appearance (highest confidence) ──
         if cookie_names:
@@ -444,7 +465,7 @@ async def auto_detect_login(
                         logger.info("检测到登录: Cookie %s 出现", target)
                         return {"detected": True, "reason": "cookie",
                                 "detail": f"检测到 Cookie: {target}"}
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 pass
 
         # ── Signal 4: DOM appearance (user elements — high confidence) ──
@@ -454,7 +475,7 @@ async def auto_detect_login(
                     logger.info("检测到登录: 用户元素 %s", sel)
                     return {"detected": True, "reason": "dom_appeared",
                             "detail": f"检测到用户元素: {sel}"}
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 continue
 
         # ── Signal 5: Login button disappeared (only if we confirmed it existed) ──
@@ -466,7 +487,7 @@ async def auto_detect_login(
                     if await proxy.selector_exists(sel):
                         still_exists = True
                         break
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     continue
             if not still_exists:
                 logger.info("检测到登录: 登录按钮消失")
@@ -480,7 +501,7 @@ async def auto_detect_login(
                     logger.info("检测到登录: 自定义元素 %s", custom_dom_appear)
                     return {"detected": True, "reason": "custom",
                             "detail": f"自定义元素出现: {custom_dom_appear}"}
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 pass
 
         if custom_dom_disappear and initial_login_btn_exists:
@@ -489,17 +510,20 @@ async def auto_detect_login(
                     logger.info("检测到登录: 自定义元素消失 %s", custom_dom_disappear)
                     return {"detected": True, "reason": "custom",
                             "detail": f"自定义元素消失: {custom_dom_disappear}"}
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 pass
 
         await asyncio.sleep(poll_interval)
 
 
 def cleanup_old_profiles(max_age_days: int | None = None):
-    from shared.config import get_config
+    """清理超过指定天数的旧会话目录。"""
+    from shared.config import get_config  # pylint: disable=import-outside-toplevel
 
     cfg = get_config()
-    days = max_age_days if max_age_days is not None else cfg.get("session", {}).get("cleanup", {}).get("max_age_days", 7)
+    days = max_age_days if max_age_days is not None else (
+        cfg.get("session", {}).get("cleanup", {}).get("max_age_days", 7)
+    )
 
     profiles_dir = COOKIE_DIR / "profiles"
     if not profiles_dir.exists():
@@ -559,7 +583,7 @@ class SessionManager:
             if hasattr(ctx, 'cookies'):
                 return await ctx.cookies()
             return []
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             exc_cls = classify_playwright_error(e)
             if exc_cls is BrowserCrashError:
                 logger.error("浏览器崩溃: %s", e)
@@ -579,7 +603,7 @@ class SessionManager:
                 await ctx.add_cookies(cookies)
                 return True
             return False
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             exc_cls = classify_playwright_error(e)
             if exc_cls is BrowserCrashError:
                 logger.error("浏览器崩溃: %s", e)
@@ -596,7 +620,7 @@ class SessionManager:
             return await page.evaluate(
                 "JSON.stringify(window.localStorage)"
             )
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             exc_cls = classify_playwright_error(e)
             if exc_cls is BrowserCrashError:
                 logger.error("浏览器崩溃: %s", e)
@@ -621,7 +645,7 @@ class SessionManager:
                 }})()
             """)
             return True
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             exc_cls = classify_playwright_error(e)
             if exc_cls is BrowserCrashError:
                 logger.error("浏览器崩溃: %s", e)
@@ -711,7 +735,7 @@ class SessionManager:
                     return results;
                 })()
             """)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             exc_cls = classify_playwright_error(e)
             if exc_cls is BrowserCrashError:
                 logger.error("浏览器崩溃: %s", e)

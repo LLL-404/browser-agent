@@ -13,13 +13,11 @@ import importlib
 import pkgutil
 from pathlib import Path
 
-# pylint: disable=import-error,no-name-in-module,import-self,no-member
 import mcp.server.stdio
 from mcp import types
 from mcp.server import Server
 from mcp.server.lowlevel.server import InitializationOptions
 from mcp.types import ServerCapabilities
-# pylint: enable=import-error,no-name-in-module,import-self,no-member
 
 from browser_agent.core.agent import BrowserAgent
 from browser_agent.core.browser import BrowserController
@@ -41,11 +39,9 @@ logger = get_logger("mcp")
 server = Server("browser-agent")
 _mode_tools: list[types.Tool] = []
 _mode_handlers: dict[str, callable] = {}
-# pylint: disable=invalid-name
-_agent: BrowserAgent | None = None
+_agent: BrowserAgent | None = None  # pylint: disable=invalid-name
 _agent_lock = asyncio.Lock()  # 单浏览器实例：SSE 多客户端时序列化所有操作
-_server_config: McpConfig | None = None
-# pylint: enable=invalid-name
+_server_config: McpConfig | None = None  # pylint: disable=invalid-name
 _TOOL_EXECUTION_TIMEOUT = 300
 
 
@@ -103,7 +99,7 @@ async def handle_list_tools() -> list[types.Tool]:
 # ── Agent lifecycle ──
 
 
-def _get_agent() -> BrowserAgent:  # pylint: disable=global-statement
+def _get_agent() -> BrowserAgent:
     global _agent  # pylint: disable=global-statement
     if _agent is None:
         bc = BrowserController()
@@ -198,7 +194,7 @@ async def _execute_tool(name: str, arguments: dict) -> dict:
 # ── Main ──
 
 
-async def main(argv: list[str] | None = None):  # pylint: disable=global-statement
+async def main(argv: list[str] | None = None):
     """MCP 服务器主入口：加载配置、注册模式、启动 stdio/SSE 服务。"""
     global _server_config  # pylint: disable=global-statement
     _server_config = load_config(argv)
@@ -212,12 +208,10 @@ async def main(argv: list[str] | None = None):  # pylint: disable=global-stateme
         register_mode_tools(mode)
 
     if _server_config.server.port:
-        # pylint: disable=import-outside-toplevel,import-error,no-name-in-module
-        import uvicorn
-        from starlette.applications import Starlette
-        from starlette.routing import Mount, Route
-        from mcp.server.sse import SseServerTransport
-        # pylint: enable=import-outside-toplevel,import-error,no-name-in-module
+        import uvicorn  # pylint: disable=import-outside-toplevel
+        from starlette.applications import Starlette  # pylint: disable=import-outside-toplevel
+        from starlette.routing import Mount, Route  # pylint: disable=import-outside-toplevel
+        from mcp.server.sse import SseServerTransport  # pylint: disable=import-outside-toplevel
 
         sse = SseServerTransport("/messages")
 
@@ -245,7 +239,7 @@ async def main(argv: list[str] | None = None):  # pylint: disable=global-stateme
         )
         await uvicorn.Server(config).serve()
     else:
-        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):  # pylint: disable=no-member
+        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
             await server.run(read_stream, write_stream, InitializationOptions(
                 server_name="browser-agent",
                 server_version="1.0.0",
