@@ -40,6 +40,28 @@ logger = get_logger("agent")
 SESSION_DIR = "./sessions"
 
 
+async def _open_in_system_browser(url: str) -> dict[str, Any]:
+    """使用系统默认浏览器打开 URL，返回结果字典。"""
+    import subprocess  # pylint: disable=import-outside-toplevel
+    import sys  # pylint: disable=import-outside-toplevel
+
+    try:
+        if sys.platform == "win32":
+            subprocess.Popen(["cmd.exe", "/c", "start", url], shell=True)
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", url])
+        else:
+            subprocess.Popen(["xdg-open", url])
+        return {
+            "ok": True,
+            "url": url,
+            "engine": "system-default",
+            "message": f"已在系统默认浏览器中打开 {url}",
+        }
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        return {"ok": False, "error": f"打开系统浏览器失败: {e}"}
+
+
 class BrowserAgent:
     """通用浏览器 Agent — 浏览器控制 + 页面交互 + 数据提取的统一入口。"""
 
@@ -61,8 +83,15 @@ class BrowserAgent:
         return self._ctrl.is_running
 
     async def open(self, headless: bool = False,
-                   url: str = "about:blank") -> dict[str, Any]:
-        """启动浏览器并导航到指定 URL。"""
+                   url: str = "about:blank",
+                   use_system_browser: bool = False) -> dict[str, Any]:
+        """启动浏览器并导航到指定 URL。
+
+        use_system_browser=True 时使用系统默认浏览器打开页面，
+        不支持后续自动化操作。
+        """
+        if use_system_browser:
+            return await _open_in_system_browser(url)
         if not self._ctrl.is_running:
             started = await self._ctrl.start(headless=headless)
             if not started:
@@ -700,8 +729,15 @@ class BrowsingAgent:
 
     async def open(
         self, headless: bool = False, url: str = "about:blank",
+        use_system_browser: bool = False,
     ) -> dict[str, Any]:
-        """启动浏览器并导航到指定 URL。"""
+        """启动浏览器并导航到指定 URL。
+
+        use_system_browser=True 时使用系统默认浏览器打开页面，
+        不支持后续自动化操作。
+        """
+        if use_system_browser:
+            return await _open_in_system_browser(url)
         if not self._ctrl.is_running:
             started = await self._ctrl.start(headless=headless)
             if not started:

@@ -45,6 +45,12 @@ async def _safe_close(agent):
 async def _cmd_browse(args) -> None:
     agent = BrowsingAgent(max_steps=args.max_steps, timeout_secs=args.timeout)
     try:
+        if args.system_browser:
+            result = await agent.open(use_system_browser=True, url=args.url)
+            print(_fmt(result, args.format))
+            if not result.get("ok"):
+                sys.exit(1)
+            return
         result = await agent.run(task=args.task, url=args.url, headless=args.headless)
         print(_fmt(result, args.format))
         if not result.get("ok"):
@@ -339,8 +345,9 @@ def _build_parser() -> argparse.ArgumentParser:
     # ── browse ──
     b = sub.add_parser("browse", help="智能浏览 — 浏览指定URL并执行任务")
     b.add_argument("url", help="目标 URL")
-    b.add_argument("task", help="任务描述")
+    b.add_argument("task", nargs="?", default="", help="任务描述")
     b.add_argument("--headless", action="store_true", help="无头模式")
+    b.add_argument("--system-browser", action="store_true", help="使用系统默认浏览器打开（仅打开页面，不支持自动化）")
     b.add_argument("--speed", choices=["turbo", "normal", "stealth"], default="normal")
     b.add_argument("--max-steps", type=int, default=50, help="最大步骤数")
     b.add_argument("--timeout", type=int, default=300, help="超时时间（秒）")

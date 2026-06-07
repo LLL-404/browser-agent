@@ -6,10 +6,11 @@ from mcp import types
 _CORE_TOOLS = [
     types.Tool(
         name="browser_open",
-        description="启动浏览器并导航到指定URL",
+        description="启动浏览器并导航到指定URL。当 use_system_browser=true 时，使用系统默认浏览器打开页面（不支持后续自动化操作）",
         inputSchema={"type": "object", "properties": {
             "url": {"type": "string", "description": "导航目标 URL（默认 about:blank）"},
             "headless": {"type": "boolean", "description": "是否无头模式"},
+            "use_system_browser": {"type": "boolean", "description": "是否使用系统默认浏览器打开（仅打开页面，不支持自动化控制）"},
         }},
     ),
     types.Tool(

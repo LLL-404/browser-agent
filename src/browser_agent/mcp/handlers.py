@@ -114,6 +114,7 @@ async def _open(agent, _ctrl, args):
     return await agent.open(
         headless=args.get("headless", False),
         url=args.get("url", "about:blank"),
+        use_system_browser=args.get("use_system_browser", False),
     )
 
 

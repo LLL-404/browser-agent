@@ -122,7 +122,7 @@ class TestLifecycle:
     async def test_open(self, mock_agent, mock_ctrl):
         r = await _open(mock_agent, mock_ctrl, {"url": "https://example.com"})
         assert r["ok"] is True
-        mock_agent.open.assert_awaited_with(headless=False, url="https://example.com")
+        mock_agent.open.assert_awaited_with(headless=False, url="https://example.com", use_system_browser=False)
 
     @pytest.mark.asyncio
     async def test_close(self, mock_agent, mock_ctrl):
