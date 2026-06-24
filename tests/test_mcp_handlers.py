@@ -78,7 +78,7 @@ def mock_ctrl(mock_page):
 def mock_agent(mock_ctrl):
     agent = MagicMock()
     agent.ctrl = mock_ctrl
-    agent.open = AsyncMock(return_value={"ok": True, "engine": "playwright"})
+    agent.open = AsyncMock(return_value={"ok": True, "engine": "camoufox"})
     agent.close = AsyncMock(return_value={"ok": True})
     agent.navigate = AsyncMock(return_value={"ok": True, "url": "https://example.com"})
     agent.click = AsyncMock(return_value={"ok": True})

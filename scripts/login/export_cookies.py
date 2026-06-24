@@ -5,11 +5,16 @@
 """
 
 import asyncio
-from pathlib import Path
+import warnings
 
 from browser_agent.core.browser import BrowserController
 from browser_agent.core.session import save_cookies_to_file
 from shared.logging_config import get_logger
+
+# 忽略 Python 3.14 Windows asyncio 关闭时的无害警告（CPython 内部清理顺序问题）
+warnings.filterwarnings("ignore",
+                        message="unclosed transport",
+                        category=ResourceWarning)
 
 logger = get_logger("export")
 
@@ -29,7 +34,7 @@ async def main():
     )
     ctrl = BrowserController()
     try:
-        ok = await ctrl.start(headless=False, use_camoufox=True)
+        ok = await ctrl.start(headless=False, use_camoufox=True, profile_name="zhipin")
         if not ok:
             print("Camoufox 启动失败，尝试 Playwright...")
             ok = await ctrl.start(headless=False, use_camoufox=False)

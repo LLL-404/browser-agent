@@ -84,7 +84,8 @@ class BrowserAgent:
 
     async def open(self, headless: bool = False,
                    url: str = "about:blank",
-                   use_system_browser: bool = False) -> dict[str, Any]:
+                   use_system_browser: bool = False,
+                   profile_name: str | None = None) -> dict[str, Any]:
         """启动浏览器并导航到指定 URL。
 
         use_system_browser=True 时使用系统默认浏览器打开页面，
@@ -93,7 +94,7 @@ class BrowserAgent:
         if use_system_browser:
             return await _open_in_system_browser(url)
         if not self._ctrl.is_running:
-            started = await self._ctrl.start(headless=headless)
+            started = await self._ctrl.start(headless=headless, profile_name=profile_name)
             if not started:
                 return {"ok": False, "error": "浏览器启动失败"}
         nav = await self._ctrl.navigate_to(url)
@@ -580,6 +581,7 @@ class BrowsingAgent:
         task: str,
         url: str | None = None,
         headless: bool = False,
+        profile_name: str | None = None,
     ) -> dict[str, Any]:
         """执行浏览任务的主循环：感知 → 决策 → 执行 → 循环控制。
 
@@ -587,13 +589,14 @@ class BrowsingAgent:
             task: 任务描述。
             url: 起始 URL（可选）。
             headless: 是否以无头模式启动浏览器。
+            profile_name: 持久化 profile 名称（如 "zhipin"）。
 
         Returns:
             包含 ok, task, steps, url, title, summary, results 的结果字典。
         """
         # 1. 启动浏览器
         if not self._ctrl.is_running:
-            started = await self._ctrl.start(headless=headless)
+            started = await self._ctrl.start(headless=headless, profile_name=profile_name)
             if not started:
                 return {
                     "ok": False, "task": task, "steps": 0,
@@ -730,6 +733,7 @@ class BrowsingAgent:
     async def open(
         self, headless: bool = False, url: str = "about:blank",
         use_system_browser: bool = False,
+        profile_name: str | None = None,
     ) -> dict[str, Any]:
         """启动浏览器并导航到指定 URL。
 
@@ -739,7 +743,7 @@ class BrowsingAgent:
         if use_system_browser:
             return await _open_in_system_browser(url)
         if not self._ctrl.is_running:
-            started = await self._ctrl.start(headless=headless)
+            started = await self._ctrl.start(headless=headless, profile_name=profile_name)
             if not started:
                 return {"ok": False, "error": "浏览器启动失败"}
         nav = await self._ctrl.navigate_to(url)

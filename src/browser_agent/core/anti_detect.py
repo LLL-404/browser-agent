@@ -15,45 +15,6 @@ if TYPE_CHECKING:
 
 logger = get_logger("anti_detect")
 
-# 浏览器启动参数，供 scraper.py 和 browser_controller.py 共用
-BROWSER_STEALTH_ARGS = [
-    "--disable-blink-features=AutomationControlled",
-    "--disable-webgl",
-    "--disable-canvas-aa",
-    "--no-first-run",
-    "--no-default-browser-check",
-    "--window-size=1400,900",
-    "--lang=zh-CN",
-    "--accept-lang=zh-CN,zh,en-US,en",
-]
-
-BROWSER_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/125.0.0.0 Safari/537.36"
-)
-
-
-def build_browser_kwargs(cfg: dict, headless: bool = False) -> dict:
-    """构建 Playwright 浏览器启动参数字典，含代理配置。"""
-    kwargs = {
-        "user_data_dir": "./browser_profile",
-        "headless": headless,
-        "viewport": {"width": 1400, "height": 900},
-        "user_agent": BROWSER_USER_AGENT,
-        "args": BROWSER_STEALTH_ARGS,
-    }
-    proxy_cfg = cfg.get("proxy", {})
-    if proxy_cfg.get("enabled") and proxy_cfg.get("server"):
-        proxy = {"server": proxy_cfg["server"]}
-        if proxy_cfg.get("username"):
-            proxy["username"] = proxy_cfg["username"]
-            proxy["password"] = proxy_cfg.get("password", "")
-        if proxy_cfg.get("bypass"):
-            proxy["bypass"] = proxy_cfg["bypass"]
-        kwargs["proxy"] = proxy
-    return kwargs
-
 
 async def random_delay(delay_range: tuple[int, int] | None = None):
     """随机等待指定范围秒数"""
@@ -124,7 +85,7 @@ ANTI_REDIRECT_SCRIPT = """
     const _replace = Location.prototype.replace;
     Location.prototype.assign = function(url) { if (!blocked(url)) _assign.call(this, url); else console.log('[AB] blocked assign=' + url); };
     Location.prototype.replace = function(url) { if (!blocked(url)) _replace.call(this, url); else console.log('[AB] blocked replace=' + url); };
-    
+
     const _open = window.open;
     window.open = function(url) { if (blocked(url)) return null; return _open.apply(this, arguments); };
 
@@ -406,13 +367,12 @@ class AntiDetectSystem:
 
         # 检查 403 请求 → level 2
         failed_requests = logs.get("failed_requests", [])
-        if isinstance(failed_requests, list):
-            if any(
-                isinstance(r, dict) and r.get("status") == 403
-                for r in failed_requests
-            ):
-                logger.info("检测到 403 响应，风险等级 2")
-                return 2
+        if isinstance(failed_requests, list) and any(
+            isinstance(r, dict) and r.get("status") == 403
+            for r in failed_requests
+        ):
+            logger.info("检测到 403 响应，风险等级 2")
+            return 2
 
         # 检查重定向次数过多 → level 2
         redirect_count = logs.get("redirect_count", 0)

@@ -54,10 +54,7 @@ class GovernmentSiteLimiter:
         try:
             parsed = urlparse(url)
             domain = parsed.netloc.lower()
-            for gov_domain in self._domains:
-                if gov_domain.lower() in domain:
-                    return True
-            return False
+            return any(gov_domain.lower() in domain for gov_domain in self._domains)
         except Exception:  # pylint: disable=broad-exception-caught
             return False
 

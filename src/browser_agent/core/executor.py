@@ -261,10 +261,7 @@ class BehaviorSimulator:
                     break
 
                 # 每段滚动量（含随机波动）
-                if seg == segments - 1:
-                    step = remaining
-                else:
-                    step = int(remaining * random.uniform(0.15, 0.4))
+                step = remaining if seg == segments - 1 else int(remaining * random.uniform(0.15, 0.4))
                 step = max(-abs(step), min(abs(step), step))  # 保证方向一致
                 step = step if abs(step) >= 5 else remaining
 

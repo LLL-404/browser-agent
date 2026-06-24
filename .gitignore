@@ -12,8 +12,8 @@ __pycache__/
 .trae/
 
 # 浏览器配置文件
-browser_profile/
-.browser-data/
+data/browser_profiles/
+data/browser-data/
 data/profiles/
 *.egg-info/
 
@@ -26,6 +26,7 @@ data/export/
 
 # 会话持久化
 sessions/
+src/browser_agent/sessions/
 
 # 调试输出
 tests/output/
@@ -38,6 +39,18 @@ tests/debug/output/
 # pytest 缓存
 .pytest_cache/
 
+# 覆盖率报告
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Playwright 运行时
+.playwright/
+
+# Ruff 缓存
+.ruff_cache/
+
 # 交付临时文件
 a123_delivery.md
 
@@ -45,5 +58,8 @@ a123_delivery.md
 *.png
 *.html
 
-# CodeGraph 索引
+# CodeGraph 索引（已弃用，改用 Understand Anything）
 .codegraph/
+
+# Understand Anything 知识图谱
+.understand-anything/

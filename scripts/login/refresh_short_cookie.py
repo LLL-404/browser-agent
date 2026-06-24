@@ -39,7 +39,7 @@ async def main():
     # ── Step 1: 加载 storage_state ──
     # 优先加载企查查专用 storage_state，回退到默认路径
     state = None
-    qcc_path = Path("sessions/qcc_storage_state.json")
+    qcc_path = Path("src/browser_agent/sessions/qcc_storage_state.json")
     if qcc_path.exists():
         import aiofiles
         async with aiofiles.open(qcc_path, "r", encoding="utf-8") as f:

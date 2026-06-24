@@ -49,17 +49,17 @@
 
 ### 1.2 原子能力 vs 组合能力
 
-**原子能力**（7 项）——不可再分，直接封装 Playwright API：
+**原子能力**（7 项）——不可再分，直接封装底层浏览器 API：
 
 | 能力 | 为何不可再分 | 封装层级 |
 |------|------------|---------|
 | `browser_open` | 启动浏览器进程是 OS 级操作，无法用其他能力组合实现 | BrowserController |
 | `browser_close` | 关闭进程同上 | BrowserController |
-| `navigate_to` | `page.goto()` 是 Playwright 单次网络请求 | BrowserController |
+| `navigate_to` | `page.goto()` 是单次网络请求 | BrowserController |
 | `click_selector` | 单次 DOM 点击，封装异常分支处理 | BrowserController |
 | `fill_input` | 输入框填充，封装异常分支处理 | BrowserController |
-| `press_key` | 键盘事件模拟，Playwright 单次调用 | BrowserController |
-| `execute_js` | JS 求值，Playwright 单次调用 | BrowserController |
+| `press_key` | 键盘事件模拟，底层单次调用 | BrowserController |
+| `execute_js` | JS 求值，底层单次调用 | BrowserController |
 
 **组合能力**（5 项）——由 2 项以上原子能力编排而成：
 
@@ -69,7 +69,7 @@
 | `save_session` | 读出 Cookie + localStorage → 序列化 → 写入文件 | `save_cookies` + `save_local_storage` |
 | `load_session` | 读取文件 → 反序列化 → 写入 Cookie + localStorage → 导航回原页面 | `load_cookies` + `load_local_storage` + `navigate_to` |
 | `browser_snapshot` | 获取可交互元素 → 构建 DOM 摘要 → 获取文本摘要 → 三合一 | `get_interactive_elements` + `get_dom_structure` + `get_page_text` |
-| `browser_find` | 按语义查找元素 → 定位成功 → 执行点击/填充 | Playwright `get_by_text/label/role/placeholder/testid` + `click`/`fill` |
+| `browser_find` | 按语义查找元素 → 定位成功 → 执行点击/填充 | `get_by_text/label/role/placeholder/testid` + `click`/`fill` |
 
 ---
 
@@ -136,7 +136,7 @@ async def loop_extract(self, page_count, row_selector, columns, next_btn):
 它复用了：
 - `extract_table`（组合能力）—— 负责单页结构化提取
 - `click_selector`（原子能力）—— 负责翻页点击
-- 自己没有实现任何 Playwright API 调用
+- 自己没有实现任何底层浏览器 API 调用
 
 如果要新增一个类似 `loop_extract` 的能力（如 `loop_detail` 逐条进详情页抓取），只需将 `extract_table` 替换为 `navigate` + `get_page_text` 的组合，**复用模式完全相同**。
 
@@ -152,7 +152,7 @@ async def loop_extract(self, page_count, row_selector, columns, next_btn):
 ```python
 async def action_name(self, param1: type, param2: type, ...) -> bool | dict:
     # 1. 状态检查（_require_page）
-    # 2. try: Playwright 调用
+    # 2. try: 浏览器调用
     # 3. except: 异常分类 → 日志 → 返回 false/空
     # 4. finally: 不抛异常到上层
 ```
@@ -205,7 +205,7 @@ async def action_name(self, ..., ) -> dict[str, Any]:
 
 **调用模式**：遵循模式 A（Controller 层）+ 模式 B（Agent 层）两层封装。
 
-**Controller 层签名**（已有 Playwright `page.drag_and_drop` 封装）：
+**Controller 层签名**（已有底层 `page.drag_and_drop` 封装）：
 ```python
 async def drag_and_drop(self, source: str, target: str) -> bool:
     # 复用 find_selector 做元素存在检查
@@ -247,6 +247,6 @@ async def solve_slider_captcha(self):
 | 静态结构 | 三层金字塔（引擎层 → 原子能力层 → 组合能力层）+ 反检测是横切面 |
 | 元素定位 | 统一两级链：语义定位 → @e1 ref → CSS 选择器 |
 | 函数签名 | 两层封装（Controller 返回 bool，Agent 返回 dict<ok,step>） |
-| 异常处理 | Playwright 异常永不外抛，全部在 Controller 层分类+日志+转 false |
+| 异常处理 | 浏览器异常永不外抛，全部在 Controller 层分类+日志+转 false |
 | 反检测织入 | 三入口（context 初始化 + 单操作封装 + 跨操作调度），不重复代码 |
 | 新增一项能力 | 只需加一个 Controller 方法 + 一个 Agent 方法 + 一行 MCP 注册 |

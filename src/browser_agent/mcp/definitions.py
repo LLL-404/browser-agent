@@ -244,6 +244,14 @@ _CORE_TOOLS = [
             "static": {"type": "boolean", "description": "是否包含静态资源请求"},
         }},
     ),
+    types.Tool(
+        name="browser_investigate",
+        description="针对特定主体（如公司、项目）执行自动化的深度调查任务，自动执行搜索、分析并生成报告",
+        inputSchema={"type": "object", "properties": {
+            "subject": {"type": "string", "description": "调查主体名称"},
+            "aspects": {"type": "array", "items": {"type": "string"}, "description": "调查维度（可选，如：工商、资质、风险）"},
+        }},
+    ),
 ]
 
 _VISION_TOOLS = [

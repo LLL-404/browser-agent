@@ -1,5 +1,6 @@
 """数据持久化模块，提供 SQLite 数据库的初始化与 CRUD 操作。"""
 
+import contextlib
 import json
 import sqlite3
 from collections.abc import Generator
@@ -54,6 +55,9 @@ def init_db():
             recruiter_active_bool INTEGER DEFAULT 0,
             match_score INTEGER DEFAULT 0,
             ai_reason TEXT,
+            verified INTEGER DEFAULT 0,
+            keyword TEXT,
+            source TEXT DEFAULT 'boss',
             created_at TEXT,
             analyzed_at TEXT,
             applied_at TEXT
@@ -77,6 +81,16 @@ def init_db():
             FOREIGN KEY (job_id) REFERENCES jobs(id)
         );
     """)
+    conn.commit()
+
+    # 兼容旧表：如果缺少新列则添加
+    with contextlib.suppress(sqlite3.OperationalError):
+        conn.execute("ALTER TABLE jobs ADD COLUMN verified INTEGER DEFAULT 0")
+    with contextlib.suppress(sqlite3.OperationalError):
+        conn.execute("ALTER TABLE jobs ADD COLUMN keyword TEXT")
+    with contextlib.suppress(sqlite3.OperationalError):
+        conn.execute("ALTER TABLE jobs ADD COLUMN source TEXT DEFAULT 'boss'")
+
     conn.commit()
     conn.close()
 
@@ -416,3 +430,32 @@ def _bool_to_int(val) -> int:
     if val is False:
         return -1
     return 0
+
+
+def get_all_companies() -> list[str]:
+    """获取所有待验证公司名称（去重）。"""
+    conn = _connect()
+    try:
+        rows = conn.execute(
+            "SELECT DISTINCT company FROM jobs WHERE company IS NOT NULL AND company != ''"
+        ).fetchall()
+        return [r["company"] for r in rows]
+    finally:
+        conn.close()
+
+
+def update_company_info(info: dict):
+    """更新公司验证信息到 company_info 字段。
+
+    info 包含: company, found_date, register_capital, social_insurance, status
+    """
+    conn = _connect()
+    try:
+        company_info = json.dumps(info, ensure_ascii=False)
+        conn.execute(
+            "UPDATE jobs SET company_info = ?, verified = 1 WHERE company = ?",
+            (company_info, info["company"])
+        )
+        conn.commit()
+    finally:
+        conn.close()

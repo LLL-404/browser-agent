@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from random import choice, randint
+from random import choice
 from typing import Any
 
 from shared.logging_config import get_logger
@@ -35,20 +35,10 @@ def generate_camoufox_opts() -> dict[str, Any]:
     """生成随机化的 Camoufox 浏览器配置参数。"""
     w, h = choice(WINDOW_PRESETS)
 
-    screen_w = w + randint(0, 400)
-    screen_h = h + randint(20, 200)
-
     return {
         "window": (w, h),
         "os": [choice(OS_WEIGHTED)],
-        "screen": {
-            "width": screen_w,
-            "height": screen_h,
-            "availWidth": screen_w,
-            "availHeight": screen_h - randint(30, 60),
-            "colorDepth": 24,
-            "pixelDepth": 24,
-        },
+        # 不传 screen 参数，让 Camoufox 自行生成指纹
     }
 
 

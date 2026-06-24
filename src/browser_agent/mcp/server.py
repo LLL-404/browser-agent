@@ -14,11 +14,6 @@ import pkgutil
 from pathlib import Path
 
 import mcp.server.stdio
-from mcp import types
-from mcp.server import Server
-from mcp.server.lowlevel.server import InitializationOptions
-from mcp.types import ServerCapabilities
-
 from browser_agent.core.agent import BrowserAgent
 from browser_agent.core.browser import BrowserController
 from browser_agent.core.mcp_config import McpConfig, load_config
@@ -30,6 +25,10 @@ from browser_agent.mcp.definitions import (
 )
 from browser_agent.mcp.handlers import TOOL_ALIASES, TOOL_HANDLERS
 from browser_agent.mcp.validation import validate_args
+from mcp import types
+from mcp.server import Server
+from mcp.server.lowlevel.server import InitializationOptions
+from mcp.types import ServerCapabilities
 from shared.error_handler import format_error_for_mcp
 from shared.logging_config import get_logger, setup_logging
 
@@ -211,6 +210,7 @@ async def main(argv: list[str] | None = None):
         import uvicorn  # pylint: disable=import-outside-toplevel
         from starlette.applications import Starlette  # pylint: disable=import-outside-toplevel
         from starlette.routing import Mount, Route  # pylint: disable=import-outside-toplevel
+
         from mcp.server.sse import SseServerTransport  # pylint: disable=import-outside-toplevel
 
         sse = SseServerTransport("/messages")

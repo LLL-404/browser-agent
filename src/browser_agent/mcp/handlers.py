@@ -3,15 +3,17 @@ from __future__ import annotations
 
 import dataclasses
 import json as _json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import aiofiles
-from shared.logging_config import get_logger
+
+from browser_agent.core.agent import BrowserAgent, BrowsingAgent
+from browser_agent.core.browser import BrowserController
 from shared.error_handler import classify_playwright_error, format_error_for_mcp
 from shared.exceptions import BrowserAutomationError
-from browser_agent.core.browser import BrowserController
-from browser_agent.core.agent import BrowserAgent, BrowsingAgent
+from shared.logging_config import get_logger
 
 logger = get_logger("handlers")
 
@@ -81,7 +83,7 @@ async def _load_state(agent, load_path: str) -> dict:
         path = Path(load_path)
         if not path.exists():
             return {"ok": False, "error": f"file not found: {load_path}"}
-        async with aiofiles.open(path, "r", encoding="utf-8") as f:
+        async with aiofiles.open(path, encoding="utf-8") as f:
             content = await f.read()
         data = _json.loads(content)
         page = agent.ctrl.page
@@ -476,6 +478,17 @@ async def _get_snapshot(agent, _ctrl, _args):
     data["ok"] = True
     return data
 
+
+async def _investigate(agent, _ctrl, args):
+    """执行深度调查任务。"""
+    subject = args.get("subject")
+    aspects = args.get("aspects", ["工商", "资质", "风险"])
+    task = f"深度调查 '{subject}'，关注维度: {', '.join(aspects)}。请搜索相关信息并总结。"
+    # 自动导航到搜索页面开始任务
+    search_url = f"https://www.baidu.com/s?wd={subject}"
+    return await agent.browse(task=task, url=search_url)
+
+
 # ── Handler registry ──
 
 def _safe_handler(fn: Handler) -> Handler:
@@ -529,4 +542,5 @@ TOOL_HANDLERS: dict[str, Handler] = {
     "devtools_set_location": _safe_handler(_devtools_set_location),
     "browser_browse": _safe_handler(_browse),
     "browser_get_snapshot": _safe_handler(_get_snapshot),
+    "browser_investigate": _safe_handler(_investigate),
 }

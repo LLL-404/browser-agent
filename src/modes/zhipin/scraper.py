@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import re
 import time
 from typing import Any
 
-from playwright.async_api import Page, async_playwright
+from playwright.async_api import Page
 
 from browser_agent.core.anti_detect import (
-    ANTI_REDIRECT_SCRIPT,
-    STEALTH_SCRIPT,
-    build_browser_kwargs,
     human_scroll,
     random_delay,
 )
@@ -107,9 +105,7 @@ async def is_logged_in(page: Page) -> bool:
     try:
         body_text = await page.inner_text("body")
         if any(kw in body_text for kw in LOGIN_TEXT_NEGATIVE):
-            if any(kw in body_text for kw in LOGIN_TEXT_POSITIVE):
-                return True
-            return False
+            return bool(any(kw in body_text for kw in LOGIN_TEXT_POSITIVE))
         user_menu = await page.query_selector(LOGIN_USER_MENU)
         if user_menu:
             return True
@@ -311,9 +307,17 @@ async def _scrape_detail(page: Page, job_url: str) -> dict[str, str]:
     return result
 
 
-async def _create_browser_context(p, cfg: dict, headless: bool):
-    kwargs = build_browser_kwargs(cfg, headless)
-    return await p.chromium.launch_persistent_context(**kwargs)
+async def _create_browser_context(headless: bool):
+    from camoufox import AsyncCamoufox
+    from camoufox.addons import DefaultAddons
+    return await AsyncCamoufox(
+        headless=headless,
+        humanize=True,
+        geoip=False,
+        block_images=False,
+        enable_cache=False,
+        exclude_addons=[DefaultAddons.UBO],
+    ).__aenter__()
 
 
 async def _ensure_login(page: Page) -> bool:
@@ -322,10 +326,8 @@ async def _ensure_login(page: Page) -> bool:
 
     url_lower = page.url.lower()
     body_text = ""
-    try:
+    with contextlib.suppress(_PLAYWRIGHT_ERRORS):
         body_text = await page.inner_text("body")
-    except _PLAYWRIGHT_ERRORS:
-        pass
 
     is_login_page = any(p in url_lower for p in LOGIN_PAGE_AUTH)
     has_login_text = "扫码" in body_text or "验证码登录" in body_text
@@ -450,75 +452,71 @@ async def search_jobs(cities: list[str] | None = None,
     result: dict[str, object | dict] = {}
     total_start = time.time()
 
-    async with async_playwright() as p:
-        context = await _create_browser_context(p, cfg, headless)
-        await context.add_init_script(STEALTH_SCRIPT)
-        await context.add_init_script(ANTI_REDIRECT_SCRIPT)
-        first_page = context.pages[0] if context.pages else await context.new_page()
+    context = await _create_browser_context(headless)
+    first_page = context.pages[0] if context.pages else await context.new_page()
 
-        try:
-            if not await _ensure_login(first_page):
-                return {"error": "登录超时，请重试"}
+    try:
+        if not await _ensure_login(first_page):
+            return {"error": "登录超时，请重试"}
 
-            total: int = len(cities)
-            detail_sem: asyncio.Semaphore = asyncio.Semaphore(2)
+        total: int = len(cities)
+        detail_sem: asyncio.Semaphore = asyncio.Semaphore(2)
 
-            if concurrent and total > 1:
-                pages: list[object] = [first_page]
-                for _ in range(total - 1):
-                    pages.append(await context.new_page())
+        if concurrent and total > 1:
+            pages: list[object] = [first_page]
+            for _ in range(total - 1):
+                pages.append(await context.new_page())
 
-                async def _search(city: str, page) -> dict[str, object | int | float]:
-                    try:
-                        logger.info("[并发] %s 搜索中...", city)
-                        await _goto_search(page, city,
-                                          get_initial_keyword() if keywords is None else keywords[0])
-                        await delay("navigation")
-                        stats = await _search_one_city(page, city, keywords, max_detail, detail_sem)
-                        logger.info(
-                            "[并发] %s | 搜到 %d 条 | 入库 %d 条 | 耗时 %.0f秒",
-                            city, stats["searched"], stats["stored"], stats["elapsed"])
-                        return stats
-                    except _PLAYWRIGHT_ERRORS as e:
-                        logger.error("[并发] %s 搜索异常: %s", city, e)
-                        return {
-                            "error": str(e), "searched": 0,
-                            "stored": 0, "skipped": 0, "elapsed": 0,
-                        }
-
-                sem = asyncio.Semaphore(5)
-                async def _bounded(city, page):
-                    async with sem:
-                        return await _search(city, page)
-                tasks = [_bounded(city, page) for city, page in zip(cities, pages)]
-                results: list[dict | Exception] = await asyncio.gather(*tasks, return_exceptions=True)
-
-                for city, r in zip(cities, results):
-                    if isinstance(r, Exception):
-                        result[city] = {"error": str(r), "searched": 0, "stored": 0,
-                                       "skipped": 0, "elapsed": 0}
-                    else:
-                        result[city] = r
-
-                # 关闭多余的页面
-                for page in pages[1:]:
-                    await page.close()
-            else:
-                for idx, city in enumerate(cities, 1):
-                    logger.info("[%d/%d] %s 搜索中...", idx, total, city)
-                    stats: dict[str, int | float] = await _search_one_city(
-                        first_page, city, keywords, max_detail, detail_sem)
-                    result[city] = stats
+            async def _search(city: str, page) -> dict[str, object | int | float]:
+                try:
+                    logger.info("[并发] %s 搜索中...", city)
+                    await _goto_search(page, city,
+                                      get_initial_keyword() if keywords is None else keywords[0])
+                    await delay("navigation")
+                    stats = await _search_one_city(page, city, keywords, max_detail, detail_sem)
                     logger.info(
-                        "[%d/%d] %s | 搜到 %d 条 | 入库 %d 条 | 耗时 %.0f秒",
-                        idx, total, city,
-                        stats["searched"], stats["stored"], stats["elapsed"])
+                        "[并发] %s | 搜到 %d 条 | 入库 %d 条 | 耗时 %.0f秒",
+                        city, stats["searched"], stats["stored"], stats["elapsed"])
+                    return stats
+                except _PLAYWRIGHT_ERRORS as e:
+                    logger.error("[并发] %s 搜索异常: %s", city, e)
+                    return {
+                        "error": str(e), "searched": 0,
+                        "stored": 0, "skipped": 0, "elapsed": 0,
+                    }
 
-        except _PLAYWRIGHT_ERRORS as e:
-            logger.error("搜索异常: %s", e)
-            result["error"] = str(e)
-        finally:
-            await context.close()
+            sem = asyncio.Semaphore(5)
+            async def _bounded(city, page):
+                async with sem:
+                    return await _search(city, page)
+            tasks = [_bounded(city, page) for city, page in zip(cities, pages, strict=False)]
+            results: list[dict | Exception] = await asyncio.gather(*tasks, return_exceptions=True)
+
+            for city, r in zip(cities, results, strict=False):
+                if isinstance(r, Exception):
+                    result[city] = {"error": str(r), "searched": 0, "stored": 0,
+                                   "skipped": 0, "elapsed": 0}
+                else:
+                    result[city] = r
+
+            for page in pages[1:]:
+                await page.close()
+        else:
+            for idx, city in enumerate(cities, 1):
+                logger.info("[%d/%d] %s 搜索中...", idx, total, city)
+                stats: dict[str, int | float] = await _search_one_city(
+                    first_page, city, keywords, max_detail, detail_sem)
+                result[city] = stats
+                logger.info(
+                    "[%d/%d] %s | 搜到 %d 条 | 入库 %d 条 | 耗时 %.0f秒",
+                    idx, total, city,
+                    stats["searched"], stats["stored"], stats["elapsed"])
+
+    except _PLAYWRIGHT_ERRORS as e:
+        logger.error("搜索异常: %s", e)
+        result["error"] = str(e)
+    finally:
+        await context.__aexit__(None, None, None)
 
     total_elapsed = time.time() - total_start
     total_stored: int = sum(r.get("stored", 0) for c, r in result.items() if c != "error")
@@ -653,11 +651,16 @@ async def health_check() -> dict:
 
     # 2. 浏览器可用性检查
     try:
-        from playwright.async_api import async_playwright
-        async with async_playwright() as pw:
-            browser = await pw.chromium.launch(headless=True)
-            await browser.close()
-        checks["browser"] = {"ok": True, "engine": "playwright"}
+        from camoufox import AsyncCamoufox
+        from camoufox.addons import DefaultAddons
+        browser = await AsyncCamoufox(
+            headless=True, humanize=False,
+            geoip=False, block_images=True,
+            enable_cache=False,
+            exclude_addons=[DefaultAddons.UBO],
+        ).__aenter__()
+        await browser.__aexit__(None, None, None)
+        checks["browser"] = {"ok": True, "engine": "camoufox"}
     except _PLAYWRIGHT_ERRORS as e:
         checks["browser"] = {"ok": False, "error": str(e)}
         issues.append(f"浏览器不可用: {e}")
@@ -678,13 +681,5 @@ async def health_check() -> dict:
         checks["network"] = {"ok": False, "error": str(e)}
         issues.append(f"无法访问BOSS直聘: {e}")
 
-    # 4. Camoufox 可用性检查
-    try:
-        __import__("camoufox")
-        checks["camoufox"] = {"ok": True}
-    except ImportError:
-        checks["camoufox"] = {"ok": False, "note": "未安装，将使用 Playwright 回退"}
-
-    healthy = all(check.get("ok", False) or "note" in check
-                  for check in checks.values())
+    healthy = all(check.get("ok", False) for check in checks.values())
     return {"healthy": healthy, "checks": checks, "issues": issues}

@@ -20,15 +20,15 @@ logger = logging.getLogger(__name__)
 
 def gov_site_rate_limit(func=None, *, delay_name: str = "page_ready"):  # pylint: disable=unused-argument
     """装饰器：自动对政府网站应用访问限制。
-    
+
     Args:
         delay_name: 延迟配置名称，默认为 "page_ready"
-    
+
     使用示例：
         @gov_site_rate_limit
         async def fetch_data(url):
             pass
-        
+
         @gov_site_rate_limit(delay_name="navigation")
         async def navigate_to(url):
             pass
@@ -73,7 +73,7 @@ def gov_site_rate_limit(func=None, *, delay_name: str = "page_ready"):  # pylint
 
 def gov_site_delay(delay_name: str = "page_ready"):
     """装饰器：在函数执行后添加政府网站专用延迟。
-    
+
     Args:
         delay_name: 延迟配置名称
     """

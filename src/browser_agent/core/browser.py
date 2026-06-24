@@ -1,21 +1,17 @@
-"""浏览器控制器 — 支持 Camoufox（C++引擎）和 Playwright（JS引擎）双引擎回退。
+"""浏览器控制器 — 基于 Camoufox（C++引擎）的浏览器自动化。
 
-优先使用 Camoufox 获得 C++ 级别的反检测能力，不可用时回退到 Playwright。
+Camoufox 在 C++ 引擎层面提供反检测能力，底层使用 Playwright Page API。
 """
 
 from __future__ import annotations
 
 import asyncio
 import functools
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any
 
-from playwright.async_api import async_playwright
-
-from browser_agent.core.anti_detect import build_browser_kwargs
 from browser_agent.core.health_monitor import HealthMonitor
 from browser_agent.core.log_collector import LogCollector
 from browser_agent.core.session import SessionManager
-from shared.config import get_config
 from shared.error_handler import classify_playwright_error
 from shared.exceptions import (
     BrowserCrashError,
@@ -30,23 +26,8 @@ if TYPE_CHECKING:
     from playwright.async_api import Page as _Page
 
 
-@runtime_checkable
-class _BrowserLike(Protocol):
-    """AsyncCamoufox 和 BrowserContext 的公共接口协议。"""
-
-    async def new_page(self) -> _Page: ...  # pylint: disable=missing-function-docstring
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> bool | None: ...  # pylint: disable=missing-function-docstring
-    async def close(self) -> None: ...  # pylint: disable=missing-function-docstring
-    @property
-    def pages(self) -> list[_Page]: ...  # pylint: disable=missing-function-docstring
-
-
-try:
-    from camoufox import AsyncCamoufox
-    from camoufox.addons import DefaultAddons
-    HAS_CAMOUFOX = True
-except ImportError:
-    HAS_CAMOUFOX = False
+from camoufox import AsyncCamoufox
+from camoufox.addons import DefaultAddons
 
 logger = get_logger("browser")
 
@@ -75,12 +56,10 @@ class BrowserController:
     """统一管理浏览器生命周期并提供常用页面操作。"""
 
     def __init__(self):
-        self._browser: _BrowserLike | None = None
+        self._browser: AsyncCamoufox | None = None
         self._page: _Page | None = None
-        self._pw: Any | None = None
-        self._engine: str | None = None
+        self._engine: str | None = "camoufox"
         self._is_running: bool = False
-        self._has_camoufox: bool = HAS_CAMOUFOX
         # 子模块（组合模式）
         self._log_collector = LogCollector()
         self._health_monitor = HealthMonitor(self)
@@ -113,51 +92,52 @@ class BrowserController:
         """返回浏览器是否处于运行状态。"""
         return self._is_running
 
-    @property
-    def has_camoufox(self) -> bool:
-        """返回当前环境是否可用 Camoufox。"""
-        return self._has_camoufox
-
     async def start(self, headless: bool = False,
-                    use_camoufox: bool = True) -> bool:
-        """按优先级启动 Camoufox 或 Playwright。"""
+                    profile_name: str | None = None) -> bool:
+        """启动 Camoufox 浏览器。
+
+        Args:
+            headless: 是否以无头模式启动。
+            profile_name: 持久化 profile 名称（如 "zhipin"），
+                          启用后浏览器状态会跨重启保留。
+        """
         if self._is_running:
             return True
 
-        if use_camoufox and self._has_camoufox:
-            try:
-                result = await self._start_camoufox(headless)
-                if result:
-                    self._engine = "camoufox"
-                    self._is_running = True
-                    logger.info("Camoufox 启动成功")
-                    return True
-                logger.info("Camoufox 启动失败，回退到 Playwright")
-            except (RuntimeError, OSError) as e:
-                logger.warning("Camoufox 启动异常: %s", e)
+        try:
+            result = await self._start_camoufox(headless, profile_name=profile_name)
+            if result:
+                self._engine = "camoufox"
+                self._is_running = True
+                logger.info("Camoufox 启动成功")
+            return result
+        except (RuntimeError, OSError, AttributeError) as e:
+            logger.error("Camoufox 启动异常: %s", e)
+            return False
 
-        result = await self._start_playwright(headless)
-        if result:
-            self._engine = "playwright"
-            self._is_running = True
-            logger.info("Playwright 启动成功")
-        return result
-
-    async def _start_camoufox(self, headless: bool) -> bool:
+    async def _start_camoufox(self, headless: bool,
+                              profile_name: str | None = None) -> bool:
         try:
             from shared.fingerprint_manager import generate_camoufox_opts  # pylint: disable=import-outside-toplevel
-            persistent = not headless
             opts = {
                 "headless": headless,
                 "humanize": True,
-                "geoip": True,
+                "geoip": False,  # GeoIP 数据库缺失，暂时关闭
                 "block_images": False,
                 "enable_cache": False,
                 "exclude_addons": [DefaultAddons.UBO],
                 **generate_camoufox_opts(),
             }
-            if persistent:
-                from browser_agent.core.session import cleanup_old_profiles, session_profile_dir  # pylint: disable=import-outside-toplevel
+            if profile_name:
+                from browser_agent.core.session import persistent_profile_dir  # pylint: disable=import-outside-toplevel
+                udir = persistent_profile_dir(profile_name)
+                opts["user_data_dir"] = str(udir)
+                opts["persistent_context"] = True
+            elif not headless:
+                from browser_agent.core.session import (  # pylint: disable=import-outside-toplevel
+                    cleanup_old_profiles,
+                    session_profile_dir,
+                )
                 udir = session_profile_dir()
                 opts["user_data_dir"] = str(udir)
                 opts["persistent_context"] = True
@@ -166,10 +146,28 @@ class BrowserController:
                 opts["persistent_context"] = False
             logger.info("正在启动 Camoufox (headless=%s)...", headless)
             self._browser = await AsyncCamoufox(**opts).__aenter__()  # pylint: disable=unnecessary-dunder-call
-            self._page = await self._browser.new_page()
+
+            # 先尝试获取已有的页面（避免持久化会话恢复导致多个标签页）
+            try:
+                pages = getattr(self._browser, 'pages', None)
+                if pages and isinstance(pages, list) and pages:
+                    self._page = pages[0]
+                    # 关闭多余的初始页面
+                    for page in pages:
+                        if page != self._page:
+                            await page.close()
+                else:
+                    self._page = await self._browser.new_page()
+            except Exception:  # pylint: disable=broad-exception-caught
+                # 如果获取 pages 失败，回退到创建新页面
+                self._page = await self._browser.new_page()
+
             await self._setup_page_listeners(self._page)
 
-            from browser_agent.core.session import has_saved_cookies, load_cookies_from_file  # pylint: disable=import-outside-toplevel
+            from browser_agent.core.session import (  # pylint: disable=import-outside-toplevel
+                has_saved_cookies,
+                load_cookies_from_file,
+            )
             if has_saved_cookies():
                 cookies = await load_cookies_from_file()
                 if cookies:
@@ -189,22 +187,7 @@ class BrowserController:
                 await self._safe_close_browser()
             raise
 
-    async def _start_playwright(self, headless: bool) -> bool:
-        try:
-            self._pw = await async_playwright().__aenter__()  # pylint: disable=unnecessary-dunder-call
 
-            cfg = get_config()
-            kwargs = build_browser_kwargs(cfg, headless)
-
-            self._browser = await self._pw.chromium.launch_persistent_context(**kwargs)
-            self._page = self._browser.pages[0] if self._browser.pages else await self._browser.new_page()
-            await self._setup_page_listeners(self._page)
-            return True
-        except (RuntimeError, OSError):
-            if getattr(self, "_pw", None) is not None:
-                await self._pw.__aexit__(None, None, None)
-                self._pw = None
-            raise
 
     @property
     def page(self):
@@ -704,16 +687,13 @@ class BrowserController:
 
     async def _setup_page_listeners(self, page):
         self._log_collector._setup_page_listeners(page)  # pylint: disable=protected-access
+        self._log_collector.page = page
 
     def _release_resources(self):
         """释放所有内部引用，确保不再持有浏览器资源。"""
         self._browser = None
         self._page = None
         self._is_running = False
-        self._engine = None
-        self._console_logs = []
-        self._network_logs = []
-        self._pending_dialog = None
 
     async def _safe_close_browser(self):
         try:
@@ -728,17 +708,8 @@ class BrowserController:
         if not self._is_running:
             return True
         try:
-            if self._engine == "camoufox":
-                async with asyncio.timeout(10):
-                    await self._browser.__aexit__(None, None, None)
-            else:
-                async with asyncio.timeout(10):
-                    ctx = getattr(self, "_browser", None)
-                    if ctx is not None:
-                        await ctx.close()
-                    pw = getattr(self, "_pw", None)
-                    if pw is not None:
-                        await pw.stop()
+            async with asyncio.timeout(10):
+                await self._browser.__aexit__(None, None, None)
             self._release_resources()
             logger.info("浏览器已关闭")
             return True

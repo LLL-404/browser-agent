@@ -109,14 +109,6 @@ def register_cli(subparsers):
     p.add_argument("file", type=str)
 
 
-def _get_engine():
-    """延迟导入引擎，避免循环依赖。"""
-    from shared.config import get_config  # noqa: PLC0415
-    from shared.engine import ScrapingEngine, load_profile  # noqa: PLC0415
-    profile = load_profile("zhipin", global_config=get_config())
-    return ScrapingEngine(profile)
-
-
 async def run_cli(args) -> int:
     from shared.logging_config import setup_logging  # noqa: PLC0415
     setup_logging()
@@ -150,10 +142,8 @@ async def run_cli(args) -> int:
     elif args.command == "browse":
         from browser_agent.core.browser import BrowserController
         ctrl = BrowserController()
-        await ctrl.launch(headless=False)
-        engine = _get_engine()
-        await ctrl.navigate(engine.url_builder.get_home_url())
-        await ctrl.wait_for_login()
+        await ctrl.start(headless=False)
+        await ctrl.navigate_to("https://www.zhipin.com")
     elif args.command == "import":
         from modes.zhipin.exporter import import_from_analysis
         import_from_analysis(args.file)

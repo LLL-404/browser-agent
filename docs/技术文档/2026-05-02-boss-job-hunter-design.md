@@ -2,7 +2,7 @@
 
 ## 概述
 
-一个基于 Python + Playwright 的半自动求职助手，面向 BOSS 直聘网页版。
+一个基于 Python + Camoufox（底层 Playwright）的半自动求职助手，面向 BOSS 直聘网页版。
 核心逻辑：自动搜索采集职位 → 借力 IDE 内置 AI 分析匹配度 → 生成推荐报告和招呼语 → 用户手动确认后去 BOSS 直聘发送沟通。
 
 目标用户画像：大专学历，追求"朝九晚五 + 五险一金 + 包食宿"的规律保障型工作，不限行业、不限城市。
@@ -18,7 +18,7 @@ boss-job-hunter/
   mcp_server.py            # MCP Server，暴露工具给 IDE 内置 AI
   core/
     __init__.py
-    scraper.py             # Playwright 浏览器操控
+    scraper.py             # Camoufox 浏览器操控
     storage.py             # SQLite 读写（批量操作）
     exporter.py            # 数据序列化（Markdown / JSON）
     anti_detect.py         # 拟人延迟 / 鼠标轨迹 / 节流控制
@@ -99,7 +99,7 @@ runtime:
 ### 3.0 交互模型
 
 ```
-你（在 IDE 中对话）           MCP Server               Playwright 浏览器
+你（在 IDE 中对话）           MCP Server               Camoufox 浏览器
         │                         │                         │
         │ "搜东莞佛山苏州"         │                         │
         │ ──────────────────────→ │                         │

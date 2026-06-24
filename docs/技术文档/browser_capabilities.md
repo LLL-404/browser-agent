@@ -21,10 +21,10 @@
 | 字段 | 内容 |
 |------|------|
 | 所属模块 | `agent/core/agent.py` → `BrowserAgent.open()` |
-| 用途 | 启动浏览器（Camoufox 优先，回退 Playwright）并导航到起始 URL |
+| 用途 | 启动 Camoufox 浏览器并导航到起始 URL |
 | 调用方式 | MCP `browser_open` / Python `agent.open(headless, url)` |
 | 关键参数 | `headless: bool` — 无头模式；`url: str` — 起始地址（默认 about:blank） |
-| 返回值 | `{"ok": bool, "url": str, "title": str, "engine": "camoufox"\|"playwright"}` |
+| 返回值 | `{"ok": bool, "url": str, "title": str, "engine": "camoufox"}` |
 | 依赖 | 无（首次调用） |
 
 ---
@@ -341,29 +341,18 @@
 
 ---
 
-### BROWSER_STEALTH_ARGS
+
+
+### Camoufox 引擎
 
 | 字段 | 内容 |
 |------|------|
-| 所属模块 | `agent/core/anti_detect.py` → `BROWSER_STEALTH_ARGS`（第 9~18 行） |
-| 用途 | Playwright 启动参数集合：禁用 `AutomationControlled` Blink 特性、禁用 WebGL 和 Canvas AA、固定窗口 1400×900、中文语言 |
-| 调用方式 | Playwright 路径自动应用；Camoufox 路径不使用此参数（引擎自身处理） |
-| 关键参数 | 7 条 Chrome 启动参数 |
-| 返回值 | 无（添加到 launch 配置） |
-| 依赖 | 仅 Playwright 回退路径生效 |
-
----
-
-### Camoufox 双引擎回退
-
-| 字段 | 内容 |
-|------|------|
-| 所属模块 | `agent/core/browser.py` → `BrowserController.start()`（第 92~115 行） |
-| 用途 | 优先启动 Camoufox（C++ 反检测引擎），失败时自动回退到 Playwright（JS 注入方案） |
+| 所属模块 | `agent/core/browser.py` → `BrowserController.start()` |
+| 用途 | 启动 Camoufox 浏览器（C++ 引擎级反检测），注入已保存 Cookie 跳过登录 |
 | 调用方式 | 自动（`start()` 方法内部逻辑） |
-| 关键参数 | `headless: bool`; `use_camoufox: bool`（默认 true）；Camoufox 特有参数：`humanize=True`, `geoip=True`, `block_images=False` |
-| 返回值 | Camoufox 路径：注入已保存 Cookie 并跳过登录；Playwright 路径：启动持久化上下文（`browser_profile/`） |
-| 依赖 | `camoufox` 库安装检测在模块加载时完成，`HAS_CAMOUFOX` 全局变量 |
+| 关键参数 | `headless: bool`；Camoufox 特有参数：`humanize=True`, `geoip=True`, `block_images=False` |
+| 返回值 | 启动成功返回 `True`，失败返回异常信息 |
+| 依赖 | `camoufox` 库 |
 
 ---
 
@@ -415,7 +404,7 @@
 | 调用方式 | Python `kwargs["viewport"] = random_viewport()` |
 | 关键参数 | 无 |
 | 返回值 | `{"width": int, "height": int}` |
-| 依赖 | 需在 `build_browser_kwargs` 中覆盖默认值 |
+| 依赖 | 需在浏览器启动参数中设置 viewport |
 
 ---
 

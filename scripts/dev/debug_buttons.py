@@ -1,5 +1,8 @@
 """Find send button on DeepSeek page."""
-import json, time
+import json
+import time
+from pathlib import Path
+
 from playwright.sync_api import sync_playwright
 
 with sync_playwright() as p:
@@ -8,7 +11,7 @@ with sync_playwright() as p:
         headless=True,
     )
     page = ctx.pages[0] if ctx.pages else ctx.new_page()
-    state = json.loads(Path("sessions/storage_state.json").read_text(encoding="utf-8"))
+    state = json.loads(Path("src/browser_agent/sessions/storage_state.json").read_text(encoding="utf-8"))
     cookies = state.get("cookies", [])
     if cookies:
         ctx.add_cookies(cookies)

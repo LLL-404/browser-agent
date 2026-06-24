@@ -1,5 +1,7 @@
 """Debug DeepSeek login page state."""
 import json
+from pathlib import Path
+
 from playwright.sync_api import sync_playwright
 
 with sync_playwright() as p:
@@ -10,7 +12,7 @@ with sync_playwright() as p:
     page = ctx.pages[0] if ctx.pages else ctx.new_page()
 
     # Load storage state
-    state_path = Path("sessions/storage_state.json")
+    state_path = Path("src/browser_agent/sessions/storage_state.json")
     if state_path.exists():
         state = json.loads(state_path.read_text(encoding="utf-8"))
         cookies = state.get("cookies", [])

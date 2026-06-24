@@ -43,10 +43,7 @@ BLOCKED_PATHS = [
 
 
 def _is_path_safe(cmd: str) -> bool:
-    for bp in BLOCKED_PATHS:
-        if bp.lower() in cmd.lower():
-            return False
-    return True
+    return all(bp.lower() not in cmd.lower() for bp in BLOCKED_PATHS)
 
 
 def _matches_whitelist(cmd: str) -> dict | None:
@@ -109,10 +106,7 @@ def execute(cmd: str, timeout: int = 30, show_terminal: bool | None = None) -> d
             rest = tokens[1] if len(tokens) > 1 else ""
             unix_to_win = {"ls": "dir", "cat": "type"}
             if first in unix_to_win:
-                if rest:
-                    translated = f"{unix_to_win[first]} {rest}"
-                else:
-                    translated = unix_to_win[first]
+                translated = f"{unix_to_win[first]} {rest}" if rest else unix_to_win[first]
                 # dir 命令将 / 视为开关，需要用 .\ 前缀
                 if first == "ls" and rest:
                     translated = f'dir "{rest}"'

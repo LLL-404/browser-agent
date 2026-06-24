@@ -43,9 +43,16 @@ def storage_state_path() -> Path:
 
 
 def session_profile_dir() -> Path:
-    """创建并返回会话临时目录。"""
+    """创建并返回会话临时目录（带时间戳，每次启动不同）。"""
     ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:19]
     d = COOKIE_DIR / "profiles" / f"session_{ts}"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def persistent_profile_dir(name: str = "zhipin") -> Path:
+    """返回固定路径的持久化 Profile 目录（复用浏览器状态）。"""
+    d = COOKIE_DIR / "profiles" / f"{name}_persistent"
     d.mkdir(parents=True, exist_ok=True)
     return d
 

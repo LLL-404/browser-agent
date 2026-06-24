@@ -1,8 +1,7 @@
 """岗位卡片解析测试 — 使用 Mock HTML 测试 _parse_list_card 解析逻辑。"""
+import tempfile
 import pytest
-from playwright.async_api import async_playwright
 
-from modes.zhipin.selectors import JOB_CARD
 
 MOCK_HTML = """
 <html><body>
@@ -44,9 +43,22 @@ MOCK_HTML = """
 
 @pytest.mark.asyncio
 async def test_parse_mock_cards():
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
+    from camoufox import AsyncCamoufox
+    from camoufox.addons import DefaultAddons
+
+    from modes.zhipin.selectors import JOB_CARD
+
+    tmpdir = tempfile.mkdtemp()
+    context = await AsyncCamoufox(
+        headless=True, humanize=False,
+        geoip=False, block_images=True,
+        enable_cache=False,
+        exclude_addons=[DefaultAddons.UBO],
+        persistent_context=True,
+        user_data_dir=tmpdir,
+    ).__aenter__()
+    try:
+        page = context.pages[0] if context.pages else await context.new_page()
         await page.set_content(MOCK_HTML, wait_until="domcontentloaded")
 
         cards = await page.query_selector_all(JOB_CARD)
@@ -75,5 +87,5 @@ async def test_parse_mock_cards():
         assert results[2]["company"] == "测试公司C"
         assert results[2]["salary"] == "15K-25K"
         assert len(results[2]["tags"]) == 4
-
-        await browser.close()
+    finally:
+        await context.__aexit__(None, None, None)

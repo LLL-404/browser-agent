@@ -165,10 +165,7 @@ class KnowledgeBase:
     def _load_single_file(self, path: Path) -> None:
         try:
             ext = path.suffix.lower()
-            if ext == ".pdf":
-                content = _read_pdf_file(path)
-            else:
-                content = _read_text_file(path)
+            content = _read_pdf_file(path) if ext == ".pdf" else _read_text_file(path)
             if content.strip():
                 rel = str(path)
                 self.sources.append(KnowledgeSource(rel, content, "file"))

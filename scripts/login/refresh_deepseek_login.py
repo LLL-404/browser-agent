@@ -40,11 +40,11 @@ def main():
                 break
             time.sleep(3)
         state = ctx.storage_state()
-        state_path = Path("sessions/storage_state.json")
+        state_path = Path("src/browser_agent/sessions/storage_state.json")
         with open(state_path, "w", encoding="utf-8") as f:
             json.dump(state, f, ensure_ascii=False, indent=2)
         cookies = state.get("cookies", [])
-        print(f"已保存 {len(cookies)} 条 Cookie → sessions/storage_state.json")
+        print(f"已保存 {len(cookies)} 条 Cookie → src/browser_agent/sessions/storage_state.json")
         ctx.close()
 
 if __name__ == "__main__":

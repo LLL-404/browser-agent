@@ -14,7 +14,7 @@ def ctrl():
     page = AsyncMock()
     page.url = "https://example.com"
     page.title = AsyncMock(return_value="Test Page")
-    page.inner_text = AsyncMock(return_value="Hello World")
+    page.inner_text = AsyncMock(return_value="Hello World. " * 20)
     page.content = AsyncMock(return_value="<html><body>Hello</body></html>")
     page.goto = AsyncMock(return_value=None)
     page.click = AsyncMock(return_value=None)
@@ -24,6 +24,7 @@ def ctrl():
     page.query_selector_all = AsyncMock(return_value=[MagicMock(), MagicMock()])
     page.wait_for_selector = AsyncMock(return_value=MagicMock())
     page.screenshot = AsyncMock(return_value=b"png-data")
+
     page.evaluate = AsyncMock(return_value="result")
     page.hover = AsyncMock(return_value=None)
     page.select_option = AsyncMock(return_value=None)
@@ -42,9 +43,7 @@ def ctrl():
     c._page = page
     c._browser = browser
     c._is_running = True
-    c._engine = "playwright"
-    c._pw = MagicMock()
-    c._pw.stop = AsyncMock(return_value=None)
+    c._engine = "camoufox"
     return c
 
 
@@ -400,15 +399,7 @@ class TestGetDomStructure:
 
 
 class TestStop:
-    async def test_playwright_path(self, ctrl):
-        browser = ctrl._browser
-        pw = ctrl._pw
-        assert await ctrl.stop() is True
-        browser.close.assert_awaited_once()
-        pw.stop.assert_awaited_once()
-
-    async def test_camoufox_path(self, ctrl):
-        ctrl._engine = "camoufox"
+    async def test_stop(self, ctrl):
         ctrl._browser = AsyncMock()
         assert await ctrl.stop() is True
 
@@ -418,7 +409,6 @@ class TestStop:
 
     async def test_timeout(self, ctrl):
         ctrl._browser.close.side_effect = RuntimeError("timeout")
-        ctrl._pw.stop.side_effect = RuntimeError("timeout")
         assert await ctrl.stop() is False
 
     async def test_release_resources_on_stop(self, ctrl):
@@ -426,7 +416,6 @@ class TestStop:
         assert ctrl._is_running is False
         assert ctrl._browser is None
         assert ctrl._page is None
-        assert ctrl._engine is None
 
 
 class TestAccessibilitySnapshot:
